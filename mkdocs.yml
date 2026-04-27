@@ -78,5 +78,6 @@ nav:
   - Lab Operations:
     - Overview: lab-operations/index.md
     - Standard Procedures: lab-operations/sops.md
+    - Docs Workflow: lab-operations/docs-workflow.md
     - Agent Guide: lab-operations/agent-guide.md
     - The Agile Team: lab-operations/agile-team.md
