@@ -35,6 +35,14 @@
 
 ## History Log
 
+### 2026-04-27 — OpenWebUI Upgraded from 0.6.12 to 0.9.2
+
+- OpenWebUI upgraded to **0.9.2** on sheepsoc.
+- **6 database schema migrations applied automatically** at startup. All migrations were additive (new columns / tables only) — no data was altered or removed.
+- Pre-upgrade backup of `webui.db` created at `~/infrastructure/open-webui/webui.db.bak-20260427`. Retain this until the new version has been in stable operation for at least one week.
+- All existing RAG Knowledge bases, Elasticsearch vector index (`open_webui_collections_d768`), and the ELSER sparse-embedding pipeline are unaffected by the upgrade.
+- If the `openwebui` conda env is ever rebuilt after this upgrade, confirm the `elasticsearch==8.19.3` pip package is still present (`pip show elasticsearch`). The package is not bundled and must be reinstalled manually.
+
 ### 2026-04-23 — ELSER Sparse Embeddings Added to OpenWebUI RAG Index
 
 - The `open_webui_collections_d768` index is now **dual-use**: it carries both dense kNN vectors (`vector` field, 768-dim, `nomic-embed-text`) used by OpenWebUI, and a new sparse vector field (`text_elser`, type `sparse_vector`) populated by ELSER.

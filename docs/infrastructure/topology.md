@@ -110,7 +110,7 @@ The dual-socket CPU means two NUMA nodes. For most of what this box does (Ollama
    │  chat message + uploaded doc or Knowledge collection
    ▼
 ┌────────────────────────────┐
-│ OpenWebUI 0.6.12           │  :8080 · conda env: openwebui (Py 3.11)
+│ OpenWebUI 0.9.2            │  :8080 · conda env: openwebui (Py 3.11)
 └──────┬─────────────────────┘
        │  embed query / doc chunks
        ▼

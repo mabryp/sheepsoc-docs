@@ -15,7 +15,7 @@ Every service running on sheepsoc, its systemd unit name, port, and current oper
 | **Logstash** | `logstash.service` | 5514/udp | Syslog ingestion from ASUS router + OPNsense | up |
 | **Filebeat** | `filebeat.service` | — | Ships local log files to Elasticsearch | up |
 | **Metricbeat** | `metricbeat.service` | — | Ships host metrics (CPU, RAM, disk, net) to Elasticsearch | up |
-| **Open WebUI** | `open-webui.service` | 8080 | **Primary AI interface.** OpenWebUI 0.6.12 · browser-based chat and RAG frontend · connects to Ollama for LLM inference · RAG via Elasticsearch (`nomic-embed-text`, 768d, HNSW/cosine) · runs in `openwebui` conda env (Python 3.11) | up |
+| **Open WebUI** | `open-webui.service` | 8080 | **Primary AI interface.** OpenWebUI 0.9.2 · browser-based chat and RAG frontend · connects to Ollama for LLM inference · RAG via Elasticsearch (`nomic-embed-text`, 768d, HNSW/cosine) · runs in `openwebui` conda env (Python 3.11) | up |
 | **Jupyter Notebook** | `jupyter.service` | 8888 | Notebook server, notebook dir `~/repositories/sheepsoc` | up |
 | **Ollama** | `ollama.service` | 11434 | Local LLM inference (uses RTX 5060 Ti) | up |
 | **SSH** | `ssh.service` | 22 | Remote shell · key auth only | up |

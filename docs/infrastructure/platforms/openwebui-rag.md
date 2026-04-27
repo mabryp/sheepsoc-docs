@@ -18,7 +18,7 @@ Sheepsoc's RAG system answers questions from your own document collections. A qu
 
 | Component | Technology | Role |
 |---|---|---|
-| AI interface | OpenWebUI 0.6.12 · port 8080 | Primary user-facing frontend for chat and RAG |
+| AI interface | OpenWebUI 0.9.2 · port 8080 | Primary user-facing frontend for chat and RAG |
 | LLM inference | Ollama · port 11434 · RTX 5060 Ti | Runs language models and the embedding model |
 | Embedding model | `nomic-embed-text:latest` · 768d | Converts text to vectors for semantic search |
 | Vector store | Elasticsearch 8.19.14 · port 9200 | Stores chunk vectors and retrieves relevant context |
