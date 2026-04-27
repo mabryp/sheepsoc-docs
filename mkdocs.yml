@@ -1,0 +1,77 @@
+site_name: sheepsoc
+site_description: Sheepsoc operations hub — architecture, SOPs, configuration, and operational guides
+site_url: http://192.168.50.100/
+docs_dir: docs
+
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+    - scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.code.annotate
+    - toc.follow
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Architecture & Overview:
+    - The Agile Team: docs/agile-team.md
+    - Topology: docs/topology.md
+    - Services: docs/services.md
+  - AI & RAG:
+    - RAG & Knowledge: docs/sheepsoc-rag.md
+    - ELSER & OpenWebUI: docs/elser-openwebui.md
+    - Knowledge Bases: docs/knowledge-bases.md
+    - Bulk Ingest: docs/bulk-ingest.md
+    - Matrix Bot: docs/matrix-bot.md
+    - GitHub & RAG Sync: docs/github-rag-sync.md
+  - SOPs & Operations:
+    - SOPs: docs/sops.md
+    - Shutdown & Startup Runbook: docs/runbook-shutdown-startup.md
+    - Nightly Backups: docs/nightly-backups.md
+    - Config Backup & Encryption: docs/config-backup.md
+    - Known Issues: docs/known-issues.md
+    - Future Improvements: docs/future-improvements.md
+  - Environment & Tools:
+    - Conda Guide: docs/conda.md
+    - Agent Guide: docs/agent-guide.md
+  - Research:
+    - Research Report (RAG-001): docs/research/research_report.md
+    - Precision Audit (RAG-001): docs/research/precision_audit.md
+    - Experimental Protocol v1.1: docs/research/protocol_v1_1.md
