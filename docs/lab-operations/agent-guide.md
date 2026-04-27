@@ -6,7 +6,7 @@
 
 | Key | Value |
 |---|---|
-| Updated | 2026-04-24 |
+| Updated | 2026-04-27 |
 
 !!! note "Primary Rule"
     **Nothing happens without Phillip knowing.** All changes to this site should be reviewed by Phillip before deployment. Agents may prepare changes but must not push to production without explicit approval unless operating under a standing permission grant.
@@ -34,10 +34,9 @@ The site is a set of static HTML files served from the sheepsoc host. The MkDocs
     └── lab-operations/
         ├── agent-guide.md            # this file
         ├── agile-team.md             # the agile team and scrum process
+        ├── docs-workflow.md          # CI pipeline, runner, and publish workflow
         └── sops.md                   # standard operating procedures
 ```
-
-The original HTML site remains at `~/repositories/sheepsoc/landing/` and is the authoritative source until the MkDocs migration is fully deployed.
 
 ## Navigation Structure
 
@@ -45,7 +44,7 @@ The MkDocs nav is defined in `mkdocs.yml`. When adding a new page:
 
 1. Create the Markdown file in the appropriate subdirectory under `docs/`.
 2. Add the page to the `nav:` section of `mkdocs.yml`.
-3. Run `mkdocs build` to verify the page builds without errors.
+3. Commit and push to `main` — the self-hosted Actions runner builds the site automatically.
 
 ## Adding a New Documentation Page
 
@@ -53,7 +52,9 @@ The MkDocs nav is defined in `mkdocs.yml`. When adding a new page:
 2. Begin with an H1 heading, a one-sentence purpose statement, and a metadata table.
 3. Use the existing pages as templates for structure and tone — `infrastructure/services.md` and `infrastructure/platforms/openwebui-rag.md` cover the widest range of component types.
 4. Add the page to `mkdocs.yml` under the `nav:` key.
-5. Run `mkdocs build` to confirm there are no broken links or syntax errors.
+5. Commit and push to `main`. Verify the build succeeded with `gh run list --repo mabryp/sheepsoc-docs --limit 3`.
+
+See [Docs Workflow](docs-workflow.md) for the full CI pipeline description.
 
 ## Content Component Reference
 
@@ -147,13 +148,13 @@ The homepage at `docs/index.md` contains a service quick reference table. To add
 
 | Task | How to Do It |
 |---|---|
-| Add a new doc page | Create `.md` in the appropriate `docs/` subdirectory, add to `mkdocs.yml` nav, run `mkdocs build` |
-| Update an existing page | Read the file, make the edit, verify the section reads correctly, notify scrum master |
+| Add a new doc page | Create `.md` in the appropriate `docs/` subdirectory, add to `mkdocs.yml` nav, commit and push to `main` |
+| Update an existing page | Read the file, make the edit, verify the section reads correctly, commit and push, notify scrum master |
 | Add a service to the homepage | Edit `docs/index.md` — update the service quick reference table |
 | Change a known issue | Edit `docs/infrastructure/known-issues.md` — add to history or update watchlist |
 | Add a future improvement | Edit `docs/infrastructure/future-improvements.md` — follow the existing entry structure |
-| Rebuild the site | `cd ~/infrastructure/mkdocs-site && conda activate sheepsoc && mkdocs build` |
-| Preview the site locally | `cd ~/infrastructure/mkdocs-site && conda activate sheepsoc && mkdocs serve --dev-addr=0.0.0.0:8001` |
+| Check build status | `gh run list --repo mabryp/sheepsoc-docs --limit 5` |
+| Check runner health | `systemctl status actions.runner.mabryp-sheepsoc-docs.sheepsoc.service` |
 
 ## Design Conventions
 
@@ -166,17 +167,8 @@ The MkDocs Material theme handles visual styling. Key configuration in `mkdocs.y
 
 Do not add custom CSS overrides unless absolutely necessary. Let Material handle the visual presentation.
 
-## Service Restart After Docs Site Rebuild
+## Live Site and the CI Pipeline
 
-The sheepsoc documentation site is served by `sheepsoc-landing.service`, a Python `http.server` instance on port 80 pointing at the built `site/` directory. After running `mkdocs build`:
+The sheepsoc documentation site is served by `sheepsoc-landing.service`, a Python `http.server` instance on port 80 pointing at `~/infrastructure/mkdocs-site/site/`. The site directory is written by the self-hosted Actions runner on every successful push to `main`. The HTTP server does not need to be restarted after a build — it reads updated files on each request.
 
-```bash
-# Verify the build output exists
-pmabry@sheepsoc:~$ ls ~/infrastructure/mkdocs-site/site/
-
-# Restart the web server to serve the updated build
-pmabry@sheepsoc:~$ sudo systemctl restart sheepsoc-landing.service
-
-# Verify the service is running
-pmabry@sheepsoc:~$ systemctl status sheepsoc-landing.service
-```
+Do not run `mkdocs build` or `mkdocs serve` manually on sheepsoc. The runner owns the build. See [Docs Workflow](docs-workflow.md) for the full pipeline description and runner status commands.
