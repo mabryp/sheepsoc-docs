@@ -20,25 +20,21 @@ The site is a set of static HTML files served from the sheepsoc host. The MkDocs
 ├── mkdocs.yml                        # MkDocs configuration and nav structure
 └── docs/
     ├── index.md                      # Homepage — links dashboard and service quick reference
-    └── docs/
+    ├── infrastructure/
+    │   ├── topology.md               # network and hardware topology
+    │   ├── services.md               # all running services reference
+    │   ├── known-issues.md           # active issues, watchlist, history
+    │   ├── future-improvements.md    # planned improvements
+    │   ├── platforms/                # OpenWebUI, Elasticsearch, KBs, Matrix, Conda
+    │   ├── runbooks/                 # startup, ingest, and backup runbooks
+    │   └── backup-and-recovery/      # config backup, encryption, and GitHub sync
+    ├── research/
+    │   ├── agenda.md                 # strategic research agenda
+    │   └── rag-001/                  # RAG-001 protocol and audits
+    └── lab-operations/
         ├── agent-guide.md            # this file
-        ├── sheepsoc-rag.md           # RAG stack and knowledge bases
         ├── agile-team.md             # the agile team and scrum process
-        ├── topology.md               # network and hardware topology
-        ├── services.md               # all running services reference
-        ├── elser-openwebui.md        # ELSER and OpenWebUI dual-index
-        ├── sops.md                   # standard operating procedures
-        ├── bulk-ingest.md            # bulk document ingestion
-        ├── knowledge-bases.md        # OpenWebUI knowledge base catalog
-        ├── conda.md                  # conda environments guide
-        ├── matrix-bot.md             # Matrix bot documentation
-        ├── github-rag-sync.md        # GitHub sync and RAG automation
-        ├── config-backup.md          # config backup and age/SOPS encryption
-        ├── nightly-backups.md        # nightly backup cron documentation
-        ├── runbook-shutdown-startup.md # shutdown and startup runbook
-        ├── known-issues.md           # active issues, watchlist, history
-        ├── future-improvements.md    # planned improvements
-        └── agent-guide.md            # this file
+        └── sops.md                   # standard operating procedures
 ```
 
 The original HTML site remains at `~/repositories/sheepsoc/landing/` and is the authoritative source until the MkDocs migration is fully deployed.
@@ -53,9 +49,9 @@ The MkDocs nav is defined in `mkdocs.yml`. When adding a new page:
 
 ## Adding a New Documentation Page
 
-1. Create a new `.md` file in `docs/docs/` (or the appropriate subdirectory).
+1. Create a new `.md` file in the appropriate subdirectory under `docs/`.
 2. Begin with an H1 heading, a one-sentence purpose statement, and a metadata table.
-3. Use the existing pages as templates for structure and tone — `services.md` and `sheepsoc-rag.md` cover the widest range of component types.
+3. Use the existing pages as templates for structure and tone — `infrastructure/services.md` and `infrastructure/platforms/openwebui-rag.md` cover the widest range of component types.
 4. Add the page to `mkdocs.yml` under the `nav:` key.
 5. Run `mkdocs build` to confirm there are no broken links or syntax errors.
 
@@ -151,11 +147,11 @@ The homepage at `docs/index.md` contains a service quick reference table. To add
 
 | Task | How to Do It |
 |---|---|
-| Add a new doc page | Create `.md` in `docs/docs/`, add to `mkdocs.yml` nav, run `mkdocs build` |
+| Add a new doc page | Create `.md` in the appropriate `docs/` subdirectory, add to `mkdocs.yml` nav, run `mkdocs build` |
 | Update an existing page | Read the file, make the edit, verify the section reads correctly, notify scrum master |
 | Add a service to the homepage | Edit `docs/index.md` — update the service quick reference table |
-| Change a known issue | Edit `docs/docs/known-issues.md` — add to history or update watchlist |
-| Add a future improvement | Edit `docs/docs/future-improvements.md` — follow the existing entry structure |
+| Change a known issue | Edit `docs/infrastructure/known-issues.md` — add to history or update watchlist |
+| Add a future improvement | Edit `docs/infrastructure/future-improvements.md` — follow the existing entry structure |
 | Rebuild the site | `cd ~/infrastructure/mkdocs-site && conda activate sheepsoc && mkdocs build` |
 | Preview the site locally | `cd ~/infrastructure/mkdocs-site && conda activate sheepsoc && mkdocs serve --dev-addr=0.0.0.0:8001` |
 

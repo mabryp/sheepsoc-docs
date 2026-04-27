@@ -93,7 +93,7 @@ There are two distinct ingest paths depending on which system you are feeding.
 Use this path to populate an OpenWebUI Knowledge base from a directory of pre-extracted `.txt` files in `/mnt/ssd_working/Data/Ingest_Ready/`. The script at `~/repositories/sheepsoc/ingest_to_openwebui.py` writes to both Elasticsearch and SQLite simultaneously and is idempotent — already-indexed files are skipped on re-run.
 
 !!! note "Dedicated Page"
-    Full step-by-step SOP, dataset reference table, architecture notes, and troubleshooting guide live on the dedicated page: **[Bulk Ingest](bulk-ingest.md)**
+    Full step-by-step SOP, dataset reference table, architecture notes, and troubleshooting guide live on the dedicated page: **[OpenWebUI KB Bulk Ingest](../infrastructure/runbooks/openwebui-kb-bulk-ingest.md)**
 
 ### 4b. Legacy CLI RAG Index (Deprecated — Do Not Use)
 
@@ -149,7 +149,7 @@ pmabry@sheepsoc:~$ ssh -i ~/.ssh/asus_router -p 1024 admin@192.168.50.1
 
 ## 7. Conda Environment Management
 
-Short reference — for the "why" of conda see the [Conda Guide](conda.md).
+Short reference — for the "why" of conda see the [Conda Guide](../infrastructure/platforms/conda.md).
 
 ```bash
 # List every environment you have
@@ -171,7 +171,7 @@ pmabry@sheepsoc:~$ source ~/infrastructure/miniconda3/etc/profile.d/conda.sh
 ## 8. What NOT to Do
 
 !!! danger "Do Not"
-    **Do not start MicroK8s.** The previous install's OpenEBS NDM leaked to 247 GB, starved the machine, and drove load average to 100+. The cluster is stopped until a proper rebuild plan exists. See [Known Issues](known-issues.md).
+    **Do not start MicroK8s.** The previous install's OpenEBS NDM leaked to 247 GB, starved the machine, and drove load average to 100+. The cluster is stopped until a proper rebuild plan exists. See [Known Issues](../infrastructure/known-issues.md).
 
 !!! danger "Do Not"
     **Do not uncomment the NFS entry in `/etc/fstab`.** `san01.mabry.lan` is offline — uncommenting it will hang boot. Only restore after the NFS server is back and reachable.

@@ -9,7 +9,7 @@
 | Added | 2026-04-24 |
 
 !!! note "Important Distinction"
-    The "nightly backup" on sheepsoc is **not a traditional filesystem backup**. It is a **RAG knowledge base sync** — it strips, processes, and uploads documentation and configuration files into OpenWebUI's Knowledge Base collections so that the AI assistant always has access to up-to-date system documentation. For offsite config backup via GitHub and SOPS encryption, see [GitHub & RAG Sync](github-rag-sync.md).
+    The "nightly backup" on sheepsoc is **not a traditional filesystem backup**. It is a **RAG knowledge base sync** — it strips, processes, and uploads documentation and configuration files into OpenWebUI's Knowledge Base collections so that the AI assistant always has access to up-to-date system documentation. For offsite config backup via GitHub and SOPS encryption, see [GitHub & RAG Sync](../backup-and-recovery/github-rag-sync.md).
 
 ## 1. Overview
 
@@ -175,7 +175,7 @@ The nightly cron job is not the only way `rag_sync.py` is invoked. The same scri
 | Manual run | On demand — see [Running Manually](#7-running-manually) above. |
 
 !!! note "Hook Not Tracked by Git"
-    The post-commit hook lives in `.git/hooks/`, which git does not track. If the `sheepsoc-backup` repository is ever re-cloned, the hook must be recreated manually. See [GitHub & RAG Sync — Post-Commit Hook](github-rag-sync.md#6-post-commit-hook) for the hook content.
+    The post-commit hook lives in `.git/hooks/`, which git does not track. If the `sheepsoc-backup` repository is ever re-cloned, the hook must be recreated manually. See [GitHub & RAG Sync — Post-Commit Hook](../backup-and-recovery/github-rag-sync.md#6-post-commit-hook) for the hook content.
 
 ## 9. Troubleshooting
 

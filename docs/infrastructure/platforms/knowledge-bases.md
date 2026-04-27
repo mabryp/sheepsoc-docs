@@ -11,7 +11,7 @@
 The sheepsoc RAG system organises its document collections into thematic Knowledge Bases (KBs) inside OpenWebUI. Each KB groups related source material so that chat queries can be scoped to a relevant topic domain. Content is chunked, embedded via `nomic-embed-text` (768 dimensions), and stored in Elasticsearch, where OpenWebUI retrieves it using HNSW cosine similarity search.
 
 !!! note "Status — 2026-04-24"
-    All 15 Knowledge Bases have been created in OpenWebUI. As of this date, only the two system KBs (**Sheepsoc System Docs** and **Sheepsoc System Config**) are actively populated — these are maintained by the nightly `rag_sync` cron job. Bulk ingestion of the remaining 13 thematic KBs from `/Data/Ingest_Ready/` is pending. See [Bulk Ingest](bulk-ingest.md) for the procedure.
+    All 15 Knowledge Bases have been created in OpenWebUI. As of this date, only the two system KBs (**Sheepsoc System Docs** and **Sheepsoc System Config**) are actively populated — these are maintained by the nightly `rag_sync` cron job. Bulk ingestion of the remaining 13 thematic KBs from `/Data/Ingest_Ready/` is pending. See [OpenWebUI KB Bulk Ingest](../runbooks/openwebui-kb-bulk-ingest.md) for the procedure.
 
 ## Knowledge Base Catalog
 
@@ -67,7 +67,7 @@ Two KBs are reserved for system documentation and are managed exclusively by the
 !!! warning "Do Not Manually Ingest"
     These two KBs are the only ones on the system with automated content management. Adding files through the OpenWebUI Workspace UI will not cause an immediate error, but the nightly sync may replace or duplicate content unpredictably. Treat them as read-only from the UI perspective.
 
-For details on how the nightly sync works, what it backs up, and how to verify it ran successfully, see [Nightly Backups](nightly-backups.md) and [GitHub & RAG Sync](github-rag-sync.md).
+For details on how the nightly sync works, what it backs up, and how to verify it ran successfully, see [Nightly Backups](../runbooks/nightly-backups.md) and [GitHub & RAG Sync](../backup-and-recovery/github-rag-sync.md).
 
 ## Using a KB in Chat
 
@@ -83,13 +83,13 @@ Any Knowledge Base can be selected as the context source for an OpenWebUI chat s
     You can reference multiple KBs in the same message by typing `#` more than once and selecting different collections. For example, combining **Soil & Land Management** and **Texas Agriculture & Regional Resources** gives regionally specific soil query context.
 
 !!! note "Model Selection"
-    Select the active language model from the dropdown at the top of any chat. `gemma3:12b` gives the best answer quality for most RAG queries. `dolphin3:latest` is faster for quick lookups. See the [models table on the RAG & Knowledge page](sheepsoc-rag.md#ollama-models-available) for the full list.
+    Select the active language model from the dropdown at the top of any chat. `gemma3:12b` gives the best answer quality for most RAG queries. `dolphin3:latest` is faster for quick lookups. See the [models table on the RAG & Knowledge page](openwebui-rag.md#ollama-models-available) for the full list.
 
 ## Ingesting Content into a KB
 
 Source files for the 13 thematic KBs live in pre-extracted text collections under `/mnt/ssd_working/Data/Ingest_Ready/`. Each subdirectory listed in the catalog table above corresponds to a directory at that path containing `.txt` chunk files ready for ingestion.
 
-### Using the Bulk Ingest Script
+### Using the OpenWebUI KB Bulk Ingest Script
 
 The `ingest_to_openwebui.py` script handles bulk ingestion. It writes chunk vectors to Elasticsearch and registers file records in OpenWebUI's SQLite database (`webui.db`) simultaneously, so ingested files appear natively in the OpenWebUI Knowledge UI after a successful run.
 
@@ -102,7 +102,7 @@ pmabry@sheepsoc:~$ conda activate openwebui
 !!! note "Idempotent"
     The ingest tool is idempotent. Files already registered in SQLite are skipped on re-runs, so it is safe to re-run after a partial failure or to add new source directories to an existing KB.
 
-For the full step-by-step procedure, architecture notes, complete dataset reference (all 63+ source collections with file counts), and troubleshooting, see the dedicated **[Bulk Ingest](bulk-ingest.md)** page.
+For the full step-by-step procedure, architecture notes, complete dataset reference (all 63+ source collections with file counts), and troubleshooting, see the dedicated **[OpenWebUI KB Bulk Ingest](../runbooks/openwebui-kb-bulk-ingest.md)** page.
 
 ### Verifying KB Population in Elasticsearch
 

@@ -45,8 +45,8 @@ OpenWebUI supports two document upload modes: inline (per-conversation) and pers
 4. Upload files into the Knowledge base. OpenWebUI will chunk each file, embed the chunks via `nomic-embed-text`, and store the vectors permanently in Elasticsearch.
 5. The collection is now queryable in any chat via `#<KnowledgeBaseName>`.
 
-!!! note "Bulk Ingest"
-    For ingesting large pre-extracted text collections (e.g., the 63+ collections in `/mnt/ssd_working/Data/Ingest_Ready/`), use the bulk ingest script rather than the OpenWebUI UI. The dedicated script writes directly to both Elasticsearch and SQLite and is far more efficient for large datasets. See **[Bulk Ingest](bulk-ingest.md)**.
+!!! note "OpenWebUI KB Bulk Ingest"
+    For ingesting large pre-extracted text collections (e.g., the 63+ collections in `/mnt/ssd_working/Data/Ingest_Ready/`), use the bulk ingest script rather than the OpenWebUI UI. The dedicated script writes directly to both Elasticsearch and SQLite and is far more efficient for large datasets. See **[OpenWebUI KB Bulk Ingest](../runbooks/openwebui-kb-bulk-ingest.md)**.
 
 ## Querying with RAG Context
 
@@ -115,14 +115,14 @@ Environment="ELASTICSEARCH_INDEX_PREFIX=open_webui_collections"
 !!! warning "Rebuild Note"
     If the `openwebui` conda env is ever rebuilt, reinstall the Elasticsearch client manually: `pip install elasticsearch==8.19.3` (inside the activated env). It is not bundled with OpenWebUI and is easy to miss. Without it, `open-webui.service` fails to start with an `ImportError`.
 
-## Bulk Ingest
+## OpenWebUI KB Bulk Ingest
 
 The script at `~/repositories/sheepsoc/ingest_to_openwebui.py` bulk-ingests pre-extracted `.txt` chunk files into an OpenWebUI Knowledge base. It writes to both Elasticsearch (chunk vectors) and SQLite (`webui.db`, file and knowledge-base link records) simultaneously. After a successful run, ingested files appear natively in the OpenWebUI Knowledge UI and are queryable via `#<KnowledgeBaseName>` in chat.
 
 The script is idempotent — files already indexed in SQLite are skipped on re-runs. Source data lives in `/mnt/ssd_working/Data/Ingest_Ready/` (63+ pre-extracted text collections covering gardening, homesteading, medicine, survival, and more).
 
 !!! note "Dedicated Page"
-    Full step-by-step SOPs, architecture notes, dataset reference table (all 63+ collections with file counts), and troubleshooting guide live on the dedicated page: **[Bulk Ingest](bulk-ingest.md)**
+    Full step-by-step SOPs, architecture notes, dataset reference table (all 63+ collections with file counts), and troubleshooting guide live on the dedicated page: **[OpenWebUI KB Bulk Ingest](../runbooks/openwebui-kb-bulk-ingest.md)**
 
 ## ELSER Sparse Embeddings — Dual-Use Index
 
@@ -271,4 +271,4 @@ The legacy CLI RAG prototype was a Python command-line application that answered
 ```
 
 !!! note
-    `ingest_to_openwebui.py` lives in the same directory as the legacy CLI app but is an entirely separate, actively maintained script for bulk-ingesting data into OpenWebUI Knowledge bases. Do not confuse it with the legacy CLI prototype. See [Bulk Ingest](bulk-ingest.md).
+    `ingest_to_openwebui.py` lives in the same directory as the legacy CLI app but is an entirely separate, actively maintained script for bulk-ingesting data into OpenWebUI Knowledge bases. Do not confuse it with the legacy CLI prototype. See [OpenWebUI KB Bulk Ingest](../runbooks/openwebui-kb-bulk-ingest.md).

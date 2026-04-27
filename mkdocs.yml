@@ -50,28 +50,33 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Architecture & Overview:
-    - The Agile Team: docs/agile-team.md
-    - Topology: docs/topology.md
-    - Services: docs/services.md
-  - AI & RAG:
-    - RAG & Knowledge: docs/sheepsoc-rag.md
-    - ELSER & OpenWebUI: docs/elser-openwebui.md
-    - Knowledge Bases: docs/knowledge-bases.md
-    - Bulk Ingest: docs/bulk-ingest.md
-    - Matrix Bot: docs/matrix-bot.md
-    - GitHub & RAG Sync: docs/github-rag-sync.md
-  - SOPs & Operations:
-    - SOPs: docs/sops.md
-    - Shutdown & Startup Runbook: docs/runbook-shutdown-startup.md
-    - Nightly Backups: docs/nightly-backups.md
-    - Config Backup & Encryption: docs/config-backup.md
-    - Known Issues: docs/known-issues.md
-    - Future Improvements: docs/future-improvements.md
-  - Environment & Tools:
-    - Conda Guide: docs/conda.md
-    - Agent Guide: docs/agent-guide.md
+  - Infrastructure:
+    - Overview: infrastructure/index.md
+    - Topology: infrastructure/topology.md
+    - Services: infrastructure/services.md
+    - Platforms:
+      - OpenWebUI & RAG: infrastructure/platforms/openwebui-rag.md
+      - Elasticsearch & ELSER: infrastructure/platforms/elasticsearch-elser.md
+      - Knowledge Bases: infrastructure/platforms/knowledge-bases.md
+      - Matrix Bot: infrastructure/platforms/matrix-bot.md
+      - Conda: infrastructure/platforms/conda.md
+    - Runbooks:
+      - Shutdown & Startup: infrastructure/runbooks/shutdown-startup.md
+      - OpenWebUI KB Bulk Ingest: infrastructure/runbooks/openwebui-kb-bulk-ingest.md
+      - Nightly Backups: infrastructure/runbooks/nightly-backups.md
+    - Backup & Recovery:
+      - Config Backup & Encryption: infrastructure/backup-and-recovery/config-backup.md
+      - GitHub & RAG Sync: infrastructure/backup-and-recovery/github-rag-sync.md
+    - Known Issues: infrastructure/known-issues.md
+    - Future Improvements: infrastructure/future-improvements.md
   - Research:
-    - Research Report (RAG-001): docs/research/research_report.md
-    - Precision Audit (RAG-001): docs/research/precision_audit.md
-    - Experimental Protocol v1.1: docs/research/protocol_v1_1.md
+    - Overview: research/index.md
+    - Research Agenda: research/agenda.md
+    - RAG-001:
+      - Protocol: research/rag-001/protocol.md
+      - Precision Audit: research/rag-001/precision-audit.md
+  - Lab Operations:
+    - Overview: lab-operations/index.md
+    - Standard Procedures: lab-operations/sops.md
+    - Agent Guide: lab-operations/agent-guide.md
+    - The Agile Team: lab-operations/agile-team.md

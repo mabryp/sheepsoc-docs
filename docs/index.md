@@ -37,31 +37,31 @@ All web interfaces are LAN-only — restricted to 192.168.50.0/24 via UFW.
 
 ## Documentation Sections
 
-### Architecture & Overview
+### Infrastructure
 
-- [The Agile Team](docs/agile-team.md) — how sheepsoc is managed using Claude Code and specialized AI agents
-- [Topology](docs/topology.md) — network map, host layout, storage, and data-flow diagrams
-- [Services](docs/services.md) — every running service, its port, health checks, and configuration references
+- [Topology](infrastructure/topology.md) — network map, host layout, storage, and data-flow diagrams
+- [Services](infrastructure/services.md) — every running service, its port, health checks, and configuration references
+- [OpenWebUI & RAG](infrastructure/platforms/openwebui-rag.md) — how the RAG stack works and how to use OpenWebUI
+- [Elasticsearch & ELSER](infrastructure/platforms/elasticsearch-elser.md) — ELSER sparse-vector search setup and pipeline details
+- [Knowledge Bases](infrastructure/platforms/knowledge-bases.md) — catalog of all OpenWebUI RAG Knowledge Base collections
+- [Matrix Bot](infrastructure/platforms/matrix-bot.md) — E2EE Matrix bot bridging Element rooms to OpenWebUI RAG
+- [Conda Guide](infrastructure/platforms/conda.md) — Python environment management from first principles
+- [Shutdown & Startup Runbook](infrastructure/runbooks/shutdown-startup.md) — safe ordered shutdown and post-boot verification
+- [OpenWebUI KB Bulk Ingest](infrastructure/runbooks/openwebui-kb-bulk-ingest.md) — SOP for ingesting text collections into OpenWebUI Knowledge Bases
+- [Nightly Backups](infrastructure/runbooks/nightly-backups.md) — scheduled RAG knowledge base sync via cron
+- [Config Backup & Encryption](infrastructure/backup-and-recovery/config-backup.md) — age and SOPS encryption guide
+- [GitHub & RAG Sync](infrastructure/backup-and-recovery/github-rag-sync.md) — offsite backup, age/SOPS encryption, and auto RAG sync
+- [Known Issues](infrastructure/known-issues.md) — active landmines, watchlist, and history log
+- [Future Improvements](infrastructure/future-improvements.md) — planned enhancements not yet implemented
 
-### AI & RAG
+### Research
 
-- [RAG & Knowledge](docs/sheepsoc-rag.md) — how the RAG stack works and how to use OpenWebUI
-- [ELSER & OpenWebUI](docs/elser-openwebui.md) — ELSER sparse-vector search setup and pipeline details
-- [Knowledge Bases](docs/knowledge-bases.md) — catalog of all OpenWebUI RAG Knowledge Base collections
-- [Bulk Ingest](docs/bulk-ingest.md) — SOP for ingesting text collections via Elasticsearch
-- [Matrix Bot](docs/matrix-bot.md) — E2EE Matrix bot bridging Element rooms to OpenWebUI RAG
-- [GitHub & RAG Sync](docs/github-rag-sync.md) — offsite backup, age/SOPS encryption, and auto RAG sync
+- [Research Agenda](research/agenda.md) — strategic research questions for the SheepSOC AI Laboratory
+- [Experimental Protocol v1.1](research/rag-001/protocol.md) — retrieval method comparative study design
+- [Precision Audit](research/rag-001/precision-audit.md) — citations, metrics, hallucination, and corpus quality audit
 
-### SOPs & Operations
+### Lab Operations
 
-- [SOPs](docs/sops.md) — standard operating procedures for queries, health, ingest, and more
-- [Shutdown & Startup Runbook](docs/runbook-shutdown-startup.md) — safe ordered shutdown and post-boot verification
-- [Nightly Backups](docs/nightly-backups.md) — scheduled RAG knowledge base sync via cron
-- [Config Backup & Encryption](docs/config-backup.md) — age and SOPS encryption guide
-- [Known Issues](docs/known-issues.md) — active landmines, watchlist, and history log
-- [Future Improvements](docs/future-improvements.md) — planned enhancements not yet implemented
-
-### Environment & Tools
-
-- [Conda Guide](docs/conda.md) — Python environment management from first principles
-- [Agent Guide](docs/agent-guide.md) — how AI agents update and maintain this documentation site
+- [SOPs](lab-operations/sops.md) — standard operating procedures for queries, health, ingest, and more
+- [Agent Guide](lab-operations/agent-guide.md) — how AI agents update and maintain this documentation site
+- [The Agile Team](lab-operations/agile-team.md) — how sheepsoc is managed using Claude Code and specialized AI agents

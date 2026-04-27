@@ -101,7 +101,7 @@ pmabry@sheepsoc:~$ journalctl -u elasticsearch.service -f
 pmabry@sheepsoc:~$ journalctl -u logstash.service --since "10 min ago"
 ```
 
-For ES / syslog / beats data, Kibana is usually easier — see [SOPs: Reading Logs in Kibana](sops.md#5-read-logs-in-kibana).
+For ES / syslog / beats data, Kibana is usually easier — see [SOPs: Reading Logs in Kibana](../lab-operations/sops.md#5-read-logs-in-kibana).
 
 ## Web Endpoints
 
@@ -373,4 +373,4 @@ The Matrix bot (`@sheepsoc-bot:matrix.pmabry.com`) is a separate systemd service
 | Default model | `gemma3:12b` |
 | Conda env | `matrixbot` |
 
-For full configuration details, room mapping procedures, file locations, and troubleshooting, see the dedicated [Matrix Bot](matrix-bot.md) page.
+For full configuration details, room mapping procedures, file locations, and troubleshooting, see the dedicated [Matrix Bot](platforms/matrix-bot.md) page.

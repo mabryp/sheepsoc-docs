@@ -1,4 +1,4 @@
-# Bulk Ingest Script
+# OpenWebUI KB Bulk Ingest
 
 **Purpose:** Step-by-step SOP for bulk-ingesting pre-extracted text collections into OpenWebUI Knowledge bases.
 
