@@ -1,0 +1,2138 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Sheepsoc operations hub — architecture, SOPs, configuration, and operational guides">
+      
+      
+      
+        <link rel="canonical" href="http://192.168.50.100/docs/github-rag-sync/">
+      
+      
+        <link rel="prev" href="../matrix-bot/">
+      
+      
+        <link rel="next" href="../sops/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>GitHub & RAG Sync - sheepsoc</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#github-rag-sync" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="sheepsoc" class="md-header__button md-logo" aria-label="sheepsoc" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            sheepsoc
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GitHub & RAG Sync
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="sheepsoc" class="md-nav__button md-logo" aria-label="sheepsoc" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    sheepsoc
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture & Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agile-team/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Agile Team
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Topology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AI & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheepsoc-rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RAG & Knowledge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../elser-openwebui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ELSER & OpenWebUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge Bases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bulk-ingest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bulk Ingest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../matrix-bot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Matrix Bot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub & RAG Sync
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub & RAG Sync
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-system-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. System Components
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-github-repository-and-ssh-auth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. GitHub Repository and SSH Auth
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. GitHub Repository and SSH Auth">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ssh-deploy-key-isolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SSH Deploy Key Isolation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-secret-encryption-with-age-and-sops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Secret Encryption with age and SOPS
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Secret Encryption with age and SOPS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#age-keypair" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        age Keypair
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sops-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SOPS Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-encryption-and-decryption-work-in-practice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Encryption and Decryption Work in Practice
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-rag-sync-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. RAG Sync Script
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. RAG Sync Script">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-it-syncs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What It Syncs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#idempotency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Idempotency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#encrypted-file-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Encrypted File Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-the-script-manually" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the Script Manually
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-post-commit-hook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Post-Commit Hook
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-credentials-file-env" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Credentials File (.env)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-key-files-and-paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Key Files and Paths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-offline-backup-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Offline Backup Requirements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-workflow-making-a-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Workflow: Making a Change
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOPs & Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SOPs & Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOPs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runbook-shutdown-startup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shutdown & Startup Runbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nightly-backups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nightly Backups
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config-backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Config Backup & Encryption
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../future-improvements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Future Improvements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environment & Tools
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Environment & Tools
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conda/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conda Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/research_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research Report (RAG-001)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/precision_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Precision Audit (RAG-001)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/protocol_v1_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experimental Protocol v1.1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-system-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. System Components
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-github-repository-and-ssh-auth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. GitHub Repository and SSH Auth
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. GitHub Repository and SSH Auth">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ssh-deploy-key-isolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SSH Deploy Key Isolation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-secret-encryption-with-age-and-sops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Secret Encryption with age and SOPS
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Secret Encryption with age and SOPS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#age-keypair" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        age Keypair
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sops-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SOPS Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-encryption-and-decryption-work-in-practice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Encryption and Decryption Work in Practice
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-rag-sync-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. RAG Sync Script
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. RAG Sync Script">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-it-syncs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What It Syncs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#idempotency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Idempotency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#encrypted-file-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Encrypted File Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-the-script-manually" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the Script Manually
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-post-commit-hook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Post-Commit Hook
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-credentials-file-env" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Credentials File (.env)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-key-files-and-paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Key Files and Paths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-offline-backup-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Offline Backup Requirements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-workflow-making-a-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Workflow: Making a Change
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="github-rag-sync">GitHub &amp; RAG Sync<a class="headerlink" href="#github-rag-sync" title="Permanent link">&para;</a></h1>
+<p><strong>Purpose:</strong> Offsite backup via private GitHub repository, secret encryption with age/SOPS, and automatic RAG sync after every commit.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Repo</td>
+<td><code>mabryp/SheepSOC</code> (private) — local at <code>~/repositories/sheepsoc-backup/</code></td>
+</tr>
+<tr>
+<td>Added</td>
+<td>2026-04-22</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>Active — post-commit hook fires on every commit</td>
+</tr>
+<tr>
+<td>Depends on</td>
+<td>OpenWebUI (port 8080) · conda env <code>sheepsoc</code> · age/SOPS</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-overview">1. Overview<a class="headerlink" href="#1-overview" title="Permanent link">&para;</a></h2>
+<p>The GitHub &amp; RAG Sync system serves two complementary purposes from a single git repository:</p>
+<ol>
+<li><strong>Offsite backup.</strong> A private GitHub repository (<code>mabryp/SheepSOC</code>) stores sheepsoc configuration files and documentation. Secret files (e.g. service credentials, bot configuration) are encrypted with <strong>age/SOPS</strong> before being committed, so the repository can be stored on a third-party host without exposing plaintext secrets.</li>
+<li><strong>Automatic RAG sync.</strong> A post-commit hook fires on every <code>git commit</code> in the local backup repository. It runs a sync script that strips and uploads documentation HTML and configuration files into OpenWebUI's Knowledge Base collections. This keeps the AI assistant's knowledge current without any manual upload step.</li>
+</ol>
+<p>The two Knowledge Base collections kept in sync are:</p>
+<table>
+<thead>
+<tr>
+<th>Collection</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sheepsoc-docs</code></td>
+<td>Documentation pages from <code>~/repositories/sheepsoc/landing/</code> — stripped to plain text</td>
+</tr>
+<tr>
+<td><code>sheepsoc-configs</code></td>
+<td>YAML / JSON / Markdown / conf files from <code>~/infrastructure/config-mgmt/</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-system-components">2. System Components<a class="headerlink" href="#2-system-components" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What It Does</th>
+<th>Location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GitHub repository</td>
+<td>Private remote store for configs and docs; SSH deploy key restricts access</td>
+<td><code>github.com/mabryp/SheepSOC</code> (remote) · <code>~/repositories/sheepsoc-backup/</code> (local clone)</td>
+</tr>
+<tr>
+<td>age / SOPS encryption</td>
+<td>Encrypts secret files before they are staged for commit; decrypts them on the local machine for use by services</td>
+<td>age key: <code>~/.config/sops/age/keys.txt</code> · Rules: <code>~/repositories/sheepsoc-backup/.sops.yaml</code></td>
+</tr>
+<tr>
+<td>RAG sync script</td>
+<td>Uploads docs and configs to OpenWebUI Knowledge Base collections via the OpenWebUI HTTP API</td>
+<td><code>~/repositories/sheepsoc-backup/scripts/rag_sync.py</code></td>
+</tr>
+<tr>
+<td>Post-commit hook</td>
+<td>Triggers the RAG sync script automatically after every <code>git commit</code></td>
+<td><code>~/repositories/sheepsoc-backup/.git/hooks/post-commit</code></td>
+</tr>
+<tr>
+<td>Credentials file</td>
+<td>Holds OpenWebUI credentials and collection UUIDs; never committed to git</td>
+<td><code>~/repositories/sheepsoc-backup/.env</code> (mode 600, gitignored)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-github-repository-and-ssh-auth">3. GitHub Repository and SSH Auth<a class="headerlink" href="#3-github-repository-and-ssh-auth" title="Permanent link">&para;</a></h2>
+<p>The local clone at <code>~/repositories/sheepsoc-backup/</code> tracks the <code>master</code> branch of the private <code>mabryp/SheepSOC</code> repository on GitHub.</p>
+<h3 id="ssh-deploy-key-isolation">SSH Deploy Key Isolation<a class="headerlink" href="#ssh-deploy-key-isolation" title="Permanent link">&para;</a></h3>
+<p>Rather than using the default GitHub SSH key, a dedicated deploy key is used. This isolates access: even if another SSH key were compromised, it would not grant push access to this repository.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Private key</td>
+<td><code>~/.ssh/sheepsoc_backup_deploy</code></td>
+</tr>
+<tr>
+<td>SSH alias</td>
+<td><code>github-sheepsoc-backup</code> (defined in <code>~/.ssh/config</code>)</td>
+</tr>
+<tr>
+<td>Remote URL</td>
+<td><code>git@github-sheepsoc-backup:mabryp/SheepSOC.git</code></td>
+</tr>
+</tbody>
+</table>
+<p>To verify the SSH connection is working:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>ssh<span class="w"> </span>-T<span class="w"> </span>git@github-sheepsoc-backup
+</code></pre></div>
+<p>A successful response: <code>Hi mabryp/SheepSOC! You've successfully authenticated...</code></p>
+<p>Normal push/pull uses the alias transparently:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Push commits to GitHub (deploy key is used automatically via the alias)</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pmabry@sheepsoc:~/repositories/sheepsoc-backup$<span class="w"> </span>git<span class="w"> </span>push
+</code></pre></div>
+<h2 id="4-secret-encryption-with-age-and-sops">4. Secret Encryption with age and SOPS<a class="headerlink" href="#4-secret-encryption-with-age-and-sops" title="Permanent link">&para;</a></h2>
+<p>SOPS (Secrets OPerationS) is a tool that encrypts individual values inside YAML, JSON, and other structured files, leaving the file structure readable while making the values unreadable without the decryption key. age is the underlying cryptographic tool that SOPS uses to perform the encryption.</p>
+<p>When you commit <code>config.yaml</code> to git with SOPS encryption, the file on disk in the git repository looks like a normal YAML file, but every sensitive value has been replaced with a ciphertext blob. The plaintext original remains on your local machine and is not committed.</p>
+<h3 id="age-keypair">age Keypair<a class="headerlink" href="#age-keypair" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Key file</td>
+<td><code>~/.config/sops/age/keys.txt</code> — contains both the public and private age key</td>
+</tr>
+<tr>
+<td>Public key</td>
+<td><code>age104ncqpkeeynaly32sgs4k2m3y6p6gaemgntj9nyk7vz28z6wmplsyclnsl</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition danger">
+<p class="admonition-title">Critical</p>
+<p><code>~/.config/sops/age/keys.txt</code> is the only key that can decrypt the SOPS-encrypted files in the repository. If this file is lost, every encrypted file in the git history becomes permanently unrecoverable. Back this file up offline immediately — see <a href="#9-offline-backup-requirements">Offline Backup Requirements</a>.</p>
+</div>
+<h3 id="sops-rules">SOPS Rules<a class="headerlink" href="#sops-rules" title="Permanent link">&para;</a></h3>
+<p>The file <code>~/repositories/sheepsoc-backup/.sops.yaml</code> defines which files SOPS encrypts and with which key. Two patterns are encrypted automatically:</p>
+<ul>
+<li><code>**/config.yaml</code> — service configuration files (e.g. matrix-bot)</li>
+<li><code>**/secrets/**</code> — any file inside a directory named <code>secrets/</code></li>
+</ul>
+<h3 id="how-encryption-and-decryption-work-in-practice">How Encryption and Decryption Work in Practice<a class="headerlink" href="#how-encryption-and-decryption-work-in-practice" title="Permanent link">&para;</a></h3>
+<p>Live service config files on disk (e.g. <code>~/repositories/matrix-bot/config.yaml</code>) are always kept as <strong>plaintext</strong> — services read them directly. When a copy is added to the backup repository, SOPS encrypts it before the file is staged for commit.</p>
+<p>To encrypt a file before staging it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Encrypt a config file in-place. The plaintext is replaced with ciphertext on disk.</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># Do this inside the sheepsoc-backup directory, not in the live service directory.</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>pmabry@sheepsoc:~$<span class="w"> </span>sops<span class="w"> </span>--encrypt<span class="w"> </span>--in-place<span class="w"> </span>~/repositories/sheepsoc-backup/matrix-bot/config.yaml
+</code></pre></div>
+<p>After encryption, the file contains <code>ENC[AES256_GCM,...]</code> markers in place of plaintext values and a <code>sops:</code> metadata block at the bottom.</p>
+<p>To decrypt a file (e.g. to read or edit a backup copy):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Decrypt a file in-place. This restores plaintext values.</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>sops<span class="w"> </span>--decrypt<span class="w"> </span>--in-place<span class="w"> </span>~/repositories/sheepsoc-backup/matrix-bot/config.yaml
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Never run <code>sops --decrypt --in-place</code> and then <code>git add</code> the result. That would commit your plaintext secrets to the repository. Always encrypt before staging, and never stage <code>config.yaml</code> or files in <code>secrets/</code> without verifying that SOPS has encrypted them first.</p>
+</div>
+<p>To verify a file is encrypted before committing:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;ENC\[&quot;</span><span class="w"> </span>myfile.yaml<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;encrypted&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;PLAINTEXT - do not commit&quot;</span>
+</code></pre></div>
+<h2 id="5-rag-sync-script">5. RAG Sync Script<a class="headerlink" href="#5-rag-sync-script" title="Permanent link">&para;</a></h2>
+<p><code>~/repositories/sheepsoc-backup/scripts/rag_sync.py</code> is a Python script that reads documentation and configuration files from local directories on the machine and uploads them to OpenWebUI Knowledge Base collections via OpenWebUI's HTTP API. It runs in the <code>sheepsoc</code> conda environment and uses only Python standard library modules plus <code>requests</code>.</p>
+<h3 id="what-it-syncs">What It Syncs<a class="headerlink" href="#what-it-syncs" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Collection</th>
+<th>UUID</th>
+<th>Source Directory</th>
+<th>File Types</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sheepsoc-docs</code></td>
+<td><code>2a2ea492-c23c-4053-a9cb-08f171d8c83e</code></td>
+<td><code>~/repositories/sheepsoc/landing/</code></td>
+<td><code>.html</code> — stripped to plain text before upload</td>
+</tr>
+<tr>
+<td><code>sheepsoc-configs</code></td>
+<td><code>c54b22c3-299b-4db1-930b-668289a16496</code></td>
+<td><code>~/infrastructure/config-mgmt/</code></td>
+<td><code>.yaml</code>, <code>.json</code>, <code>.md</code>, <code>.conf</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h3>
+<p>The script authenticates to OpenWebUI at <code>http://localhost:8080</code> as <code>sheepsoc@pmabry.com</code>. This account must retain admin role in OpenWebUI. Credentials are loaded from <code>~/repositories/sheepsoc-backup/.env</code> at runtime and are never hardcoded in the script or committed to git.</p>
+<h3 id="idempotency">Idempotency<a class="headerlink" href="#idempotency" title="Permanent link">&para;</a></h3>
+<p>The script is safe to run multiple times against the same collection. Before uploading a new version of a file, it searches the collection for any existing file with the same name and removes it first. This prevents duplicate entries from accumulating in the Knowledge Base across multiple sync runs.</p>
+<h3 id="encrypted-file-detection">Encrypted File Detection<a class="headerlink" href="#encrypted-file-detection" title="Permanent link">&para;</a></h3>
+<p>Files are skipped automatically if they contain either of the following markers, which indicate SOPS encryption:</p>
+<ul>
+<li><code>ENC[</code> — the start of a SOPS-encrypted value</li>
+<li><code>sops:</code> — the SOPS metadata block</li>
+</ul>
+<p>This ensures that ciphertext is never uploaded to the Knowledge Base, where it would be meaningless as RAG context.</p>
+<h3 id="running-the-script-manually">Running the Script Manually<a class="headerlink" href="#running-the-script-manually" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Activate the sheepsoc conda environment first</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="c1"># (conda activate switches your shell into an isolated Python environment)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>pmabry@sheepsoc:~$<span class="w"> </span>conda<span class="w"> </span>activate<span class="w"> </span>sheepsoc
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># Run the sync</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="o">(</span>sheepsoc<span class="o">)</span><span class="w"> </span>pmabry@sheepsoc:~$<span class="w"> </span>python<span class="w"> </span>~/repositories/sheepsoc-backup/scripts/rag_sync.py
+</code></pre></div>
+<h2 id="6-post-commit-hook">6. Post-Commit Hook<a class="headerlink" href="#6-post-commit-hook" title="Permanent link">&para;</a></h2>
+<p>Git post-commit hooks are shell scripts that run automatically after a successful <code>git commit</code> completes. Unlike pre-commit hooks, post-commit hooks cannot abort a commit — they run after the commit is already recorded.</p>
+<p>The hook at <code>~/repositories/sheepsoc-backup/.git/hooks/post-commit</code> does three things in sequence:</p>
+<ol>
+<li>Sources <code>~/repositories/sheepsoc-backup/.env</code> to load OpenWebUI credentials into the environment.</li>
+<li>Activates the <code>sheepsoc</code> conda environment so that the script's Python dependencies are available.</li>
+<li>Runs <code>rag_sync.py</code>. The hook always exits with code 0 regardless of whether the sync succeeds, so a sync failure does not appear to fail the commit from git's perspective.</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Hook Not Tracked by Git</p>
+<p>The post-commit hook lives in <code>.git/hooks/</code>, which is not tracked by git. If the repository is re-cloned from GitHub, the hook must be recreated manually. The hook script itself is not included in the repository's committed content.</p>
+</div>
+<h2 id="7-credentials-file-env">7. Credentials File (.env)<a class="headerlink" href="#7-credentials-file-env" title="Permanent link">&para;</a></h2>
+<p><code>~/repositories/sheepsoc-backup/.env</code> stores the runtime credentials used by the RAG sync script. This file is listed in <code>.gitignore</code> and must never be committed to the repository.</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Value / Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OPENWEBUI_EMAIL</code></td>
+<td>OpenWebUI account email — default: <code>sheepsoc@pmabry.com</code></td>
+</tr>
+<tr>
+<td><code>OPENWEBUI_PASSWORD</code></td>
+<td>Password for the OpenWebUI admin account</td>
+</tr>
+<tr>
+<td><code>OPENWEBUI_DOCS_COLLECTION_ID</code></td>
+<td>UUID of the <code>sheepsoc-docs</code> Knowledge Base collection: <code>2a2ea492-c23c-4053-a9cb-08f171d8c83e</code></td>
+</tr>
+<tr>
+<td><code>OPENWEBUI_CONFIGS_COLLECTION_ID</code></td>
+<td>UUID of the <code>sheepsoc-configs</code> Knowledge Base collection: <code>c54b22c3-299b-4db1-930b-668289a16496</code></td>
+</tr>
+</tbody>
+</table>
+<p>File permissions must be set to 600 (owner read/write only):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>~/repositories/sheepsoc-backup/.env
+</code></pre></div>
+<h2 id="8-key-files-and-paths">8. Key Files and Paths<a class="headerlink" href="#8-key-files-and-paths" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>~/repositories/sheepsoc-backup/</code></td>
+<td>Git repository root — local clone of <code>mabryp/SheepSOC</code></td>
+</tr>
+<tr>
+<td><code>~/repositories/sheepsoc-backup/.sops.yaml</code></td>
+<td>SOPS encryption rules — defines which file patterns are encrypted and with which age public key</td>
+</tr>
+<tr>
+<td><code>~/repositories/sheepsoc-backup/.gitignore</code></td>
+<td>Excludes sensitive files from git: <code>.env</code>, <code>session.json</code>, <code>crypto_store/</code>, <code>*.key</code>, <code>*.pem</code></td>
+</tr>
+<tr>
+<td><code>~/repositories/sheepsoc-backup/scripts/rag_sync.py</code></td>
+<td>RAG sync script — uploads docs and configs to OpenWebUI Knowledge Base</td>
+</tr>
+<tr>
+<td><code>~/repositories/sheepsoc-backup/.git/hooks/post-commit</code></td>
+<td>Git post-commit hook — triggers <code>rag_sync.py</code> on every commit; not tracked by git</td>
+</tr>
+<tr>
+<td><code>~/repositories/sheepsoc-backup/.env</code></td>
+<td>OpenWebUI credentials and collection UUIDs — mode 600, gitignored</td>
+</tr>
+<tr>
+<td><code>~/.ssh/sheepsoc_backup_deploy</code></td>
+<td>SSH deploy key private half — grants push access to the GitHub repository. <strong>Back up offline.</strong></td>
+</tr>
+<tr>
+<td><code>~/.config/sops/age/keys.txt</code></td>
+<td>age private key — required to decrypt any SOPS-encrypted file. <strong>Back up offline.</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="9-offline-backup-requirements">9. Offline Backup Requirements<a class="headerlink" href="#9-offline-backup-requirements" title="Permanent link">&para;</a></h2>
+<p>Two files on this machine are irreplaceable. If either is lost without a backup, the consequences cannot be undone by any software means. Both must be stored in a secure location that is physically separate from this machine (e.g. a password manager with secure notes, or an encrypted USB drive stored offsite).</p>
+<div class="admonition danger">
+<p class="admonition-title">Back Up Now</p>
+<p><strong><code>~/.ssh/sheepsoc_backup_deploy</code></strong> — the SSH deploy key private half. Losing this file does not destroy data, but it does require generating a new keypair and re-registering the public key as a deploy key on the GitHub repository before pushes will work again.</p>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">Back Up Now</p>
+<p><strong><code>~/.config/sops/age/keys.txt</code></strong> — the age private key used by SOPS. Losing this file makes every SOPS-encrypted file in the git repository permanently unrecoverable. There is no recovery path. Every secret stored in the repository would need to be regenerated and re-committed.</p>
+</div>
+<h2 id="10-workflow-making-a-change">10. Workflow: Making a Change<a class="headerlink" href="#10-workflow-making-a-change" title="Permanent link">&para;</a></h2>
+<p>This is the normal sequence for adding or updating a file in the backup repository. Follow this order every time to avoid accidentally committing plaintext secrets.</p>
+<ol>
+<li>
+<p><strong>Edit or copy the file into the backup repository.</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>cp<span class="w"> </span>~/repositories/matrix-bot/config.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span>~/repositories/sheepsoc-backup/matrix-bot/config.yaml
+</code></pre></div>
+</li>
+<li>
+<p><strong>Encrypt secret files before staging.</strong> If the file matches any pattern in <code>.sops.yaml</code> (e.g. <code>config.yaml</code> or anything in a <code>secrets/</code> directory), encrypt it first. Verify it contains <code>ENC[</code> markers before proceeding.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>sops<span class="w"> </span>--encrypt<span class="w"> </span>--in-place<span class="w"> </span>~/repositories/sheepsoc-backup/matrix-bot/config.yaml
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;ENC\[&quot;</span><span class="w"> </span>~/repositories/sheepsoc-backup/matrix-bot/config.yaml<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>ENC<span class="o">[</span>AES256_GCM,data:...,type:str<span class="o">]</span>
+</code></pre></div>
+</li>
+<li>
+<p><strong>Stage and commit as normal.</strong> The post-commit hook fires immediately after the commit completes. You will see output from <code>rag_sync.py</code> in the terminal as it uploads files to OpenWebUI.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pmabry@sheepsoc:~/repositories/sheepsoc-backup$<span class="w"> </span>git<span class="w"> </span>add<span class="w"> </span>matrix-bot/config.yaml
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>pmabry@sheepsoc:~/repositories/sheepsoc-backup$<span class="w"> </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;update matrix-bot config backup&quot;</span>
+</code></pre></div>
+</li>
+<li>
+<p><strong>Push to GitHub.</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>pmabry@sheepsoc:~/repositories/sheepsoc-backup$<span class="w"> </span>git<span class="w"> </span>push
+</code></pre></div>
+</li>
+</ol>
+<h2 id="11-troubleshooting">11. Troubleshooting<a class="headerlink" href="#11-troubleshooting" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Check / Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Push fails with <code>Permission denied (publickey)</code></td>
+<td>Test the SSH deploy key: <code>ssh -T git@github-sheepsoc-backup</code>. If that fails, verify <code>~/.ssh/sheepsoc_backup_deploy</code> exists and the SSH config alias <code>github-sheepsoc-backup</code> is defined in <code>~/.ssh/config</code>. Also confirm the public key is registered as a deploy key on the repository at <code>github.com/mabryp/SheepSOC/settings/keys</code>.</td>
+</tr>
+<tr>
+<td>RAG sync fails with authentication error (HTTP 401)</td>
+<td>Check that <code>OPENWEBUI_PASSWORD</code> in <code>~/repositories/sheepsoc-backup/.env</code> matches the current OpenWebUI admin password. Also verify that <code>sheepsoc@pmabry.com</code> still has admin role in OpenWebUI (Admin Panel → Users).</td>
+</tr>
+<tr>
+<td>SOPS decrypt fails with <code>no matching keys</code></td>
+<td>Verify <code>~/.config/sops/age/keys.txt</code> exists and contains the private key corresponding to public key <code>age104ncqpkeeynaly32sgs4k2m3y6p6gaemgntj9nyk7vz28z6wmplsyclnsl</code>. If the file is missing, restore it from your offline backup.</td>
+</tr>
+<tr>
+<td>Files not appearing in OpenWebUI Knowledge Base after sync</td>
+<td>Check OpenWebUI is running: <code>systemctl status open-webui.service</code>. Run the sync script manually: <code>conda activate sheepsoc &amp;&amp; python ~/repositories/sheepsoc-backup/scripts/rag_sync.py</code>. Also confirm the collection UUIDs in <code>.env</code> match the collections visible in OpenWebUI under Workspace → Knowledge.</td>
+</tr>
+<tr>
+<td>Encrypted file committed as plaintext (accidental)</td>
+<td>Remove the file from git history immediately using <code>git filter-repo</code> or contact GitHub support to scrub the commit. Treat any exposed credentials as compromised and rotate them. Going forward: always grep for <code>ENC[</code> before staging files that match <code>.sops.yaml</code> patterns.</td>
+</tr>
+<tr>
+<td>Post-commit hook not firing</td>
+<td>Verify the hook file exists and is executable: <code>ls -l ~/repositories/sheepsoc-backup/.git/hooks/post-commit</code>. The file must have execute permission (<code>chmod +x</code>). Git hooks are not tracked by git — if the repository was re-cloned, the hook must be recreated manually.</td>
+</tr>
+<tr>
+<td>Sync script errors with <code>ModuleNotFoundError: requests</code></td>
+<td>The script must run inside the <code>sheepsoc</code> conda environment. Run: <code>conda activate sheepsoc &amp;&amp; pip install requests</code>.</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "search.suggest", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

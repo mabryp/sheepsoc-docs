@@ -1,0 +1,2526 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Sheepsoc operations hub — architecture, SOPs, configuration, and operational guides">
+      
+      
+      
+        <link rel="canonical" href="http://192.168.50.100/docs/bulk-ingest/">
+      
+      
+        <link rel="prev" href="../knowledge-bases/">
+      
+      
+        <link rel="next" href="../matrix-bot/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Bulk Ingest - sheepsoc</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#bulk-ingest-script" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="sheepsoc" class="md-header__button md-logo" aria-label="sheepsoc" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            sheepsoc
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Bulk Ingest
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="sheepsoc" class="md-nav__button md-logo" aria-label="sheepsoc" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    sheepsoc
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture & Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agile-team/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Agile Team
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Topology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AI & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheepsoc-rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RAG & Knowledge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../elser-openwebui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ELSER & OpenWebUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge Bases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bulk Ingest
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bulk Ingest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-es-sqlite-split-brain-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The ES + SQLite Split-Brain Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-the-script-does-step-by-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the Script Does, Step by Step
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#conda-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conda Environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#services-that-must-be-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Services That Must Be Running
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#source-data-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source Data Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sop-ingesting-a-new-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SOP: Ingesting a New Dataset
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SOP: Ingesting a New Dataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-verify-services-are-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1 — Verify Services Are Running
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-identify-the-source-directory-and-confirm-files-are-present" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2 — Identify the Source Directory and Confirm Files Are Present
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-create-or-identify-the-target-knowledge-base-in-openwebui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3 — Create or Identify the Target Knowledge Base in OpenWebUI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-look-up-the-knowledge-base-uuid-from-webuidb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4 — Look Up the Knowledge Base UUID from webui.db
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-edit-the-script-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5 — Edit the Script Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-activate-the-conda-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6 — Activate the Conda Environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-7-run-the-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7 — Run the Script
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-8-verify-in-elasticsearch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 8 — Verify in Elasticsearch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-9-verify-in-openwebui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 9 — Verify in OpenWebUI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-10-test-retrieval-in-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 10 — Test Retrieval in Chat
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sop-adding-more-collections-to-an-existing-kb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SOP: Adding More Collections to an Existing KB
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataset-reference-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dataset Reference Table
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../matrix-bot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Matrix Bot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github-rag-sync/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub & RAG Sync
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOPs & Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SOPs & Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOPs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runbook-shutdown-startup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shutdown & Startup Runbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nightly-backups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nightly Backups
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config-backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Config Backup & Encryption
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../future-improvements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Future Improvements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environment & Tools
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Environment & Tools
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conda/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conda Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/research_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research Report (RAG-001)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/precision_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Precision Audit (RAG-001)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/protocol_v1_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experimental Protocol v1.1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-es-sqlite-split-brain-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The ES + SQLite Split-Brain Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-the-script-does-step-by-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the Script Does, Step by Step
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#conda-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conda Environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#services-that-must-be-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Services That Must Be Running
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#source-data-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source Data Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sop-ingesting-a-new-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SOP: Ingesting a New Dataset
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SOP: Ingesting a New Dataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-verify-services-are-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1 — Verify Services Are Running
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-identify-the-source-directory-and-confirm-files-are-present" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2 — Identify the Source Directory and Confirm Files Are Present
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-create-or-identify-the-target-knowledge-base-in-openwebui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3 — Create or Identify the Target Knowledge Base in OpenWebUI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-look-up-the-knowledge-base-uuid-from-webuidb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4 — Look Up the Knowledge Base UUID from webui.db
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-edit-the-script-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5 — Edit the Script Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-activate-the-conda-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6 — Activate the Conda Environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-7-run-the-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7 — Run the Script
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-8-verify-in-elasticsearch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 8 — Verify in Elasticsearch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-9-verify-in-openwebui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 9 — Verify in OpenWebUI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-10-test-retrieval-in-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 10 — Test Retrieval in Chat
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sop-adding-more-collections-to-an-existing-kb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SOP: Adding More Collections to an Existing KB
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataset-reference-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dataset Reference Table
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="bulk-ingest-script">Bulk Ingest Script<a class="headerlink" href="#bulk-ingest-script" title="Permanent link">&para;</a></h1>
+<p><strong>Purpose:</strong> Step-by-step SOP for bulk-ingesting pre-extracted text collections into OpenWebUI Knowledge bases.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Script</td>
+<td><code>~/repositories/sheepsoc/ingest_to_openwebui.py</code></td>
+</tr>
+<tr>
+<td>Conda env</td>
+<td><code>openwebui</code> · Python 3.11</td>
+</tr>
+<tr>
+<td>Targets</td>
+<td>Elasticsearch <code>open_webui_collections_d768</code> · SQLite <code>webui.db</code></td>
+</tr>
+<tr>
+<td>Source data</td>
+<td><code>/mnt/ssd_working/Data/Ingest_Ready/</code> — pre-extracted <code>.txt</code> chunk files</td>
+</tr>
+</tbody>
+</table>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p><code>ingest_to_openwebui.py</code> bulk-ingests pre-extracted <code>.txt</code> chunk files into an OpenWebUI Knowledge base. It writes to <strong>two backends simultaneously</strong>: Elasticsearch (chunk text and embedding vectors) and the OpenWebUI SQLite database (<code>webui.db</code>, file records and knowledge-base links). After a successful run, ingested files appear natively in the OpenWebUI Knowledge UI and are immediately queryable in chat via <code>#&lt;KnowledgeBaseName&gt;</code>.</p>
+<h3 id="the-es-sqlite-split-brain-architecture">The ES + SQLite Split-Brain Architecture<a class="headerlink" href="#the-es-sqlite-split-brain-architecture" title="Permanent link">&para;</a></h3>
+<p>OpenWebUI separates its storage responsibilities across two systems. Understanding the boundary is essential before adapting the script for a new collection.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>  Source .txt files
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>         |
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>         v
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  ingest_to_openwebui.py
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    |               |
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    v               v
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  Elasticsearch   SQLite (webui.db)
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  open_webui_     knowledge  (KB name, UUID)
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  collections_    file       (one row per source file)
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  d768            knowledge_file (file &lt;-&gt; KB join)
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>  · chunk text
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>  · 768-dim vector
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>  · collection = KB UUID
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Store</th>
+<th>What It Holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Elasticsearch (<code>open_webui_collections_d768</code>)</td>
+<td>Chunk text, 768-dim embedding vectors, and a <code>collection</code> field that links each chunk to its knowledge base by UUID</td>
+</tr>
+<tr>
+<td>SQLite (<code>/home/pmabry/infrastructure/open-webui/webui.db</code>)</td>
+<td>Knowledge base names and UUIDs (<code>knowledge</code> table), one row per ingested source file (<code>file</code> table), and the <code>knowledge_file</code> join table that links files to knowledge bases</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition danger">
+<p class="admonition-title">Critical</p>
+<p>The ES <code>collection</code> field must be set to the <strong>bare knowledge base UUID</strong> from the <code>knowledge</code> table in <code>webui.db</code>. Do <strong>not</strong> use the <code>file-{uuid}</code> format — that namespace is reserved for standalone inline file uploads only. Using it for a Knowledge base will cause OpenWebUI to silently fail to retrieve any chunks at query time.</p>
+</div>
+<h3 id="what-the-script-does-step-by-step">What the Script Does, Step by Step<a class="headerlink" href="#what-the-script-does-step-by-step" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Pre-flight:</strong> verifies Ollama is up and <code>nomic-embed-text</code> is loaded, confirms Elasticsearch is reachable, checks <code>webui.db</code> exists, and validates that the target knowledge base UUID is present in SQLite.</li>
+<li><strong>Idempotency check:</strong> derives a stable <code>uuid5</code>-based file ID from each source filename. If that ID already exists in the SQLite <code>file</code> table, the file is skipped — safe to re-run after an interrupted ingest.</li>
+<li><strong>Chunking:</strong> splits each source file with a 1,500-character sliding window and 150-character overlap, matching OpenWebUI's defaults.</li>
+<li><strong>Embedding:</strong> calls Ollama <code>/api/embed</code> (batch endpoint) to produce a 768-dim vector for every chunk in a single request per file.</li>
+<li><strong>ES bulk indexing:</strong> writes chunks in batches of 50 via the Elasticsearch <code>_bulk</code> API.</li>
+<li><strong>SQLite write:</strong> inserts one row into <code>file</code> and one into <code>knowledge_file</code> only after ES indexing succeeds with zero errors. An ES failure leaves the file unrecorded so the next run retries it cleanly.</li>
+</ol>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<h3 id="conda-environment">Conda Environment<a class="headerlink" href="#conda-environment" title="Permanent link">&para;</a></h3>
+<p>Run this script in the <code>openwebui</code> conda environment (Python 3.11). Do <strong>not</strong> use the <code>sheepsoc</code> env — <code>openwebui</code> is the environment that has the matching library versions and accesses the correct path to <code>webui.db</code>.</p>
+<p>Think of conda environments as isolated Python installations. Activating <code>openwebui</code> switches your shell to use that environment's Python and packages, completely separate from anything else on the machine.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>conda<span class="w"> </span>activate<span class="w"> </span>openwebui
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1"># Your prompt will change to show the active env:</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="o">(</span>openwebui<span class="o">)</span><span class="w"> </span>pmabry@sheepsoc:~$
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">If Conda Is Not Initialized</p>
+<p>If you open a new shell and <code>conda</code> is not recognized, run <code>source ~/infrastructure/miniconda3/etc/profile.d/conda.sh</code> before the activate command.</p>
+</div>
+<h3 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Source</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sqlite3</code></td>
+<td>Python standard library</td>
+<td>No install needed</td>
+</tr>
+<tr>
+<td><code>requests</code></td>
+<td>Already in <code>openwebui</code> env</td>
+<td>No install needed</td>
+</tr>
+</tbody>
+</table>
+<p>No additional pip installs are required before running the script.</p>
+<h3 id="services-that-must-be-running">Services That Must Be Running<a class="headerlink" href="#services-that-must-be-running" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Why It Is Needed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ollama (<code>ollama.service</code>)</td>
+<td>11434</td>
+<td>Provides the <code>nomic-embed-text</code> embedding model. Every chunk is sent here to generate a 768-dim vector.</td>
+</tr>
+<tr>
+<td>Elasticsearch (<code>elasticsearch.service</code>)</td>
+<td>9200</td>
+<td>The vector store. Chunks and their embeddings are written here under the knowledge base UUID.</td>
+</tr>
+<tr>
+<td>OpenWebUI (<code>open-webui.service</code>)</td>
+<td>8080</td>
+<td>Must be running so that <code>webui.db</code> is in a consistent state. The script opens the SQLite file directly — it does not call the OpenWebUI API.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="source-data-format">Source Data Format<a class="headerlink" href="#source-data-format" title="Permanent link">&para;</a></h3>
+<p>Source files live in <code>/mnt/ssd_working/Data/Ingest_Ready/</code>. The directory tree is organized as one subdirectory per collection, each containing:</p>
+<ul>
+<li><code>*.txt</code> files — pre-extracted, pre-chunked text. Each file is typically ~150 words (one logical passage or page extract).</li>
+<li><code>*.meta.json</code> files — sidecar provenance metadata (original filename, source URL, etc.). The ingest script ignores these; they exist for human reference.</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Only ingest from <code>Ingest_Ready/</code>. Do <strong>not</strong> point the script at <code>SPLIT_PDFS_1/</code>, <code>SPLIT_PDFS_2/</code>, or <code>Raw/</code> — those directories contain source PDFs and extraction artifacts, not the clean text files.</p>
+</div>
+<h2 id="sop-ingesting-a-new-dataset">SOP: Ingesting a New Dataset<a class="headerlink" href="#sop-ingesting-a-new-dataset" title="Permanent link">&para;</a></h2>
+<p>Follow these steps in order when adding a brand-new collection to a new or existing knowledge base.</p>
+<h3 id="step-1-verify-services-are-running">Step 1 — Verify Services Are Running<a class="headerlink" href="#step-1-verify-services-are-running" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Check all three required services</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>systemctl<span class="w"> </span>is-active<span class="w"> </span>ollama<span class="w"> </span>elasticsearch<span class="w"> </span>open-webui
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>active
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>active
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>active
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Confirm nomic-embed-text is loaded in Ollama</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>pmabry@sheepsoc:~$<span class="w"> </span>ollama<span class="w"> </span>list<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>nomic
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>nomic-embed-text:latest<span class="w">    </span>...
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="c1"># Confirm Elasticsearch is healthy</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>pmabry@sheepsoc:~$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:9200/_cluster/health<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>json.tool<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>status
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="s2">&quot;status&quot;</span>:<span class="w"> </span><span class="s2">&quot;green&quot;</span>,
+</code></pre></div>
+<p>If any service is down, start it before proceeding: <code>sudo systemctl start &lt;service-name&gt;</code>.</p>
+<h3 id="step-2-identify-the-source-directory-and-confirm-files-are-present">Step 2 — Identify the Source Directory and Confirm Files Are Present<a class="headerlink" href="#step-2-identify-the-source-directory-and-confirm-files-are-present" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># List the available collections</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>ls<span class="w"> </span>/mnt/ssd_working/Data/Ingest_Ready/
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Confirm the target collection has .txt files</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>pmabry@sheepsoc:~$<span class="w"> </span>ls<span class="w"> </span>/mnt/ssd_working/Data/Ingest_Ready/victory_garden_text/*.txt<span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="m">7</span>
+</code></pre></div>
+<p>See the <a href="#dataset-reference-table">dataset reference table</a> below for file counts and suggested KB assignments for all available collections.</p>
+<h3 id="step-3-create-or-identify-the-target-knowledge-base-in-openwebui">Step 3 — Create or Identify the Target Knowledge Base in OpenWebUI<a class="headerlink" href="#step-3-create-or-identify-the-target-knowledge-base-in-openwebui" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Open OpenWebUI at <code>http://192.168.50.100:8080</code> in a browser.</li>
+<li>In the left sidebar, go to <strong>Workspace → Knowledge</strong>.</li>
+<li>If creating a new Knowledge base: click <strong>New</strong>, type the exact name you want (e.g., <code>Gardening</code>), and click <strong>Create</strong>.</li>
+<li>Note the name exactly as typed — OpenWebUI uses it case-sensitively in the chat <code>#</code> selector.</li>
+<li>If adding to an existing KB, confirm its name in the Knowledge list.</li>
+</ol>
+<h3 id="step-4-look-up-the-knowledge-base-uuid-from-webuidb">Step 4 — Look Up the Knowledge Base UUID from webui.db<a class="headerlink" href="#step-4-look-up-the-knowledge-base-uuid-from-webuidb" title="Permanent link">&para;</a></h3>
+<p>Elasticsearch does not know KB names — it works only with UUIDs. You must retrieve the UUID that OpenWebUI assigned to the knowledge base when you created it.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>sqlite3<span class="w"> </span>/home/pmabry/infrastructure/open-webui/webui.db<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>&gt;<span class="w">   </span><span class="s2">&quot;SELECT id, name FROM knowledge ORDER BY created_at DESC LIMIT 10;&quot;</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>d200f010-32b0-422c-8767-9bfaa89a1ae5<span class="p">|</span>Gardening
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>...
+</code></pre></div>
+<p>The value in the <code>id</code> column (the UUID on the left) is what you will put in the <code>KNOWLEDGE_ID</code> variable in the script. Copy it exactly.</p>
+<h3 id="step-5-edit-the-script-configuration">Step 5 — Edit the Script Configuration<a class="headerlink" href="#step-5-edit-the-script-configuration" title="Permanent link">&para;</a></h3>
+<p>Open the script in vim and update the configuration block near the top. There are three variables to change for a new collection:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>vim<span class="w"> </span>~/repositories/sheepsoc/ingest_to_openwebui.py
+</code></pre></div>
+<p>Find and update these variables at the top of the file:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># ---------------------------------------------------------------------------</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="c1"># Configuration</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="c1"># ---------------------------------------------------------------------------</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">SOURCE_DIRS</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/mnt/ssd_working/Data/Ingest_Ready/victory_garden_text&quot;</span><span class="p">),</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="c1"># Add more directories here if combining multiple collections into one KB</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="c1"># Path(&quot;/mnt/ssd_working/Data/Ingest_Ready/another_collection_text&quot;),</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="p">]</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="c1"># Must match the existing Knowledge base UUID from webui.db (step 4 above)</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="n">KNOWLEDGE_ID</span>   <span class="o">=</span> <span class="s2">&quot;d200f010-32b0-422c-8767-9bfaa89a1ae5&quot;</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="n">USER_ID</span>        <span class="o">=</span> <span class="s2">&quot;ebbf6ecc-4181-48d8-8dc9-d78c7eaeefa8&quot;</span>  <span class="c1"># pmabry&#39;s UUID in webui.db</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">User ID</p>
+<p><code>USER_ID</code> is Phillip's account UUID inside OpenWebUI's database. It does not change between runs — you only need to update <code>SOURCE_DIRS</code> and <code>KNOWLEDGE_ID</code> when targeting a different collection or knowledge base.</p>
+</div>
+<p>Do not change <code>SQLITE_PATH</code>, <code>ES_URL</code>, <code>ES_INDEX</code>, <code>OLLAMA_URL</code>, <code>EMBED_MODEL</code>, <code>CHUNK_SIZE</code>, <code>CHUNK_OVERLAP</code>, or <code>ES_BATCH_SIZE</code> unless you have a specific reason to — these are tuned to match OpenWebUI's defaults and the existing ES index configuration.</p>
+<h3 id="step-6-activate-the-conda-environment">Step 6 — Activate the Conda Environment<a class="headerlink" href="#step-6-activate-the-conda-environment" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>conda<span class="w"> </span>activate<span class="w"> </span>openwebui
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="c1"># Prompt changes to confirm the active env:</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="o">(</span>openwebui<span class="o">)</span><span class="w"> </span>pmabry@sheepsoc:~$
+</code></pre></div>
+<h3 id="step-7-run-the-script">Step 7 — Run the Script<a class="headerlink" href="#step-7-run-the-script" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="o">(</span>openwebui<span class="o">)</span><span class="w"> </span>pmabry@sheepsoc:~$<span class="w"> </span>python<span class="w"> </span>~/repositories/sheepsoc/ingest_to_openwebui.py
+</code></pre></div>
+<p>The script will print a pre-flight check summary, then process each file and print progress inline. On completion it prints a summary:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>=== Pre-flight checks ===
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>  Ollama OK — nomic-embed-text available
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>  Elasticsearch OK — cluster &#39;sheepsoc&#39;, status green
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>  SQLite OK — /home/pmabry/infrastructure/open-webui/webui.db
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>  Source dir OK — /mnt/ssd_working/Data/Ingest_Ready/victory_garden_text  (7 .txt files)
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>  Knowledge base OK — &#39;Victory Garden&#39; (a1b2c3d4-...)
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>Found 7 source .txt files across 1 directories.
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>[  1/  7]   [chapter_1.txt]  18,432 chars  →  13 chunks  embed 2.4s  index 0.6s
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>...
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>============================================================
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>INGEST COMPLETE
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>  Files processed : 7
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>  Chunks indexed  : 91
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>  Total time      : 67.3s (1.1 min)
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>  Errors          : 0
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>  ES total docs (collection=a1b2c3d4-...): 91
+</code></pre></div>
+<h3 id="step-8-verify-in-elasticsearch">Step 8 — Verify in Elasticsearch<a class="headerlink" href="#step-8-verify-in-elasticsearch" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Total chunks across all OpenWebUI collections</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;http://localhost:9200/open_webui_collections_d768/_count&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>&gt;<span class="w">   </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>json.tool
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="c1"># Chunks for your specific knowledge base (substitute the actual KB UUID)</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>pmabry@sheepsoc:~$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">&quot;http://localhost:9200/open_webui_collections_d768/_count&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>&gt;<span class="w">   </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>&gt;<span class="w">   </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;query&quot;: {&quot;term&quot;: {&quot;collection&quot;: &quot;a1b2c3d4-xxxx-xxxx-xxxx-xxxxxxxxxxxx&quot;}}}&#39;</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="o">{</span><span class="s2">&quot;count&quot;</span>:91,...<span class="o">}</span>
+</code></pre></div>
+<p>The count should match the "Chunks indexed" number from the script's completion summary.</p>
+<h3 id="step-9-verify-in-openwebui">Step 9 — Verify in OpenWebUI<a class="headerlink" href="#step-9-verify-in-openwebui" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Open OpenWebUI at <code>http://192.168.50.100:8080</code>.</li>
+<li>Go to <strong>Workspace → Knowledge</strong>.</li>
+<li>Click the knowledge base you just populated.</li>
+<li>Confirm that the file list shows the expected number of files. Each source <code>.txt</code> file appears as one entry.</li>
+</ol>
+<h3 id="step-10-test-retrieval-in-chat">Step 10 — Test Retrieval in Chat<a class="headerlink" href="#step-10-test-retrieval-in-chat" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Start a new chat in OpenWebUI.</li>
+<li>In the message input box, type <code>#</code> — a dropdown of your Knowledge bases will appear.</li>
+<li>Select the knowledge base you just ingested.</li>
+<li>Ask a question related to the content you ingested.</li>
+<li>The model's response should draw on the retrieved text. You can inspect retrieved chunks in the source citations if OpenWebUI's citation display is enabled.</li>
+</ol>
+<h2 id="sop-adding-more-collections-to-an-existing-kb">SOP: Adding More Collections to an Existing KB<a class="headerlink" href="#sop-adding-more-collections-to-an-existing-kb" title="Permanent link">&para;</a></h2>
+<p>Use this path when you want to add additional source directories to a knowledge base that already has content — for example, adding a new AgriLife extension collection to the existing Gardening KB.</p>
+<ol>
+<li>Confirm the target KB already exists in OpenWebUI (Workspace → Knowledge). Do not create a new one — you will reuse the existing UUID.</li>
+<li>Identify the new source directory in <code>Ingest_Ready/</code> and confirm <code>.txt</code> files are present (Step 2 of the main SOP above).</li>
+<li>Look up the existing KB UUID from <code>webui.db</code> (Step 4 above). This is already set in the script if you are adding to the current Gardening KB.</li>
+<li>Edit the script and add the new directory to <code>SOURCE_DIRS</code>. Existing directories can remain in the list — already-indexed files will be skipped automatically.</li>
+<li>Activate the conda env and run the script (Steps 6 and 7 above).</li>
+<li>Verify in ES and in the OpenWebUI Knowledge UI (Steps 8 and 9 above) — the file count should have increased.</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Idempotent</p>
+<p>The script is safe to re-run at any time. Files already in the SQLite <code>file</code> table are skipped based on a stable, filename-derived UUID (<code>uuid5</code>). Re-running after an interruption picks up exactly where it left off, and adding new source directories to an existing run is entirely safe.</p>
+</div>
+<h2 id="dataset-reference-table">Dataset Reference Table<a class="headerlink" href="#dataset-reference-table" title="Permanent link">&para;</a></h2>
+<p>All pre-extracted text collections available for ingest live under <code>/mnt/ssd_working/Data/Ingest_Ready/</code>. The table below lists every collection, its approximate file count, and a suggested knowledge base assignment. Tier 1 collections are recommended to ingest first; they are topically coherent with the existing Gardening KB or cover foundational self-sufficiency topics.</p>
+<table>
+<thead>
+<tr>
+<th>Collection Directory</th>
+<th>Approx Files</th>
+<th>Suggested KB</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>texas_am_text</code></td>
+<td>123</td>
+<td>Gardening</td>
+<td><strong>ingested</strong> — already in Gardening KB</td>
+</tr>
+<tr>
+<td><code>texas_am_grasses_text</code></td>
+<td>11</td>
+<td>Gardening</td>
+<td><strong>ingested</strong> — already in Gardening KB</td>
+</tr>
+<tr>
+<td><code>master_gardener_text</code></td>
+<td>40</td>
+<td>Gardening</td>
+<td>tier 1 — ingest first</td>
+</tr>
+<tr>
+<td><code>victory_garden_text</code></td>
+<td>7</td>
+<td>Gardening</td>
+<td>tier 1 — ingest first</td>
+</tr>
+<tr>
+<td><code>bexar_county_soil_text</code></td>
+<td>28</td>
+<td>Gardening</td>
+<td>tier 1 — ingest first</td>
+</tr>
+<tr>
+<td><code>encyclopedia_herbs_text</code></td>
+<td>34</td>
+<td>Gardening</td>
+<td>tier 1 — ingest first</td>
+</tr>
+<tr>
+<td><code>herbal_medicines_text</code></td>
+<td>73</td>
+<td>Gardening</td>
+<td>tier 1 — ingest first</td>
+</tr>
+<tr>
+<td><code>herbal_remedies_text</code></td>
+<td>30</td>
+<td>Gardening</td>
+<td>tier 1 — ingest first</td>
+</tr>
+<tr>
+<td><code>handbook_herbs_text</code></td>
+<td>90</td>
+<td>Gardening</td>
+<td>tier 1 — ingest first</td>
+</tr>
+<tr>
+<td><code>fall_planting_guide_text</code></td>
+<td>4</td>
+<td>Gardening</td>
+<td>tier 1 — ingest first</td>
+</tr>
+<tr>
+<td><code>fall_vegetable_text</code></td>
+<td>1</td>
+<td>Gardening</td>
+<td>tier 1 — ingest first</td>
+</tr>
+<tr>
+<td><code>rangeland_drought_text</code></td>
+<td>1</td>
+<td>Gardening</td>
+<td>tier 1 — ingest first</td>
+</tr>
+<tr>
+<td><code>soil_ammendments_text</code></td>
+<td>1</td>
+<td>Gardening</td>
+<td>tier 1 — ingest first</td>
+</tr>
+<tr>
+<td><code>soil_amendments_2_text</code></td>
+<td>1</td>
+<td>Gardening</td>
+<td>tier 1 — ingest first</td>
+</tr>
+<tr>
+<td><code>SeppHolzer_text</code></td>
+<td>26</td>
+<td>Gardening</td>
+<td>Permaculture / food forest</td>
+</tr>
+<tr>
+<td><code>aquaponics_gardening_text</code></td>
+<td>30</td>
+<td>Gardening or new KB</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>aquaponics_food_text</code></td>
+<td>62</td>
+<td>Gardening or new KB</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>biodiversity_text</code></td>
+<td>40</td>
+<td>Gardening or new KB</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>bee_keeping_manual_text</code></td>
+<td>29</td>
+<td>Gardening or new KB</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>poultry_qa_text</code></td>
+<td>1</td>
+<td>Homestead</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>show_broilers_text</code></td>
+<td>1</td>
+<td>Homestead</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>chickens_text</code></td>
+<td>35</td>
+<td>Homestead</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>backyard_homestead_text</code></td>
+<td>88</td>
+<td>Homestead</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>self_sufficiency_text</code></td>
+<td>26</td>
+<td>Homestead</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>home_and_farm_text</code></td>
+<td>32</td>
+<td>Homestead</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>farm_construction_text</code></td>
+<td>355</td>
+<td>Homestead</td>
+<td>Large collection — long run time expected</td>
+</tr>
+<tr>
+<td><code>food_preservation_text</code></td>
+<td>109</td>
+<td>Homestead</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>household_cyclopedia_text</code></td>
+<td>82</td>
+<td>Homestead</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>encyclopedia_text</code></td>
+<td>75</td>
+<td>Reference</td>
+<td>General encyclopedia</td>
+</tr>
+<tr>
+<td><code>encyclopedia_chemistry_text</code></td>
+<td>185</td>
+<td>Reference</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>basic_chemistry_text</code></td>
+<td>140</td>
+<td>Reference</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Biology_OpenStax_text</code></td>
+<td>140</td>
+<td>Reference</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>earth_science_text</code></td>
+<td>101</td>
+<td>Reference</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>anatomy_physiology_text</code></td>
+<td>127</td>
+<td>Reference</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>meteorology_text</code></td>
+<td>192</td>
+<td>Reference</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>princiapls_of_finance_text</code></td>
+<td>64</td>
+<td>Reference</td>
+<td>Note: directory name has a typo (<code>princiapls</code>)</td>
+</tr>
+<tr>
+<td><code>american_reformed_text</code></td>
+<td>38</td>
+<td>Reference</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>medical_handbook_text</code></td>
+<td>62</td>
+<td>Medical / Emergency</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>nursing_text</code></td>
+<td>192</td>
+<td>Medical / Emergency</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>no_doctor_text</code></td>
+<td>51</td>
+<td>Medical / Emergency</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>survival_handbook_text</code></td>
+<td>68</td>
+<td>Survival / Preparedness</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>150_survival_secrets_text</code></td>
+<td>44</td>
+<td>Survival / Preparedness</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>water_purifier_text</code></td>
+<td>1</td>
+<td>Survival / Preparedness</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ranger_handbook_text</code></td>
+<td>37</td>
+<td>Survival / Preparedness</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>tc_ranger_text</code></td>
+<td>1</td>
+<td>Survival / Preparedness</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>seabee_combat_handbooK_1_text</code></td>
+<td>49</td>
+<td>Survival / Preparedness</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>NEETS_Mod_1_text</code></td>
+<td>29</td>
+<td>Technical</td>
+<td>Navy electronics training material</td>
+</tr>
+<tr>
+<td><code>architects_rules_text</code></td>
+<td>50</td>
+<td>Technical</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>physical_security_text</code></td>
+<td>32</td>
+<td>Security / Tactics</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>personal_defense_text</code></td>
+<td>6</td>
+<td>Security / Tactics</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>pistol_training_text</code></td>
+<td>10</td>
+<td>Security / Tactics</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>rifle_marksmanship_text</code></td>
+<td>12</td>
+<td>Security / Tactics</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>crowd_control_text</code></td>
+<td>14</td>
+<td>Security / Tactics</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>long_range_surveillance_text</code></td>
+<td>39</td>
+<td>Security / Tactics</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>FMFRP-12-80-Kill_or_Get_Killed_text</code></td>
+<td>44</td>
+<td>Security / Tactics</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>counter_intelligence_text</code></td>
+<td>23</td>
+<td>Security / Tactics</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>psyops_text</code></td>
+<td>44</td>
+<td>Security / Tactics</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>military_explosives_text</code></td>
+<td>21</td>
+<td>Security / Tactics</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>firefighting_text</code></td>
+<td>3</td>
+<td>Emergency</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>lyman_reloading_text</code></td>
+<td>43</td>
+<td>Misc</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>homemade_ammo_text</code></td>
+<td>5</td>
+<td>Misc</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>james_bond_text</code></td>
+<td>48</td>
+<td>Misc</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>mother_earth_news_text</code></td>
+<td>19,688</td>
+<td>Future work</td>
+<td>Too large for current script — see note below</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Mother Earth News</p>
+<p>The <code>mother_earth_news_text</code> collection is 19,688 files (~38 GB of extracted text). It is too large to run through this script without significant modification — it requires a dedicated bulk script and should land in a separate Elasticsearch index. This is flagged as future work. Do not ingest with this script.</p>
+</div>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>KB shows 0 files in OpenWebUI after ingest</td>
+<td>UUID mismatch: <code>KNOWLEDGE_ID</code> does not match, or ES <code>collection</code> field was written as <code>file-{uuid}</code> instead of the bare UUID</td>
+<td>Run <code>sqlite3 webui.db "SELECT id, name FROM knowledge;"</code> to confirm the UUID. Check the script's <code>KNOWLEDGE_ID</code> matches exactly. Verify ES docs have <code>collection == KNOWLEDGE_ID</code> (not <code>file-...</code>).</td>
+</tr>
+<tr>
+<td>Script prints <code>SKIP (already indexed)</code> for every file on re-run</td>
+<td>Idempotency is working correctly: the files were already indexed in a previous run</td>
+<td>This is expected. To add new content, add new source directories to <code>SOURCE_DIRS</code> or use a different source directory with new files.</td>
+</tr>
+<tr>
+<td>Pre-flight exits with embedding error / Ollama unreachable</td>
+<td>Ollama is down or <code>nomic-embed-text</code> is not loaded</td>
+<td><code>systemctl status ollama</code>; if down, <code>sudo systemctl start ollama</code>. Then: <code>ollama list | grep nomic</code>. If missing: <code>ollama pull nomic-embed-text</code>.</td>
+</tr>
+<tr>
+<td>Pre-flight exits with ES error</td>
+<td>Elasticsearch is not running or not reachable on <code>localhost:9200</code></td>
+<td><code>systemctl status elasticsearch</code>; if down, <code>sudo systemctl start elasticsearch</code>. Then: <code>curl http://localhost:9200/_cluster/health</code>.</td>
+</tr>
+<tr>
+<td>Pre-flight exits: <code>SQLite DB not found</code></td>
+<td><code>webui.db</code> is not at the expected path, or open-webui.service has never run</td>
+<td>Confirm: <code>ls /home/pmabry/infrastructure/open-webui/webui.db</code>. If missing, start open-webui so it creates the database: <code>sudo systemctl start open-webui</code>.</td>
+</tr>
+<tr>
+<td>SQLite write error / database is locked</td>
+<td>Another process has an exclusive write lock on <code>webui.db</code></td>
+<td>The script is designed to run while <code>open-webui.service</code> is active (concurrent reads are safe with WAL mode). If you see lock errors with the service running, wait a moment and re-run.</td>
+</tr>
+<tr>
+<td>RAG returns nothing in chat after ingest</td>
+<td>The <code>collection</code> field in ES was written incorrectly, or the KB is not selected in the chat</td>
+<td>Type <code>#</code> in the chat input and confirm the KB appears. Verify ES has matching docs: <code>curl -s -X GET "http://localhost:9200/open_webui_collections_d768/_count" -H "Content-Type: application/json" -d '{"query": {"term": {"collection": "&lt;KB-UUID&gt;"}}}'</code>. If count is 0, the collection field is wrong.</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "search.suggest", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

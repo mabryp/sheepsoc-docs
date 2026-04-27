@@ -1,0 +1,1871 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Sheepsoc operations hub — architecture, SOPs, configuration, and operational guides">
+      
+      
+      
+        <link rel="canonical" href="http://192.168.50.100/docs/research/research_report/">
+      
+      
+        <link rel="prev" href="../../agent-guide/">
+      
+      
+        <link rel="next" href="../precision_audit/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Research Report (RAG-001) - sheepsoc</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#research-report-just-how-valuable-is-a-vector-search-database" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="sheepsoc" class="md-header__button md-logo" aria-label="sheepsoc" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            sheepsoc
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Research Report (RAG-001)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="sheepsoc" class="md-nav__button md-logo" aria-label="sheepsoc" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    sheepsoc
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture & Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agile-team/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Agile Team
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../topology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Topology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AI & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sheepsoc-rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RAG & Knowledge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../elser-openwebui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ELSER & OpenWebUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../knowledge-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge Bases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../bulk-ingest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bulk Ingest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../matrix-bot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Matrix Bot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../github-rag-sync/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub & RAG Sync
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOPs & Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SOPs & Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOPs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../runbook-shutdown-startup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shutdown & Startup Runbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../nightly-backups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nightly Backups
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../config-backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Config Backup & Encryption
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../future-improvements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Future Improvements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environment & Tools
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Environment & Tools
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../conda/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conda Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agent-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research Report (RAG-001)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research Report (RAG-001)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-strategic-research-agenda-for-the-sheepsoc-ai-laboratory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A Strategic Research Agenda for the SheepSOC AI Laboratory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preamble-state-of-the-research-field" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preamble: State of the Research Field
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#research-question-1-can-we-measure-how-important-quality-search-results-are-to-smaller-model-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Research Question 1: Can We Measure How Important Quality Search Results Are to Smaller Model Performance?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Research Question 1: Can We Measure How Important Quality Search Results Are to Smaller Model Performance?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-research-says" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the Research Says
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#experiments-sheepsoc-can-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experiments SheepSOC Can Run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#research-question-2-how-much-more-value-can-be-extracted-from-smaller-models-with-proper-search-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Research Question 2: How Much More Value Can Be Extracted From Smaller Models With Proper Search Results?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Research Question 2: How Much More Value Can Be Extracted From Smaller Models With Proper Search Results?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-research-says_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the Research Says
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#experiments-sheepsoc-can-run_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experiments SheepSOC Can Run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#research-question-3-explore-the-search-landscape-bm25-elser-elser2-dense-vector-and-hybrid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Research Question 3: Explore the Search Landscape — BM25, ELSER, ELSER2, Dense Vector, and Hybrid
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Research Question 3: Explore the Search Landscape — BM25, ELSER, ELSER2, Dense Vector, and Hybrid">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-search-method-taxonomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Search Method Taxonomy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#important-caveat-dense-models-out-of-domain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Important Caveat: Dense Models Out-of-Domain
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#experiments-sheepsoc-can-run_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experiments SheepSOC Can Run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#research-question-4-is-a-large-vector-dataset-helpful-in-expanding-the-basic-knowledge-of-smaller-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Research Question 4: Is a Large Vector Dataset Helpful in Expanding the Basic Knowledge of Smaller Models?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Research Question 4: Is a Large Vector Dataset Helpful in Expanding the Basic Knowledge of Smaller Models?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-research-says_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the Research Says
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#important-tension-noise-vs-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Important Tension: Noise vs. Coverage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#experiments-sheepsoc-can-run_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experiments SheepSOC Can Run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-cutting-recommendation-how-to-run-all-four-questions-together" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-Cutting Recommendation: How to Run All Four Questions Together
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#confidence-gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Confidence &amp; Gaps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../precision_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Precision Audit (RAG-001)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../protocol_v1_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experimental Protocol v1.1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-strategic-research-agenda-for-the-sheepsoc-ai-laboratory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A Strategic Research Agenda for the SheepSOC AI Laboratory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preamble-state-of-the-research-field" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preamble: State of the Research Field
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#research-question-1-can-we-measure-how-important-quality-search-results-are-to-smaller-model-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Research Question 1: Can We Measure How Important Quality Search Results Are to Smaller Model Performance?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Research Question 1: Can We Measure How Important Quality Search Results Are to Smaller Model Performance?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-research-says" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the Research Says
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#experiments-sheepsoc-can-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experiments SheepSOC Can Run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#research-question-2-how-much-more-value-can-be-extracted-from-smaller-models-with-proper-search-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Research Question 2: How Much More Value Can Be Extracted From Smaller Models With Proper Search Results?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Research Question 2: How Much More Value Can Be Extracted From Smaller Models With Proper Search Results?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-research-says_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the Research Says
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#experiments-sheepsoc-can-run_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experiments SheepSOC Can Run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#research-question-3-explore-the-search-landscape-bm25-elser-elser2-dense-vector-and-hybrid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Research Question 3: Explore the Search Landscape — BM25, ELSER, ELSER2, Dense Vector, and Hybrid
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Research Question 3: Explore the Search Landscape — BM25, ELSER, ELSER2, Dense Vector, and Hybrid">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-search-method-taxonomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Search Method Taxonomy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#important-caveat-dense-models-out-of-domain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Important Caveat: Dense Models Out-of-Domain
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#experiments-sheepsoc-can-run_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experiments SheepSOC Can Run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#research-question-4-is-a-large-vector-dataset-helpful-in-expanding-the-basic-knowledge-of-smaller-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Research Question 4: Is a Large Vector Dataset Helpful in Expanding the Basic Knowledge of Smaller Models?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Research Question 4: Is a Large Vector Dataset Helpful in Expanding the Basic Knowledge of Smaller Models?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-research-says_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the Research Says
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#important-tension-noise-vs-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Important Tension: Noise vs. Coverage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#experiments-sheepsoc-can-run_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experiments SheepSOC Can Run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-cutting-recommendation-how-to-run-all-four-questions-together" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-Cutting Recommendation: How to Run All Four Questions Together
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#confidence-gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Confidence &amp; Gaps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<hr />
+<h1 id="research-report-just-how-valuable-is-a-vector-search-database">🔬 Research Report: Just How Valuable is a Vector Search Database?<a class="headerlink" href="#research-report-just-how-valuable-is-a-vector-search-database" title="Permanent link">&para;</a></h1>
+<h2 id="a-strategic-research-agenda-for-the-sheepsoc-ai-laboratory">A Strategic Research Agenda for the SheepSOC AI Laboratory<a class="headerlink" href="#a-strategic-research-agenda-for-the-sheepsoc-ai-laboratory" title="Permanent link">&para;</a></h2>
+<hr />
+<h2 id="preamble-state-of-the-research-field">Preamble: State of the Research Field<a class="headerlink" href="#preamble-state-of-the-research-field" title="Permanent link">&para;</a></h2>
+<p>Before diving into the four questions, it is worth establishing how active this space is. A bibliometric snapshot counted more than 1,200 RAG-related papers on arXiv in 2024 alone, compared with fewer than 100 the previous year, underscoring the field's rapid maturation. The questions SheepSOC wants to explore are not fringe ideas — they are live research questions that enterprise teams and academic groups are actively publishing on. However, most published work uses cloud-scale hardware or API-dependent models. A self-hosted, multi-model, full-stack lab like SheepSOC occupies a genuinely interesting niche: it can run controlled, reproducible experiments that cloud-dependent setups cannot.</p>
+<hr />
+<h2 id="research-question-1-can-we-measure-how-important-quality-search-results-are-to-smaller-model-performance">Research Question 1: Can We Measure How Important Quality Search Results Are to Smaller Model Performance?<a class="headerlink" href="#research-question-1-can-we-measure-how-important-quality-search-results-are-to-smaller-model-performance" title="Permanent link">&para;</a></h2>
+<h3 id="what-the-research-says">What the Research Says<a class="headerlink" href="#what-the-research-says" title="Permanent link">&para;</a></h3>
+<p>This question has been partially answered but deserves systematic, controlled measurement. The short answer: <strong>retrieval quality is arguably the single most important variable in a RAG pipeline</strong>, and smaller models are more sensitive to it than large ones.</p>
+<p>The choice between sparse and dense retrieval — or a hybrid of both — has a larger impact on end-to-end quality than almost any other architectural decision. The difference isn't just a performance tradeoff: sparse and dense retrieval fail in completely different ways, excel on completely different query types, and require different infrastructure to operate.</p>
+<p>The mechanism is well-understood. In the retrieval phase, the root causes of hallucinations in RAG include data source, query, retriever, and retrieval strategy problems. In the generation phase, causes include context noise, context conflict, and the "middle curse" in long contexts, alignment problems, and model capability boundary problems. In plain terms: bad retrieval poisons the well before the model even sees the question.</p>
+<p>For small models specifically, the research is striking. A 2024 study on local models in radiology found that RAG eliminated hallucinations (0% vs 8%; p = 0.012) and improved mean rank by 1.3 when applied to a Llama 3.2 11B model — a locally deployable scale comparable to what SheepSOC runs. Among 100 cases, 54% showed marked improvement with RAG — most notably in safety-critical content — while an additional 33% demonstrated minor gains involving non-critical factual details. These improvements were concentrated in cases that required specialized knowledge of institutional protocols or recently updated guidelines.</p>
+<p>More pointedly, small models are <strong>worse</strong> at handling irrelevant context. LLMs exhibit a certain degree of noise robustness, but they still struggle significantly in terms of negative rejection, information integration, and dealing with false information. "Negative rejection" means knowing when retrieved content is <em>wrong or irrelevant</em> and refusing to use it — something small models do poorly. This creates a real risk: <strong>bad search results can actively make a small model worse than no RAG at all.</strong></p>
+<p>There is also the mechanistic finding that hallucinations in RAG occur when the Knowledge FFNs in LLMs overemphasize parametric knowledge in the residual stream, while Copying Heads fail to effectively retain or integrate external knowledge from retrieved content. This implies that when retrieval quality drops, a model literally falls back to guessing from its training data — and the smaller the model, the less training data it has to fall back on.</p>
+<h3 id="experiments-sheepsoc-can-run">Experiments SheepSOC Can Run<a class="headerlink" href="#experiments-sheepsoc-can-run" title="Permanent link">&para;</a></h3>
+<p>The <strong>RAG Triad</strong> is your primary measurement framework. The RAG Triad comprises three metrics — context relevance, groundedness, and answer relevance — that measure how well each step of a RAG system is performing. Common failure modes, including poor retrieval quality, hallucination and irrelevant answers, can all be traced back to the interactions between query, retrieved context, and generated output.</p>
+<p><strong>Concrete test design:</strong>
+1. Build a <strong>golden dataset</strong> of 50–100 question/answer pairs from a domain you control (e.g., local documentation, a technical manual, a historical dataset).
+2. For each question, run the same model (start with Mistral 7B) under four conditions: (a) no RAG, (b) BM25-only retrieval, (c) dense vector-only, (d) hybrid retrieval.
+3. Score each response on groundedness (does the answer match the retrieved chunk?), answer relevance, and hallucination rate.
+4. Use <strong>RAGAS</strong> (open-source, runs locally) as your evaluation harness — RAGAS is an open-source framework for evaluating retrieval and generation, with built-in synthetic data generation.
+5. Repeat across all three of your chat models (Mistral 7B, Llama 2 13B, Gemma 3 12B) to isolate the model-size variable.</p>
+<p><strong>Key metric to watch:</strong> hallucination rate as a function of retrieval precision@K. If you can show a dose-response curve — "as retrieval quality drops, hallucination rate rises, and this effect is steeper for smaller models" — that is a publishable, reproducible finding specific to your hardware and model set.</p>
+<hr />
+<h2 id="research-question-2-how-much-more-value-can-be-extracted-from-smaller-models-with-proper-search-results">Research Question 2: How Much More Value Can Be Extracted From Smaller Models With Proper Search Results?<a class="headerlink" href="#research-question-2-how-much-more-value-can-be-extracted-from-smaller-models-with-proper-search-results" title="Permanent link">&para;</a></h2>
+<h3 id="what-the-research-says_1">What the Research Says<a class="headerlink" href="#what-the-research-says_1" title="Permanent link">&para;</a></h3>
+<p>This is perhaps the most practically exciting question, and the published evidence is strong. The headline finding: <strong>a well-retrieval-augmented small model can match or exceed a much larger model running without retrieval.</strong></p>
+<p>The clearest demonstration comes from a 2024 enterprise deployment study: A 3B RAG fine-tuned model is competitive even with the 15.5B version without RAG on key metrics, while keeping hallucination low. This is a key lesson: we could deploy a 3B RAG fine-tuned model if we had more limited infrastructure.</p>
+<p>This 5x parameter efficiency gain is not an outlier. In medical question answering, specialist retrievers enhance GPT-3.5's medical question benchmark performance to reach GPT-4 levels. That is a commercial demonstration of a smaller/cheaper model equaling a larger/more expensive one purely through retrieval quality improvements.</p>
+<p>The underlying intuition is well-captured by Vectorize's production observations: Think of it like giving a subject matter expert clear, relevant reference materials versus giving a general expert a mountain of loosely related documents. The subject matter expert with focused materials will likely provide better answers, even though the general expert might have broader knowledge. The future of RAG isn't about using the biggest models — it's about building smarter pipelines that make efficient use of smaller, more cost-effective models.</p>
+<p>Open-source models combined with RAG can offer competitive performance at a significantly reduced cost compared to larger models. This enables organizations with limited budgets to deploy high-performing AI solutions, making advanced technology accessible beyond large corporations.</p>
+<p>There is a hard floor, though. The smallest RAG fine-tuned model (1B) hallucinates significantly more than its larger counterparts. Among the other three variants, the 7B version gives us the best trade-off, as the performance difference between 7B and 15.5B is marginal. For SheepSOC, this is encouraging: the 7B–13B range (Mistral 7B, Llama 2 13B, Gemma 3 12B) appears to be the sweet spot where RAG yields maximum relative gains.</p>
+<p>Research on Gemma models specifically found that RAG integration consistently reduced latency by up to 17% while completely eliminating factual hallucinations when responding to user-specific queries. And more broadly, in fast-evolving fields, incorporating RAG models has reduced outdated responses by 15–20% compared to traditional LLMs.</p>
+<h3 id="experiments-sheepsoc-can-run_1">Experiments SheepSOC Can Run<a class="headerlink" href="#experiments-sheepsoc-can-run_1" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Model-vs-RAG tradeoff ladder:</strong> Run the same factual question set through five configurations and plot accuracy vs. compute cost: Mistral 7B (no RAG) → Mistral 7B + BM25 → Mistral 7B + hybrid → Llama 2 13B (no RAG) → Gemma 3 12B (no RAG). The goal is to find the crossover point where the smaller model with RAG beats the larger model without it.</p>
+</li>
+<li>
+<p><strong>Context sensitivity test (Needle-in-a-Haystack):</strong> The Needle-In-A-Haystack evaluation inserts a piece of information (the "needle") into a document (the "haystack") and evaluates the model's ability to recall the inserted information. It is a great test bench for estimating the performance of a model in a RAG or memory system. Your Jupyter environment is ideal for this — vary context length and "needle" depth across all three models.</p>
+</li>
+<li>
+<p><strong>Domain specificity ramp:</strong> Start with a general knowledge corpus, then progressively add domain-specific documents. Measure how much each model's answer quality improves per document added. This tests whether smaller models gain proportionally <em>more</em> from domain context than larger ones (since they have less parametric domain knowledge to begin with).</p>
+</li>
+</ol>
+<hr />
+<h2 id="research-question-3-explore-the-search-landscape-bm25-elser-elser2-dense-vector-and-hybrid">Research Question 3: Explore the Search Landscape — BM25, ELSER, ELSER2, Dense Vector, and Hybrid<a class="headerlink" href="#research-question-3-explore-the-search-landscape-bm25-elser-elser2-dense-vector-and-hybrid" title="Permanent link">&para;</a></h2>
+<h3 id="the-search-method-taxonomy">The Search Method Taxonomy<a class="headerlink" href="#the-search-method-taxonomy" title="Permanent link">&para;</a></h3>
+<p>This is an area with rich published benchmarks. Here is the authoritative landscape, ordered from simplest to most sophisticated:</p>
+<p><strong>BM25 (Sparse Keyword Search)</strong>
+Sparse retrieval with BM25 is fast and cheap. Inverted indexes like Elasticsearch and OpenSearch handle billions of documents on commodity hardware, support real-time updates, and return results in single-digit milliseconds. There's no GPU requirement, no embedding model to maintain, and no approximate nearest neighbor index to rebuild when documents are updated. BM25's strength is precision on exact matches. BM25 wins on precision for named entities, product SKUs, and technical jargon. Its weakness is the vocabulary mismatch problem: BM25 suffers from the "vocabulary mismatch problem" — synonyms like "Car" vs. "Automobile," polysemy like "Apple" (the fruit) vs. "Apple" (the tech giant), and typos.</p>
+<p><strong>Dense Vector Search (HNSW/KNN — what SheepSOC already runs)</strong>
+Dense retrieval represents both queries and documents as fixed-dimensional embedding vectors, typically 768 or 1024 dimensions, produced by a transformer encoder. At query time, the query is encoded to a vector and the system finds the documents whose embedding vectors are most similar to the query vector. This is what SheepSOC's current nomic-embed-text + HNSW pipeline does. Dense search wins conceptual queries where paraphrasing is common, but critically: if a model is not well adapted to your specific data, it's very likely that using kNN and dense models would degrade your retrieval performance in comparison to BM25. Out-of-domain dense models can be actively harmful.</p>
+<p><strong>ELSER (Elastic Learned Sparse EncodeR)</strong>
+ELSER is a retrieval model trained by Elastic that enables you to perform semantic search based on contextual meaning and user intent, rather than exact keyword matches. ELSER is an out-of-domain model which means it does not require fine-tuning on your own data, making it adaptable for various use cases out of the box. It occupies a middle ground between BM25 and dense: sparse vectors generated by models like ELSER can generalize well to new domains without requiring extensive fine-tuning. Unlike dense vector models that often need domain-specific training, sparse vectors rely on term-based representations, making them more effective for zero-shot retrieval.</p>
+<p><strong>ELSER v2 — The Significant Upgrade</strong>
+The jump from ELSER v1 to v2 is substantial and directly relevant to SheepSOC's Xeon hardware. ELSER V2 produces significantly higher quality embeddings than ELSER V1. Comparing against BM25: ELSER V2 has 10 wins, 1 draw, 1 loss and an average improvement in NDCG@10 of 18%. On speed: ELSER v2 achieved between a 60% and 120% speed-up in inference compared to ELSER v1 by upgrading the libtorch backend and optimizing for x86 architecture. Throughput-wise: the optimized V2 model ingested at a max rate of 26 docs/s, compared with the ELSER V1 max rate of 14 docs/s, resulting in a 90% increase in throughput. <strong>Critical note for SheepSOC:</strong> The optimized model is designed to work best on newer Intel CPUs, but it works on AMD CPUs as well. It is recommended to use the new optimized Linux-x86-64 model for all new users of ELSER. Your dual Xeon E5-2680 v4 + Ubuntu 24.04 x86-64 setup is precisely the target platform for the ELSER v2 optimized build. ELSER v2 is also currently in the top-10 models on MTEB for Retrieval when grouping together multiple flavors of the same competitor family, filtering for models under 250 million parameters — impressive for an on-premises model with no API dependency.</p>
+<p><strong>Hybrid Search: The Performance Champion</strong></p>
+<p>The numbers here are unambiguous across multiple independent studies:</p>
+<p>Run BM25 and vector search concurrently, fuse with reciprocal rank fusion, and you jump from 65–78% recall to 91% recall@10. Dense-only retrieval hits 78% recall@10. Sparse-only BM25 lands at 65%. Hybrid search reaches 91% recall@10. That gap is the difference between a production-ready RAG system and one that hallucinates on edge cases.</p>
+<p>This is not a single study's result — it replicates across benchmarks. A key IBM Research paper specifically tested BM25, KNN, ELSER, and combinations using Elasticsearch and found: using three-way retrieval is the optimal option for RAG — meaning BM25 + dense vectors + sparse vectors together outperforms any two-way combination.</p>
+<p>Blended Retrievers achieved an NDCG@10 score of 0.87, which marks an 8.2% increment over the benchmark score of 0.804 established by the COCO-DR Large model.</p>
+<p>The overhead cost of hybrid is negligible in practice: Running two retrievers in parallel adds roughly 6ms to p50 latency versus dense-only search. In most RAG pipelines, LLM inference already dominates at 500ms to 2 seconds, so hybrid retrieval's overhead is essentially noise.</p>
+<p>The standard fusion algorithm is <strong>Reciprocal Rank Fusion (RRF)</strong>. Running a hybrid search query boils down to sending a mix of at least one lexical search query and one semantic search query and then merging the results. Luckily, there are several existing methods: Convex Combination (CC) and Reciprocal Rank Fusion (RRF). Elasticsearch already supports this natively: if you are already on Elasticsearch, RRF works out of the box since v8.9.</p>
+<h3 id="important-caveat-dense-models-out-of-domain">Important Caveat: Dense Models Out-of-Domain<a class="headerlink" href="#important-caveat-dense-models-out-of-domain" title="Permanent link">&para;</a></h3>
+<p>One finding that deserves emphasis: dense models that outperform BM25 on in-domain datasets are usually <em>worse</em> out-of-domain. If a model is not well adapted to your specific data, it's very likely that using kNN and dense models would degrade your retrieval performance in comparison to BM25. This is a trap for labs that benchmark on publicly available datasets and then expect the same results on their own document collections. SheepSOC should test all search methods on <em>its own</em> corpus, not just published benchmarks.</p>
+<h3 id="experiments-sheepsoc-can-run_2">Experiments SheepSOC Can Run<a class="headerlink" href="#experiments-sheepsoc-can-run_2" title="Permanent link">&para;</a></h3>
+<p>SheepSOC has every component needed to run the definitive comparison across all four methods on the same Elasticsearch instance:</p>
+<ol>
+<li><strong>Build four parallel indices</strong> for the same document corpus: BM25 only, dense vector only (nomic-embed-text), ELSER v2, and hybrid (BM25 + ELSER v2 via RRF).</li>
+<li><strong>Run the same 100-question golden dataset</strong> against all four indices and score using precision@5, recall@10, and nDCG@10.</li>
+<li><strong>Feed top-K retrieved chunks</strong> from each method into Mistral 7B and measure final answer quality (RAGAS groundedness + answer relevance scores).</li>
+<li><strong>Vary K</strong> (top-3, top-5, top-10 results) to understand diminishing returns from more context.</li>
+<li><strong>Segment by query type:</strong> exact-match queries (entity names, codes) vs. conceptual queries ("what is the policy on X"). BM25 should win the first category; dense should win the second; hybrid should win overall.</li>
+</ol>
+<p>This is a publishable experiment design that maps directly to the Blended RAG paper methodology.</p>
+<hr />
+<h2 id="research-question-4-is-a-large-vector-dataset-helpful-in-expanding-the-basic-knowledge-of-smaller-models">Research Question 4: Is a Large Vector Dataset Helpful in Expanding the Basic Knowledge of Smaller Models?<a class="headerlink" href="#research-question-4-is-a-large-vector-dataset-helpful-in-expanding-the-basic-knowledge-of-smaller-models" title="Permanent link">&para;</a></h2>
+<h3 id="what-the-research-says_2">What the Research Says<a class="headerlink" href="#what-the-research-says_2" title="Permanent link">&para;</a></h3>
+<p>This is the foundational value proposition of RAG, and the evidence is strong: <strong>yes, a vector database acts as a runtime knowledge extension for any model, including small ones, and larger/more complete knowledge bases produce measurably better outputs.</strong></p>
+<p>The core mechanism: RAG enhances LLMs by incorporating an information-retrieval mechanism that allows models to access and utilize additional data beyond their original training set. When new information becomes available, rather than having to retrain the model, all that's needed is to augment the model's external knowledge base with the updated information. Typically, the data to be referenced is converted into LLM embeddings, numerical representations in the form of a large vector space.</p>
+<p>By redesigning the language model with the retriever in mind, a 25-time smaller network can get comparable perplexity as its much larger counterparts. That is the extreme end of what retrieval-grounded models can achieve — a 25x parameter reduction while maintaining output quality — though this requires training from scratch (the RETRO architecture), which is beyond SheepSOC's scope. But the principle applies to inference-time RAG: the vector store is acting as an external memory that compensates for the model's limited internal knowledge.</p>
+<p>Vector DBs act as external knowledge bases or external memory of LLMs. They enable low-latency similarity search using approximate nearest neighbor search algorithms over the vector space, providing the retrieved knowledge efficiently to the LLMs for high-quality generation.</p>
+<p>There is an important nuance here about <em>what kind</em> of knowledge matters. RAG is not simply "more documents = better." The key finding from enterprise deployments: one of RAG's biggest advantages is that it integrates the most current data into the LLM's decision-making process. By connecting directly to updated databases, RAG ensures that the information being used is the latest available, which is vital for applications where timeliness is critical. The value is not in volume alone but in domain specificity and recency — exactly what a private vector corpus provides.</p>
+<p>Research has also identified what kind of corpus benefits small models most. RAG was shown to improve the factual accuracy of LLMs for domain-specific and time-sensitive queries related to private knowledge bases. The research also revealed the limitations of fine-tuning LLMs with small-scale and skewed datasets. In other words, large, balanced, domain-specific corpora are the gold standard.</p>
+<p>For the question of <em>corpus size specifically</em>, the RETRO model research provides the clearest signal: retrieval models scale with corpus size in a way that parametric models scale with parameter count. You effectively get more "knowledge" per dollar by growing your vector store than by upgrading your model — at least in knowledge-intensive domains.</p>
+<h3 id="important-tension-noise-vs-coverage">Important Tension: Noise vs. Coverage<a class="headerlink" href="#important-tension-noise-vs-coverage" title="Permanent link">&para;</a></h3>
+<p>Bigger corpora can introduce noise. RAG was initially primarily regarded as a means to fill knowledge gaps left from the pre-training stage, but subsequent research has shown that it has broader value: correcting internal model errors. However, RAG systems may retrieve factually correct but misleading sources, leading to errors in interpretation. A large corpus with poor chunking strategy or low-quality documents can actually hurt performance.</p>
+<p>RAG systems may retrieve factually correct but misleading sources, leading to errors in interpretation. When faced with conflicting information, RAG models may struggle to determine which source is accurate. This is more pronounced in small models than large ones, since larger models are better at detecting when retrieved context conflicts with their parametric knowledge.</p>
+<h3 id="experiments-sheepsoc-can-run_3">Experiments SheepSOC Can Run<a class="headerlink" href="#experiments-sheepsoc-can-run_3" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Corpus size scaling experiment:</strong> Start with a 100-document corpus on a specific domain. Measure answer accuracy. Double it to 200, then 500, then 1,000, then 5,000 documents. Plot answer quality vs. corpus size. You expect a positive but diminishing returns curve — understanding where returns plateau is valuable.</p>
+</li>
+<li>
+<p><strong>Corpus quality vs. quantity tradeoff:</strong> Split a large corpus into a "curated" high-quality subset (clean, relevant, well-chunked) vs. the raw full corpus. Compare retrieval quality and final answer quality. This tests whether cleaning 20% of documents beats having 5x more raw documents.</p>
+</li>
+<li>
+<p><strong>Domain transfer experiment:</strong> Index a large general knowledge corpus (e.g., Wikipedia dumps) and measure whether it improves performance on domain-specific queries compared to a small, targeted domain corpus. Small models should benefit more from domain-specific corpora than general ones.</p>
+</li>
+<li>
+<p><strong>Chunking strategy impact:</strong> nomic-embed-text operates at 768 dimensions with Elasticsearch's HNSW. Test different chunk sizes (128 tokens, 256 tokens, 512 tokens) and overlap percentages against the same golden question set. The literature suggests 256-token chunks with 10–20% overlap as a starting baseline.</p>
+</li>
+</ol>
+<hr />
+<h2 id="cross-cutting-recommendation-how-to-run-all-four-questions-together">Cross-Cutting Recommendation: How to Run All Four Questions Together<a class="headerlink" href="#cross-cutting-recommendation-how-to-run-all-four-questions-together" title="Permanent link">&para;</a></h2>
+<p>SheepSOC's setup is ideally suited for a <strong>factorial experiment design</strong> that answers all four questions simultaneously with a single unified test harness:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Levels to Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Model</strong></td>
+<td>Mistral 7B, Llama 2 13B, Gemma 3 12B</td>
+</tr>
+<tr>
+<td><strong>Retrieval method</strong></td>
+<td>None, BM25, Dense (nomic), ELSER v2, Hybrid</td>
+</tr>
+<tr>
+<td><strong>Corpus size</strong></td>
+<td>Small (100 docs), Medium (1K docs), Large (10K docs)</td>
+</tr>
+<tr>
+<td><strong>Query type</strong></td>
+<td>Exact/entity, Conceptual/paraphrase, Multi-hop reasoning</td>
+</tr>
+</tbody>
+</table>
+<p>Your <strong>251 GB of RAM</strong> means you can hold all indices in memory simultaneously. Your <strong>56 logical cores</strong> enable running multiple retrieval paths in parallel. Your <strong>RTX 5060 Ti</strong> handles the inference. Your <strong>Jupyter environment</strong> is the analysis layer. This is, frankly, a better-instrumented testbed than many published papers used.</p>
+<hr />
+<h2 id="confidence-gaps">Confidence &amp; Gaps<a class="headerlink" href="#confidence-gaps" title="Permanent link">&para;</a></h2>
+<p><strong>High confidence findings:</strong>
+- Hybrid search (BM25 + dense or sparse) consistently outperforms either method alone by 15–30% on recall, across multiple independent studies
+- ELSER v2 delivers an average 18% improvement in nDCG@10 over BM25 and is the practical best choice for English zero-shot retrieval on Elasticsearch
+- A small model with good retrieval can match or beat a model 3–5× its size without retrieval
+- Hallucination rates are substantially reduced by RAG in small models, particularly for domain-specific knowledge gaps</p>
+<p><strong>Moderate confidence:</strong>
+- The exact performance advantage of large vs. small corpora is underexplored at SheepSOC's scale range (thousands, not millions of documents). Most studies go very small or very large, skipping the mid-range.
+- Whether out-of-domain dense vector search is consistently worse than BM25 depends heavily on the embedding model and corpus. nomic-embed-text specifically has not been benchmarked on this question in published work against ELSER v2.</p>
+<p><strong>Gaps and open questions:</strong>
+- There is surprisingly little published work on the <em>exact</em> dose-response relationship between retrieval quality (measured by nDCG) and final answer quality (measured by hallucination rate) <em>specifically for 7B–13B models</em> — the range SheepSOC runs. Most papers study either very small (&lt;3B) or very large (&gt;70B) models.
+- The "negative rejection" capability (knowing when retrieved context is bad) in small models is understudied. The RGB benchmark from 2023 raised this issue but it hasn't been systematically quantified across the Ollama model library.
+- ELSER requires an Elastic subscription for full production use. SheepSOC should verify whether the trial/developer license covers the intended research workload — this is an operational gap, not a research gap, but it matters for the experiment plan.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "search.suggest", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

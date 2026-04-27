@@ -1,0 +1,1730 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Sheepsoc operations hub — architecture, SOPs, configuration, and operational guides">
+      
+      
+      
+        <link rel="canonical" href="http://192.168.50.100/docs/knowledge-bases/">
+      
+      
+        <link rel="prev" href="../elser-openwebui/">
+      
+      
+        <link rel="next" href="../bulk-ingest/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Knowledge Bases - sheepsoc</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#knowledge-bases" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="sheepsoc" class="md-header__button md-logo" aria-label="sheepsoc" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            sheepsoc
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Knowledge Bases
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="sheepsoc" class="md-nav__button md-logo" aria-label="sheepsoc" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    sheepsoc
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture & Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agile-team/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Agile Team
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Topology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AI & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheepsoc-rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RAG & Knowledge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../elser-openwebui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ELSER & OpenWebUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge Bases
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge Bases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#knowledge-base-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Knowledge Base Catalog
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Knowledge Base Catalog">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#full-uuids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full UUIDs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-kbs-auto-managed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System KBs (Auto-Managed)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-a-kb-in-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using a KB in Chat
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ingesting-content-into-a-kb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ingesting Content into a KB
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ingesting Content into a KB">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-the-bulk-ingest-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the Bulk Ingest Script
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verifying-kb-population-in-elasticsearch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verifying KB Population in Elasticsearch
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bulk-ingest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bulk Ingest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../matrix-bot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Matrix Bot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github-rag-sync/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub & RAG Sync
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOPs & Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SOPs & Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOPs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runbook-shutdown-startup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shutdown & Startup Runbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nightly-backups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nightly Backups
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config-backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Config Backup & Encryption
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../future-improvements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Future Improvements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environment & Tools
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Environment & Tools
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conda/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conda Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/research_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research Report (RAG-001)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/precision_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Precision Audit (RAG-001)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/protocol_v1_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experimental Protocol v1.1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#knowledge-base-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Knowledge Base Catalog
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Knowledge Base Catalog">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#full-uuids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full UUIDs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-kbs-auto-managed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System KBs (Auto-Managed)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-a-kb-in-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using a KB in Chat
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ingesting-content-into-a-kb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ingesting Content into a KB
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ingesting Content into a KB">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-the-bulk-ingest-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the Bulk Ingest Script
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verifying-kb-population-in-elasticsearch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verifying KB Population in Elasticsearch
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="knowledge-bases">Knowledge Bases<a class="headerlink" href="#knowledge-bases" title="Permanent link">&para;</a></h1>
+<p><strong>Purpose:</strong> Catalog of all OpenWebUI RAG Knowledge Base collections on sheepsoc.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Interface</td>
+<td>OpenWebUI · <a href="http://192.168.50.100:8080">192.168.50.100:8080</a> · Workspace → Knowledge</td>
+</tr>
+<tr>
+<td>Vector store</td>
+<td>Elasticsearch · index <code>open_webui_collections_d768</code></td>
+</tr>
+<tr>
+<td>Status</td>
+<td>KBs created 2026-04-24 · bulk ingestion pending · system KBs populated by nightly cron</td>
+</tr>
+</tbody>
+</table>
+<p>The sheepsoc RAG system organises its document collections into thematic Knowledge Bases (KBs) inside OpenWebUI. Each KB groups related source material so that chat queries can be scoped to a relevant topic domain. Content is chunked, embedded via <code>nomic-embed-text</code> (768 dimensions), and stored in Elasticsearch, where OpenWebUI retrieves it using HNSW cosine similarity search.</p>
+<div class="admonition note">
+<p class="admonition-title">Status — 2026-04-24</p>
+<p>All 15 Knowledge Bases have been created in OpenWebUI. As of this date, only the two system KBs (<strong>Sheepsoc System Docs</strong> and <strong>Sheepsoc System Config</strong>) are actively populated — these are maintained by the nightly <code>rag_sync</code> cron job. Bulk ingestion of the remaining 13 thematic KBs from <code>/Data/Ingest_Ready/</code> is pending. See <a href="../bulk-ingest/">Bulk Ingest</a> for the procedure.</p>
+</div>
+<h2 id="knowledge-base-catalog">Knowledge Base Catalog<a class="headerlink" href="#knowledge-base-catalog" title="Permanent link">&para;</a></h2>
+<p>All 15 KBs configured on sheepsoc, their internal OpenWebUI UUIDs, descriptions, and the source directories assigned to each. Source directories correspond to subdirectories under <code>/mnt/ssd_working/Data/Ingest_Ready/</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Knowledge Base</th>
+<th>KB ID (short)</th>
+<th>Description</th>
+<th>Source Directories</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Medical &amp; First Aid</strong></td>
+<td><code>59976efc</code></td>
+<td>Clinical nursing, emergency first aid, field medicine, and healthcare guides for when professional care is unavailable.</td>
+<td><code>nursing_text</code>, <code>medical_handbook_text</code>, <code>no_doctor_text</code></td>
+</tr>
+<tr>
+<td><strong>Herbalism &amp; Plant Medicine</strong></td>
+<td><code>d630298a</code></td>
+<td>Encyclopedias and handbooks covering medicinal herbs, herbal remedies, and plant-based treatments.</td>
+<td><code>encyclopedia_herbs_text</code>, <code>handbook_herbs_text</code>, <code>herbal_medicines_text</code>, <code>herbal_remedies_text</code></td>
+</tr>
+<tr>
+<td><strong>Agriculture &amp; Gardening</strong></td>
+<td><code>e690308b</code></td>
+<td>Comprehensive gardening and small-scale farming including permaculture, aquaponics, seasonal planting, homesteading, and sustainable food production.</td>
+<td><code>master_gardener_text</code>, <code>aquaponics_food_text</code>, <code>aquaponics_gardening_text</code>, <code>fall_planting_guide_text</code>, <code>fall_vegetable_text</code>, <code>victory_garden_text</code>, <code>backyard_homestead_text</code>, <code>SeppHolzer_text</code>, <code>mother_earth_news_text</code>, <code>home_and_farm_text</code>, <code>self_sufficiency_text</code></td>
+</tr>
+<tr>
+<td><strong>Livestock &amp; Poultry</strong></td>
+<td><code>b4924aaf</code></td>
+<td>Raising and managing chickens, show broilers, poultry flocks, and honeybee colonies.</td>
+<td><code>chickens_text</code>, <code>poultry_qa_text</code>, <code>show_broilers_text</code>, <code>bee_keeping_manual_text</code></td>
+</tr>
+<tr>
+<td><strong>Soil &amp; Land Management</strong></td>
+<td><code>448a92b4</code></td>
+<td>Soil amendments, land stewardship, rangeland management, drought resilience, and biodiversity.</td>
+<td><code>soil_ammendments_text</code>, <code>soil_amendments_2_text</code>, <code>bexar_county_soil_text</code>, <code>rangeland_drought_text</code>, <code>biodiversity_text</code></td>
+</tr>
+<tr>
+<td><strong>Texas Agriculture &amp; Regional Resources</strong></td>
+<td><code>48f975c5</code></td>
+<td>Texas A&amp;M AgriLife extension publications and Texas-specific grass and pasture management guides.</td>
+<td><code>texas_am_text</code>, <code>texas_am_grasses_text</code></td>
+</tr>
+<tr>
+<td><strong>Military Tactics &amp; Field Craft</strong></td>
+<td><code>23fab10a</code></td>
+<td>U.S. military field manuals covering ranger operations, long-range surveillance, combat tactics, Seabee construction, marksmanship, and personal defense doctrine.</td>
+<td><code>ranger_handbook_text</code>, <code>tc_ranger_text</code>, <code>long_range_surveillance_text</code>, <code>seabee_combat_handbooK_1_text</code>, <code>FMFRP-12-80-Kill_or_Get_Killed_text</code>, <code>rifle_marksmanship_text</code>, <code>pistol_training_text</code>, <code>personal_defense_text</code></td>
+</tr>
+<tr>
+<td><strong>Weapons &amp; Munitions</strong></td>
+<td><code>953ef1e0</code></td>
+<td>Reloading manuals, ammunition production, military explosives references, and weapons handling.</td>
+<td><code>homemade_ammo_text</code>, <code>lyman_reloading_text</code>, <code>military_explosives_text</code>, <code>james_bond_text</code></td>
+</tr>
+<tr>
+<td><strong>Security &amp; Intelligence</strong></td>
+<td><code>04ba43d8</code></td>
+<td>Counter-intelligence, crowd control doctrine, physical security planning, and psychological operations.</td>
+<td><code>counter_intelligence_text</code>, <code>crowd_control_text</code>, <code>physical_security_text</code>, <code>psyops_text</code></td>
+</tr>
+<tr>
+<td><strong>Survival &amp; Preparedness</strong></td>
+<td><code>ea736ffc</code></td>
+<td>Survival handbooks, food preservation, water purification, firefighting, and emergency preparedness.</td>
+<td><code>150_survival_secrets_text</code>, <code>survival_handbook_text</code>, <code>food_preservation_text</code>, <code>water_purifier_text</code>, <code>firefighting_text</code></td>
+</tr>
+<tr>
+<td><strong>Science &amp; Reference</strong></td>
+<td><code>dc9e9dea</code></td>
+<td>Academic and reference texts covering biology, chemistry, earth science, meteorology, electronics, and general encyclopedic knowledge.</td>
+<td><code>Biology_OpenStax_text</code>, <code>anatomy_physiology_text</code>, <code>basic_chemistry_text</code>, <code>encyclopedia_chemistry_text</code>, <code>earth_science_text</code>, <code>meteorology_text</code>, <code>NEETS_Mod_1_text</code>, <code>encyclopedia_text</code>, <code>american_reformed_text</code></td>
+</tr>
+<tr>
+<td><strong>Construction &amp; Engineering</strong></td>
+<td><code>93af47fe</code></td>
+<td>Farm construction, architectural rules, and the Household Cyclopedia covering 19th-century building trades and practical engineering.</td>
+<td><code>farm_construction_text</code>, <code>architects_rules_text</code>, <code>household_cyclopedia_text</code></td>
+</tr>
+<tr>
+<td><strong>Finance &amp; Economics</strong></td>
+<td><code>a4ba1e3a</code></td>
+<td>Principles of finance, economics fundamentals, and financial literacy references.</td>
+<td><code>princiapls_of_finance_text</code></td>
+</tr>
+<tr>
+<td><strong>Sheepsoc System Docs</strong></td>
+<td><code>0624b7b9</code></td>
+<td>Auto-synced documentation and SOPs for the Sheepsoc server. Populated nightly by <code>rag_sync</code> cron. Do not manually ingest into this KB.</td>
+<td><em>cron-managed</em></td>
+</tr>
+<tr>
+<td><strong>Sheepsoc System Config</strong></td>
+<td><code>d40f321a</code></td>
+<td>Auto-synced configuration files and infrastructure settings for the Sheepsoc server. Populated nightly by <code>rag_sync</code> cron. Do not manually ingest into this KB.</td>
+<td><em>cron-managed</em></td>
+</tr>
+</tbody>
+</table>
+<h3 id="full-uuids">Full UUIDs<a class="headerlink" href="#full-uuids" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Knowledge Base</th>
+<th>Full UUID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Medical &amp; First Aid</td>
+<td><code>59976efc-1549-4c34-958c-691c28b3a358</code></td>
+</tr>
+<tr>
+<td>Herbalism &amp; Plant Medicine</td>
+<td><code>d630298a-ccab-40c8-9ee2-393fecf4f756</code></td>
+</tr>
+<tr>
+<td>Agriculture &amp; Gardening</td>
+<td><code>e690308b-8715-4d4d-b15b-cff521811bca</code></td>
+</tr>
+<tr>
+<td>Livestock &amp; Poultry</td>
+<td><code>b4924aaf-e9e0-4473-8735-a73132707c04</code></td>
+</tr>
+<tr>
+<td>Soil &amp; Land Management</td>
+<td><code>448a92b4-d3fd-473e-b491-378e73387131</code></td>
+</tr>
+<tr>
+<td>Texas Agriculture</td>
+<td><code>48f975c5-2f5e-4a0a-96e9-baea9a8f4e16</code></td>
+</tr>
+<tr>
+<td>Military Tactics</td>
+<td><code>23fab10a-ac33-4c96-a88d-17eed72363e6</code></td>
+</tr>
+<tr>
+<td>Weapons &amp; Munitions</td>
+<td><code>953ef1e0-315b-4a60-b6bb-7d48f334df44</code></td>
+</tr>
+<tr>
+<td>Security &amp; Intelligence</td>
+<td><code>04ba43d8-188b-4b66-8d35-225d41b0a061</code></td>
+</tr>
+<tr>
+<td>Survival &amp; Preparedness</td>
+<td><code>ea736ffc-4dff-4846-a499-b8a7781209ea</code></td>
+</tr>
+<tr>
+<td>Science &amp; Reference</td>
+<td><code>dc9e9dea-b145-4cd2-a366-50c3a0b21667</code></td>
+</tr>
+<tr>
+<td>Construction &amp; Engineering</td>
+<td><code>93af47fe-2506-467b-a792-2f0e2e128d30</code></td>
+</tr>
+<tr>
+<td>Finance &amp; Economics</td>
+<td><code>a4ba1e3a-b813-4d46-849e-363678c38105</code></td>
+</tr>
+<tr>
+<td>Sheepsoc System Docs</td>
+<td><code>0624b7b9-a282-45ce-8ffd-56294d8abc9f</code></td>
+</tr>
+<tr>
+<td>Sheepsoc System Config</td>
+<td><code>d40f321a-f081-46bd-85bc-8bad4afea88e</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="system-kbs-auto-managed">System KBs (Auto-Managed)<a class="headerlink" href="#system-kbs-auto-managed" title="Permanent link">&para;</a></h2>
+<p>Two KBs are reserved for system documentation and are managed exclusively by the nightly <code>rag_sync</code> cron job. Do not manually upload files into these KBs — the cron job performs a full sync on each run, and any manually added content may be overwritten or cause conflicts.</p>
+<table>
+<thead>
+<tr>
+<th>KB Name</th>
+<th>What It Contains</th>
+<th>Managed By</th>
+<th>Cron Schedule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sheepsoc System Docs</strong></td>
+<td>This documentation site (HTML/MD pages), SOPs, and system guides</td>
+<td><code>rag_sync</code> cron</td>
+<td>Nightly at 02:00</td>
+</tr>
+<tr>
+<td><strong>Sheepsoc System Config</strong></td>
+<td>Infrastructure config files, service drop-ins, and settings from the config-mgmt repo</td>
+<td><code>rag_sync</code> cron</td>
+<td>Nightly at 02:00</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Do Not Manually Ingest</p>
+<p>These two KBs are the only ones on the system with automated content management. Adding files through the OpenWebUI Workspace UI will not cause an immediate error, but the nightly sync may replace or duplicate content unpredictably. Treat them as read-only from the UI perspective.</p>
+</div>
+<p>For details on how the nightly sync works, what it backs up, and how to verify it ran successfully, see <a href="../nightly-backups/">Nightly Backups</a> and <a href="../github-rag-sync/">GitHub &amp; RAG Sync</a>.</p>
+<h2 id="using-a-kb-in-chat">Using a KB in Chat<a class="headerlink" href="#using-a-kb-in-chat" title="Permanent link">&para;</a></h2>
+<p>Any Knowledge Base can be selected as the context source for an OpenWebUI chat session. When a KB is active, OpenWebUI retrieves the most relevant document chunks from Elasticsearch and injects them into the prompt before the model generates its response.</p>
+<ol>
+<li>Open OpenWebUI at <code>http://192.168.50.100:8080</code>.</li>
+<li>Start or open a chat.</li>
+<li>In the message input box, type <code>#</code>. A dropdown of your available Knowledge Bases appears.</li>
+<li>Select the KB you want to query against (e.g., <strong>Agriculture &amp; Gardening</strong>).</li>
+<li>Type your question and submit. The model's response draws on retrieved chunks from that KB.</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Tip</p>
+<p>You can reference multiple KBs in the same message by typing <code>#</code> more than once and selecting different collections. For example, combining <strong>Soil &amp; Land Management</strong> and <strong>Texas Agriculture &amp; Regional Resources</strong> gives regionally specific soil query context.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Model Selection</p>
+<p>Select the active language model from the dropdown at the top of any chat. <code>gemma3:12b</code> gives the best answer quality for most RAG queries. <code>dolphin3:latest</code> is faster for quick lookups. See the <a href="../sheepsoc-rag/#ollama-models-available">models table on the RAG &amp; Knowledge page</a> for the full list.</p>
+</div>
+<h2 id="ingesting-content-into-a-kb">Ingesting Content into a KB<a class="headerlink" href="#ingesting-content-into-a-kb" title="Permanent link">&para;</a></h2>
+<p>Source files for the 13 thematic KBs live in pre-extracted text collections under <code>/mnt/ssd_working/Data/Ingest_Ready/</code>. Each subdirectory listed in the catalog table above corresponds to a directory at that path containing <code>.txt</code> chunk files ready for ingestion.</p>
+<h3 id="using-the-bulk-ingest-script">Using the Bulk Ingest Script<a class="headerlink" href="#using-the-bulk-ingest-script" title="Permanent link">&para;</a></h3>
+<p>The <code>ingest_to_openwebui.py</code> script handles bulk ingestion. It writes chunk vectors to Elasticsearch and registers file records in OpenWebUI's SQLite database (<code>webui.db</code>) simultaneously, so ingested files appear natively in the OpenWebUI Knowledge UI after a successful run.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Example: ingest the Agriculture &amp; Gardening KB</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>conda<span class="w"> </span>activate<span class="w"> </span>openwebui
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="o">(</span>openwebui<span class="o">)</span><span class="w"> </span>pmabry@sheepsoc:~$<span class="w"> </span>python<span class="w"> </span>~/repositories/sheepsoc/ingest_to_openwebui.py
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Idempotent</p>
+<p>The ingest tool is idempotent. Files already registered in SQLite are skipped on re-runs, so it is safe to re-run after a partial failure or to add new source directories to an existing KB.</p>
+</div>
+<p>For the full step-by-step procedure, architecture notes, complete dataset reference (all 63+ source collections with file counts), and troubleshooting, see the dedicated <strong><a href="../bulk-ingest/">Bulk Ingest</a></strong> page.</p>
+<h3 id="verifying-kb-population-in-elasticsearch">Verifying KB Population in Elasticsearch<a class="headerlink" href="#verifying-kb-population-in-elasticsearch" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Count total documents in the RAG index</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>-u<span class="w"> </span>elastic:&lt;password&gt;<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="s2">&quot;http://localhost:9200/open_webui_collections_d768/_count&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>json.tool
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># Browse Kibana for a visual view of the index</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># http://192.168.50.100:5601</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "search.suggest", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2384 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Sheepsoc operations hub — architecture, SOPs, configuration, and operational guides">
+      
+      
+      
+        <link rel="canonical" href="http://192.168.50.100/docs/matrix-bot/">
+      
+      
+        <link rel="prev" href="../bulk-ingest/">
+      
+      
+        <link rel="next" href="../github-rag-sync/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Matrix Bot - sheepsoc</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#matrix-bot-sheepsoc-bot" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="sheepsoc" class="md-header__button md-logo" aria-label="sheepsoc" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            sheepsoc
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Matrix Bot
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="sheepsoc" class="md-nav__button md-logo" aria-label="sheepsoc" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    sheepsoc
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture & Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agile-team/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Agile Team
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Topology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AI & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheepsoc-rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RAG & Knowledge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../elser-openwebui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ELSER & OpenWebUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge Bases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bulk-ingest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bulk Ingest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Matrix Bot
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Matrix Bot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-facts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Facts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#room-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Room Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config-schema-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config Schema Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Config Schema Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#matrix-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        matrix section
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openwebui-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        openwebui section
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rooms-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rooms section
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-new-room-sop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a New Room (SOP)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files-and-directories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files and Directories
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-stop-restart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start / Stop / Restart
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading Logs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#openwebuiclient-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenWebUIClient Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#session-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session Persistence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mention-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mention Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#event-callbacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Callbacks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-packages-apt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Packages (apt)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conda-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conda Environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python-package-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python Package Summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-issues-and-lessons-learned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known Issues and Lessons Learned
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Known Issues and Lessons Learned">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#device-proliferation-on-every-restart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Proliferation on Every Restart
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mention-detection-not-triggering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        @mention Detection Not Triggering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#olmunverifieddeviceerror-on-first-send-after-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OlmUnverifiedDeviceError on First Send After Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openwebui-model-list-empty-for-non-admin-accounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenWebUI Model List Empty for Non-Admin Accounts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caveats-and-warnings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caveats and Warnings
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github-rag-sync/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub & RAG Sync
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOPs & Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SOPs & Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOPs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runbook-shutdown-startup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shutdown & Startup Runbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nightly-backups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nightly Backups
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config-backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Config Backup & Encryption
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../future-improvements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Future Improvements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environment & Tools
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Environment & Tools
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conda/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conda Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/research_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research Report (RAG-001)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/precision_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Precision Audit (RAG-001)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/protocol_v1_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experimental Protocol v1.1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-facts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Facts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#room-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Room Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config-schema-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config Schema Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Config Schema Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#matrix-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        matrix section
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openwebui-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        openwebui section
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rooms-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rooms section
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-new-room-sop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a New Room (SOP)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files-and-directories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files and Directories
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-stop-restart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start / Stop / Restart
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading Logs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#openwebuiclient-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenWebUIClient Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#session-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session Persistence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mention-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mention Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#event-callbacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Callbacks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-packages-apt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Packages (apt)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conda-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conda Environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python-package-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python Package Summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-issues-and-lessons-learned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known Issues and Lessons Learned
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Known Issues and Lessons Learned">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#device-proliferation-on-every-restart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device Proliferation on Every Restart
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mention-detection-not-triggering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        @mention Detection Not Triggering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#olmunverifieddeviceerror-on-first-send-after-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OlmUnverifiedDeviceError on First Send After Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openwebui-model-list-empty-for-non-admin-accounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenWebUI Model List Empty for Non-Admin Accounts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caveats-and-warnings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caveats and Warnings
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="matrix-bot-sheepsoc-bot">Matrix Bot (sheepsoc-bot)<a class="headerlink" href="#matrix-bot-sheepsoc-bot" title="Permanent link">&para;</a></h1>
+<p><strong>Purpose:</strong> E2EE Matrix bot that bridges Element chat rooms to OpenWebUI RAG and Ollama LLM inference.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Added</td>
+<td>2026-04-22</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>Running — <code>matrix-bot.service</code></td>
+</tr>
+<tr>
+<td>Bot Matrix ID</td>
+<td><code>@sheepsoc-bot:matrix.pmabry.com</code></td>
+</tr>
+<tr>
+<td>Homeserver</td>
+<td><code>matrix.pmabry.com</code> (Synapse)</td>
+</tr>
+<tr>
+<td>Default model</td>
+<td><code>gemma3:12b</code> via Ollama</td>
+</tr>
+<tr>
+<td>Conda env</td>
+<td><code>matrixbot</code> — at <code>~/infrastructure/miniconda3/envs/matrixbot/</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The Matrix bot, named <strong>sheepsoc-bot</strong>, is a systemd-managed Python service that joins Matrix rooms and responds to @mentions by routing the user's question through OpenWebUI's chat completions API. OpenWebUI in turn performs an Elasticsearch RAG lookup and sends the retrieved context along with the question to an Ollama LLM for a final answer.</p>
+<p>This gives any user in an authorized Element room a conversational interface to the same knowledge bases available in OpenWebUI — without needing to open a browser. Different rooms can be mapped to different OpenWebUI Knowledge Base collections, so a room dedicated to one topic area always queries only that collection.</p>
+<h2 id="key-facts">Key Facts<a class="headerlink" href="#key-facts" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>systemd unit</td>
+<td><code>matrix-bot.service</code> — enabled at boot, runs as <code>pmabry</code></td>
+</tr>
+<tr>
+<td>Matrix library</td>
+<td><code>matrix-nio[e2e]</code> — full E2EE support</td>
+</tr>
+<tr>
+<td>OpenWebUI API</td>
+<td><code>http://localhost:8080/api/chat/completions</code> — JWT auth, bot account has admin role</td>
+</tr>
+<tr>
+<td>OpenWebUI user</td>
+<td><code>sheepsoc@pmabry.com</code> — must remain admin in OpenWebUI</td>
+</tr>
+</tbody>
+</table>
+<h2 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
+<p>When a message arrives in a room the bot has joined, it checks whether the message contains an @mention of the bot (by display name <code>sheepsoc-bot</code> or by full MXID <code>@sheepsoc-bot:matrix.pmabry.com</code>). If a match is found, it:</p>
+<ol>
+<li>Looks up the room's entry in <code>config.yaml</code> to find the associated OpenWebUI Knowledge Base collection ID (or <code>null</code> for plain LLM with no RAG context).</li>
+<li>Sends the user's message to <code>http://localhost:8080/api/chat/completions</code> with the collection ID included in the request payload.</li>
+<li>OpenWebUI retrieves relevant document chunks from Elasticsearch using <code>nomic-embed-text</code> (768-dimensional cosine similarity), injects them as context, and queries Ollama (<code>gemma3:12b</code> by default) for a response.</li>
+<li>The bot posts OpenWebUI's response back into the Matrix room.</li>
+</ol>
+<p>All communication between the bot and Matrix is end-to-end encrypted. The bot manages its own E2EE device keys, stored persistently in the crypto store directory.</p>
+<h2 id="room-configuration">Room Configuration<a class="headerlink" href="#room-configuration" title="Permanent link">&para;</a></h2>
+<p>Each room the bot participates in is configured via a named entry in <code>~/repositories/matrix-bot/config.yaml</code> under the <code>rooms:</code> key. The key for each entry is the Matrix internal room ID (not the human-readable alias).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Example entry in config.yaml</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">rooms</span><span class="p">:</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="s">&quot;!exampleRoomId:matrix.pmabry.com&quot;</span><span class="p p-Indicator">:</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">collection_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx&quot;</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">mention_only</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>collection_id</code></td>
+<td>UUID of the OpenWebUI Knowledge Base to use for RAG — set to <code>null</code> to disable RAG and use plain LLM</td>
+</tr>
+<tr>
+<td><code>mention_only</code></td>
+<td>When <code>true</code>, the bot responds only when @sheepsoc-bot appears in the message body. Recommended for all rooms.</td>
+</tr>
+</tbody>
+</table>
+<p>The bot auto-accepts room invites. A room does not need to be in <code>config.yaml</code> for the bot to join — but if it is not listed, the bot will use plain LLM inference with no RAG context.</p>
+<h2 id="config-schema-reference">Config Schema Reference<a class="headerlink" href="#config-schema-reference" title="Permanent link">&para;</a></h2>
+<p>Every field recognized by <code>bot.py</code> is documented below. The config is loaded once at startup from <code>~/repositories/matrix-bot/config.yaml</code>; changes require a service restart to take effect.</p>
+<h3 id="matrix-section">matrix section<a class="headerlink" href="#matrix-section" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>homeserver</code></td>
+<td>string (URL)</td>
+<td>Full HTTPS URL of the Matrix homeserver. Example: <code>https://matrix.pmabry.com</code></td>
+</tr>
+<tr>
+<td><code>username</code></td>
+<td>string (MXID)</td>
+<td>Fully-qualified Matrix user ID of the bot account. Example: <code>@sheepsoc-bot:matrix.pmabry.com</code>. The localpart is also used as the bot's display name.</td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>string</td>
+<td>Bot account password. Used only on the very first run to obtain an access token. After that, <code>session.json</code> is used for authentication.</td>
+</tr>
+<tr>
+<td><code>device_name</code></td>
+<td>string</td>
+<td>Friendly label for this Matrix device registration, visible in Element's device list.</td>
+</tr>
+<tr>
+<td><code>store_path</code></td>
+<td>string (path)</td>
+<td>Directory where matrix-nio stores E2EE cryptographic state. Default: <code>./crypto_store</code>.</td>
+</tr>
+<tr>
+<td><code>session_file</code></td>
+<td>string (path)</td>
+<td>Path to the JSON file that persists the Matrix access token between restarts. Default: <code>./session.json</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="openwebui-section">openwebui section<a class="headerlink" href="#openwebui-section" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>url</code></td>
+<td>string (URL)</td>
+<td>Base URL of the OpenWebUI instance. Example: <code>http://localhost:8080</code></td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>string</td>
+<td>Email address of the OpenWebUI account the bot authenticates as. Must be an <strong>admin</strong> account. Currently: <code>sheepsoc@pmabry.com</code></td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>string</td>
+<td>Password for the OpenWebUI account. Used to obtain a JWT via <code>/api/v1/auths/signin</code>. The JWT is managed automatically and refreshed before expiry.</td>
+</tr>
+<tr>
+<td><code>model</code></td>
+<td>string</td>
+<td>Ollama model identifier passed in every chat completions request. Default: <code>gemma3:12b</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rooms-section">rooms section<a class="headerlink" href="#rooms-section" title="Permanent link">&para;</a></h3>
+<p>Each key under <code>rooms:</code> is a Matrix internal room ID (format: <code>!opaque_string:matrix.pmabry.com</code>). The value is a mapping with the following fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Human-readable label for this room. Used only in log output. Has no functional effect.</td>
+</tr>
+<tr>
+<td><code>collection_id</code></td>
+<td>string (UUID) or null</td>
+<td>UUID of the OpenWebUI Knowledge Base collection to use for RAG retrieval. Set to <code>null</code> to skip RAG. Obtain the UUID from OpenWebUI: Workspace → Knowledge → click the collection → copy the UUID from the browser URL.</td>
+</tr>
+<tr>
+<td><code>mention_only</code></td>
+<td>boolean</td>
+<td>When <code>true</code>, the bot only responds when the message body contains the bot's MXID, localpart, or formatted HTML mention. Recommended: leave as <code>true</code>.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Unlisted Rooms</p>
+<p>A room does not need to appear in <code>config.yaml</code> for the bot to join it — the bot auto-accepts all invites. However, unlisted rooms receive no RAG context and behave as if <code>mention_only: true</code> and <code>collection_id: null</code>.</p>
+</div>
+<h2 id="add-a-new-room-sop">Add a New Room (SOP)<a class="headerlink" href="#add-a-new-room-sop" title="Permanent link">&para;</a></h2>
+<p>Follow these steps to connect a new Matrix room to a specific Knowledge Base collection.</p>
+<ol>
+<li><strong>Invite the bot.</strong> In Element, open the room, open the member panel, and invite <code>@sheepsoc-bot:matrix.pmabry.com</code>. The bot will auto-accept.</li>
+<li><strong>Get the internal room ID.</strong> In Element: Room Settings → Advanced → "Internal room ID". It looks like <code>!AbcXyz123:matrix.pmabry.com</code>.</li>
+<li><strong>Get the Knowledge Base collection ID.</strong> In OpenWebUI: Workspace → Knowledge → click the collection → copy the UUID from the browser URL bar.</li>
+<li><strong>Add the entry to config.yaml.</strong>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>vim<span class="w"> </span>~/repositories/matrix-bot/config.yaml
+</code></pre></div>
+    Add a block under <code>rooms:</code> as shown in the Room configuration section above.</li>
+<li><strong>Restart the bot.</strong>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>matrix-bot
+</code></pre></div></li>
+</ol>
+<h2 id="files-and-directories">Files and Directories<a class="headerlink" href="#files-and-directories" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>~/repositories/matrix-bot/bot.py</code></td>
+<td>Main bot process — Matrix event loop, message handling, OpenWebUI API calls</td>
+</tr>
+<tr>
+<td><code>~/repositories/matrix-bot/config.yaml</code></td>
+<td>Homeserver credentials, bot account details, room → collection mappings</td>
+</tr>
+<tr>
+<td><code>~/repositories/matrix-bot/session.json</code></td>
+<td>Matrix access token — <strong>do not delete</strong> (forces re-registration, breaks E2EE for past messages)</td>
+</tr>
+<tr>
+<td><code>~/repositories/matrix-bot/crypto_store/</code></td>
+<td>E2EE device keys — <strong>do not delete</strong> (same consequence as session.json deletion)</td>
+</tr>
+<tr>
+<td><code>~/infrastructure/miniconda3/envs/matrixbot/</code></td>
+<td>Conda environment with <code>matrix-nio[e2e]</code> and its dependencies</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition danger">
+<p class="admonition-title">Do Not Delete</p>
+<p>Deleting <code>session.json</code> or the <code>crypto_store/</code> directory will force the bot to register as a new Matrix device. Other room members will see security warnings ("new unverified device") and past E2EE messages will become unreadable from that device. If either file goes missing, you will need to verify the bot's new device in Element before normal E2EE operation resumes.</p>
+</div>
+<h2 id="start-stop-restart">Start / Stop / Restart<a class="headerlink" href="#start-stop-restart" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Check status</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>matrix-bot.service
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Restart (required after editing config.yaml)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>pmabry@sheepsoc:~$<span class="w"> </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>matrix-bot.service
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># Stop</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>pmabry@sheepsoc:~$<span class="w"> </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>stop<span class="w"> </span>matrix-bot.service
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="c1"># Start</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>pmabry@sheepsoc:~$<span class="w"> </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>matrix-bot.service
+</code></pre></div>
+<h2 id="reading-logs">Reading Logs<a class="headerlink" href="#reading-logs" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Most recent 50 lines</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>matrix-bot.service<span class="w"> </span>-n<span class="w"> </span><span class="m">50</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Follow live output</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>pmabry@sheepsoc:~$<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>matrix-bot.service<span class="w"> </span>-f
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># Since last restart</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>pmabry@sheepsoc:~$<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>matrix-bot.service<span class="w"> </span>--since<span class="w"> </span><span class="s2">&quot;10 min ago&quot;</span>
+</code></pre></div>
+<h2 id="code-architecture">Code Architecture<a class="headerlink" href="#code-architecture" title="Permanent link">&para;</a></h2>
+<p>The bot is a single-file Python asyncio application at <code>~/repositories/matrix-bot/bot.py</code>. This section describes each major component in enough detail to maintain or debug the bot without re-reading the source.</p>
+<h3 id="openwebuiclient-class">OpenWebUIClient Class<a class="headerlink" href="#openwebuiclient-class" title="Permanent link">&para;</a></h3>
+<p><code>OpenWebUIClient</code> encapsulates all HTTP communication with the OpenWebUI API. It maintains a single <code>aiohttp.ClientSession</code> for the lifetime of the process.</p>
+<p><strong>JWT authentication and auto-refresh:</strong> On initialization, no token is held. The <code>authenticate()</code> coroutine POSTs credentials to <code>/api/v1/auths/signin</code> and stores the returned JWT. The token expiry is computed with a 60-second pre-expiry buffer — the token is treated as expired one minute before the server-side expiry. If the server does not return an <code>expires_at</code> field, a default of one hour from now is used.</p>
+<p><strong>chat() method and 401 retry logic:</strong> <code>chat(message, collection_id)</code> checks whether a valid token exists before proceeding. The method POSTs to <code>/api/chat/completions</code> with the message, model, and (if provided) the Knowledge Base collection ID. The request timeout is 120 seconds to accommodate long LLM inference times. If the server returns HTTP 401, the method calls <code>authenticate()</code> inline and immediately retries once with the new token.</p>
+<h3 id="session-persistence">Session Persistence<a class="headerlink" href="#session-persistence" title="Permanent link">&para;</a></h3>
+<p>matrix-nio's <code>AsyncClient.login()</code> registers a new Olm device with the homeserver every time it is called. To avoid device proliferation, <code>bot.py</code> uses the following logic at startup:</p>
+<ol>
+<li>If <code>session.json</code> exists: call <code>client.restore_login()</code> with the saved <code>user_id</code>, <code>device_id</code>, and <code>access_token</code>. The bot resumes as the same device.</li>
+<li>If <code>session.json</code> does not exist: call <code>client.login()</code> with the password, then write the resulting credentials to <code>session.json</code>. This is a one-time first-run path.</li>
+</ol>
+<div class="admonition danger">
+<p class="admonition-title">Critical</p>
+<p>Deleting <code>session.json</code> forces the bot through the first-run path again, which registers an entirely new Olm device. The new device cannot decrypt any Megolm session keys that were shared with the old device. All previously exchanged E2EE messages will be permanently unreadable. Do not delete <code>session.json</code> unless you are intentionally re-registering the bot.</p>
+</div>
+<h3 id="mention-detection">Mention Detection<a class="headerlink" href="#mention-detection" title="Permanent link">&para;</a></h3>
+<p>When <code>mention_only: true</code> is set for a room, the bot only processes a message if any one of the following three conditions is true:</p>
+<ol>
+<li>The plain-text message body contains the bot's full MXID: <code>@sheepsoc-bot:matrix.pmabry.com</code></li>
+<li>The plain-text message body contains the bot's localpart: <code>sheepsoc-bot</code></li>
+<li>The HTML-formatted message body contains the bot's full MXID</li>
+</ol>
+<p>Condition 2 exists because Element formats @mention pills using the user's display name, not the localpart. When the display name is set to the localpart, the plain-text body of a mention reads as <code>"sheepsoc-bot: hello"</code>. The localpart check catches this case.</p>
+<h3 id="event-callbacks">Event Callbacks<a class="headerlink" href="#event-callbacks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Callback Name</th>
+<th>Trigger Event</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>on_message</code></td>
+<td><code>RoomMessageText</code></td>
+<td>Ignores messages from the bot itself. If <code>mention_only</code> is set and the message does not mention the bot, ignores the message. Otherwise strips mention tokens, calls <code>owui.chat()</code>, and posts the response back to the room. The <code>ignore_unverified_devices=True</code> flag is passed so the bot does not refuse to send if there are unverified devices in the room.</td>
+</tr>
+<tr>
+<td><code>on_invite</code></td>
+<td><code>InviteMemberEvent</code></td>
+<td>Automatically accepts all room invites. There is no allowlist — any user who can invite on the homeserver can add the bot to a room.</td>
+</tr>
+<tr>
+<td><code>on_undecrypted</code></td>
+<td><code>MegolmEvent</code></td>
+<td>Logs a warning when an encrypted message cannot be decrypted. Diagnostic only. Common causes: E2EE session not yet established, or <code>session.json</code> / <code>crypto_store/</code> was deleted.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
+<h3 id="system-packages-apt">System Packages (apt)<a class="headerlink" href="#system-packages-apt" title="Permanent link">&para;</a></h3>
+<p><code>libolm</code> is the C library that implements the Olm/Megolm E2EE protocol. matrix-nio's E2EE support is a Python binding to this library. These must be installed on the host OS before the Python packages can be installed.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>libolm3<span class="w"> </span>libolm-dev
+</code></pre></div>
+<h3 id="conda-environment">Conda Environment<a class="headerlink" href="#conda-environment" title="Permanent link">&para;</a></h3>
+<p>The bot runs in the <code>matrixbot</code> conda environment (Python 3.11). To recreate it from scratch if needed:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Create the environment with Python 3.11</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>matrixbot<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Activate it (this switches your shell into the matrixbot environment)</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>pmabry@sheepsoc:~$<span class="w"> </span>conda<span class="w"> </span>activate<span class="w"> </span>matrixbot
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># Install the required Python packages</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="o">(</span>matrixbot<span class="o">)</span><span class="w"> </span>pmabry@sheepsoc:~$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;matrix-nio[e2e]&quot;</span><span class="w"> </span>aiohttp<span class="w"> </span>pyyaml
+</code></pre></div>
+<p>The <code>[e2e]</code> extras selector on <code>matrix-nio</code> is mandatory — it installs the Python bindings for <code>libolm</code> that enable E2EE. Installing plain <code>matrix-nio</code> without the extras will produce a bot that cannot decrypt or send encrypted messages.</p>
+<h3 id="python-package-summary">Python Package Summary<a class="headerlink" href="#python-package-summary" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>matrix-nio[e2e]</code></td>
+<td>Async Matrix client library with full E2EE support (Olm/Megolm). The <code>[e2e]</code> extras are required.</td>
+</tr>
+<tr>
+<td><code>aiohttp</code></td>
+<td>Async HTTP client used by <code>OpenWebUIClient</code> for all calls to the OpenWebUI API.</td>
+</tr>
+<tr>
+<td><code>pyyaml</code></td>
+<td>YAML parser used to load <code>config.yaml</code> at startup.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Check / Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bot does not respond at all</td>
+<td>Check service is running: <code>systemctl status matrix-bot.service</code>. Check logs: <code>journalctl -u matrix-bot.service -n 50</code>. Verify the homeserver <code>matrix.pmabry.com</code> is reachable.</td>
+</tr>
+<tr>
+<td>Bot stops decrypting messages</td>
+<td>Confirm <code>~/repositories/matrix-bot/session.json</code> and <code>~/repositories/matrix-bot/crypto_store/</code> still exist and are non-empty. If either is missing, the bot has lost its device identity — stop the service and restore from backup if possible.</td>
+</tr>
+<tr>
+<td>OpenWebUI auth fails (HTTP 401/403)</td>
+<td>The bot manages its JWT automatically — a stale token is not the cause. Check: (1) <code>sheepsoc@pmabry.com</code> must retain admin role in OpenWebUI (Admin Panel → Users); user role cannot use the chat API. (2) Confirm the password in <code>config.yaml</code> under <code>openwebui.password</code> is correct.</td>
+</tr>
+<tr>
+<td>Bot responds in unencrypted rooms but not encrypted ones</td>
+<td>The <code>matrixbot</code> conda environment must have <code>matrix-nio[e2e]</code> installed (not plain <code>matrix-nio</code>). Check: <code>~/infrastructure/miniconda3/envs/matrixbot/bin/pip show matrix-nio</code> — look for <code>python-olm</code> in the dependencies.</td>
+</tr>
+<tr>
+<td>RAG returns no context (answers seem generic)</td>
+<td>Confirm the room's <code>collection_id</code> in <code>config.yaml</code> is the correct UUID. Open OpenWebUI → Workspace → Knowledge and cross-check. Also verify Elasticsearch is up: <code>curl -u elastic:&lt;password&gt; http://localhost:9200/_cluster/health</code>.</td>
+</tr>
+<tr>
+<td>Bot joined a room but is under wrong ID in config</td>
+<td>The room ID in <code>config.yaml</code> must be the internal ID starting with <code>!</code>, not the human-readable alias. Retrieve the correct ID from Element: Room Settings → Advanced → Internal room ID.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="known-issues-and-lessons-learned">Known Issues and Lessons Learned<a class="headerlink" href="#known-issues-and-lessons-learned" title="Permanent link">&para;</a></h2>
+<h3 id="device-proliferation-on-every-restart">Device Proliferation on Every Restart<a class="headerlink" href="#device-proliferation-on-every-restart" title="Permanent link">&para;</a></h3>
+<p><strong>Symptom:</strong> The bot's Matrix account accumulated a new Olm device entry after every service restart. Room members saw repeated "new unverified device" security warnings.</p>
+<p><strong>Cause:</strong> The initial implementation called <code>client.login()</code> unconditionally at startup. Every call to <code>login()</code> registers a brand-new device with the homeserver.</p>
+<p><strong>Fix:</strong> Session persistence via <code>session.json</code>. On all restarts after the first, the bot calls <code>client.restore_login()</code> with the saved credentials instead of <code>login()</code>.</p>
+<h3 id="mention-detection-not-triggering">@mention Detection Not Triggering<a class="headerlink" href="#mention-detection-not-triggering" title="Permanent link">&para;</a></h3>
+<p><strong>Symptom:</strong> Messages with an @mention in Element did not cause the bot to respond, even though the bot was in the room and the service was running.</p>
+<p><strong>Cause:</strong> Element formats @mention pills using the user's display name, not their Matrix localpart. If the bot's display name had not been set correctly, the plain-text body of a mention would not match the MXID or localpart checks.</p>
+<p><strong>Fix:</strong> Two changes were made together: (1) the bot calls <code>client.set_displayname(bot_localpart)</code> at startup to ensure the display name is always <code>sheepsoc-bot</code>; (2) the mention check was expanded to also match <code>bot_localpart</code> in the plain message body.</p>
+<h3 id="olmunverifieddeviceerror-on-first-send-after-setup">OlmUnverifiedDeviceError on First Send After Setup<a class="headerlink" href="#olmunverifieddeviceerror-on-first-send-after-setup" title="Permanent link">&para;</a></h3>
+<p><strong>Symptom:</strong> The bot would receive messages and call OpenWebUI successfully but fail to send the response back to the room, logging an <code>OlmUnverifiedDeviceError</code>.</p>
+<p><strong>Cause:</strong> During initial debugging, several abandoned device registrations had accumulated on the bot's account. These phantom devices were still listed by the homeserver as participants in the E2EE room sessions. matrix-nio refused to encrypt for unverified devices by default.</p>
+<p><strong>Fix:</strong> Abandoned device registrations were deleted via the Matrix API, and <code>ignore_unverified_devices=True</code> was added to every <code>client.room_send()</code> call.</p>
+<h3 id="openwebui-model-list-empty-for-non-admin-accounts">OpenWebUI Model List Empty for Non-Admin Accounts<a class="headerlink" href="#openwebui-model-list-empty-for-non-admin-accounts" title="Permanent link">&para;</a></h3>
+<p><strong>Symptom:</strong> The bot authenticated to OpenWebUI successfully but the chat completions endpoint returned no models or empty responses.</p>
+<p><strong>Cause:</strong> The <code>sheepsoc@pmabry.com</code> account had been inadvertently demoted from admin to user role in OpenWebUI. The user role cannot see the model list and cannot use the chat API effectively.</p>
+<p><strong>Fix:</strong> The account must retain <strong>admin</strong> role in OpenWebUI. To verify or restore this, log in to OpenWebUI as an admin, go to Admin Panel → Users, and confirm the role column shows "admin" for <code>sheepsoc@pmabry.com</code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Do Not Demote</p>
+<p>Do not change the <code>sheepsoc@pmabry.com</code> OpenWebUI account to user role. The user role cannot list models or use the chat completions API. The bot will silently fail to retrieve answers if the account is demoted.</p>
+</div>
+<h2 id="caveats-and-warnings">Caveats and Warnings<a class="headerlink" href="#caveats-and-warnings" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">JWT Auth</p>
+<p>The bot authenticates to OpenWebUI using a JWT obtained at startup and refreshed automatically before expiry. The JWT itself is not stored in <code>config.yaml</code> — only the email and password are. Persistent 401 errors indicate a wrong password or a demoted account role, not a stale token.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Model Note</p>
+<p>The default model is <code>gemma3:12b</code>. To change it, update the model setting in <code>config.yaml</code> and restart the service. The model must be present in Ollama — verify with <code>ollama list</code>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Invite Behavior</p>
+<p>The bot auto-accepts all room invites. It does not enforce an allowlist of rooms by default. Any user who can invite on the homeserver could add the bot to a room. If this is a concern, add an invite filter to <code>bot.py</code>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "search.suggest", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

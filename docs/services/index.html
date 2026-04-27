@@ -1,0 +1,2642 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Sheepsoc operations hub — architecture, SOPs, configuration, and operational guides">
+      
+      
+      
+        <link rel="canonical" href="http://192.168.50.100/docs/services/">
+      
+      
+        <link rel="prev" href="../topology/">
+      
+      
+        <link rel="next" href="../sheepsoc-rag/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Services - sheepsoc</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#services" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="sheepsoc" class="md-header__button md-logo" aria-label="sheepsoc" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            sheepsoc
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Services
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="sheepsoc" class="md-nav__button md-logo" aria-label="sheepsoc" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    sheepsoc
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture & Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agile-team/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Agile Team
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Topology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#service-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Service Catalog
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#health-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Health Checks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Health Checks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#check-one-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check One Service
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-everything-at-once" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check Everything at Once
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#poke-each-service-at-its-port" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Poke Each Service at Its Port
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gpu-sanity-check-for-ollama" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GPU Sanity Check (for Ollama)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-stop-restart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start / Stop / Restart
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-service-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading Service Logs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#web-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Web Endpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#openwebui-rag-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenWebUI RAG Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OpenWebUI RAG Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-config-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Config File
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#es-index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ES Index
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openwebui-rag-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenWebUI RAG Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-rag-index-document-count" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check RAG Index Document Count
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#elser-sparse-embeddings-querying-from-outside-openwebui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ELSER Sparse Embeddings — Querying from Outside OpenWebUI
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ELSER Sparse Embeddings — Querying from Outside OpenWebUI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-1-pure-elser-search-text_expansion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 1 — Pure ELSER Search (text_expansion)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-2-hybrid-rrf-search-elser-knn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 2 — Hybrid RRF Search (ELSER + kNN)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verify-elser-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verify ELSER Coverage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#elasticsearch-authentication-for-data-shippers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Elasticsearch Authentication for Data Shippers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Elasticsearch Authentication for Data Shippers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-beats_system-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why beats_system Fails
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-correct-user-beats_writer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Correct User: beats_writer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Correct User: beats_writer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cluster-privileges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cluster Privileges
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#index-patterns-and-privileges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Index Patterns and Privileges
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#services-currently-using-beats_writer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Services Currently Using beats_writer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule-for-adding-new-data-shippers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rule for Adding New Data Shippers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kibana-to-ollama-connector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kibana to Ollama Connector
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kibana to Ollama Connector">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-url-gotcha-read-this-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The URL Gotcha — Read This First
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#working-connector-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Working Connector Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#listing-available-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Listing Available Models
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#matrix-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Matrix Bot
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AI & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheepsoc-rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RAG & Knowledge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../elser-openwebui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ELSER & OpenWebUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge Bases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bulk-ingest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bulk Ingest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../matrix-bot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Matrix Bot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github-rag-sync/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub & RAG Sync
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOPs & Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SOPs & Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOPs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runbook-shutdown-startup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shutdown & Startup Runbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nightly-backups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nightly Backups
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config-backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Config Backup & Encryption
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../future-improvements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Future Improvements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environment & Tools
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Environment & Tools
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conda/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conda Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/research_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research Report (RAG-001)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/precision_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Precision Audit (RAG-001)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/protocol_v1_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experimental Protocol v1.1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#service-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Service Catalog
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#health-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Health Checks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Health Checks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#check-one-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check One Service
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-everything-at-once" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check Everything at Once
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#poke-each-service-at-its-port" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Poke Each Service at Its Port
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gpu-sanity-check-for-ollama" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GPU Sanity Check (for Ollama)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-stop-restart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start / Stop / Restart
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-service-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading Service Logs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#web-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Web Endpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#openwebui-rag-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenWebUI RAG Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OpenWebUI RAG Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-config-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Config File
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#es-index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ES Index
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openwebui-rag-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenWebUI RAG Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-rag-index-document-count" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check RAG Index Document Count
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#elser-sparse-embeddings-querying-from-outside-openwebui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ELSER Sparse Embeddings — Querying from Outside OpenWebUI
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ELSER Sparse Embeddings — Querying from Outside OpenWebUI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-1-pure-elser-search-text_expansion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 1 — Pure ELSER Search (text_expansion)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-2-hybrid-rrf-search-elser-knn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 2 — Hybrid RRF Search (ELSER + kNN)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verify-elser-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verify ELSER Coverage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#elasticsearch-authentication-for-data-shippers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Elasticsearch Authentication for Data Shippers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Elasticsearch Authentication for Data Shippers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-beats_system-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why beats_system Fails
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-correct-user-beats_writer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Correct User: beats_writer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Correct User: beats_writer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cluster-privileges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cluster Privileges
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#index-patterns-and-privileges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Index Patterns and Privileges
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#services-currently-using-beats_writer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Services Currently Using beats_writer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule-for-adding-new-data-shippers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rule for Adding New Data Shippers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kibana-to-ollama-connector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kibana to Ollama Connector
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kibana to Ollama Connector">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-url-gotcha-read-this-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The URL Gotcha — Read This First
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#working-connector-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Working Connector Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#listing-available-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Listing Available Models
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#matrix-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Matrix Bot
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="services">Services<a class="headerlink" href="#services" title="Permanent link">&para;</a></h1>
+<p><strong>Purpose:</strong> What runs on sheepsoc, where it lives, and how to check it.</p>
+<h2 id="service-catalog">Service Catalog<a class="headerlink" href="#service-catalog" title="Permanent link">&para;</a></h2>
+<p>Every service running on sheepsoc, its systemd unit name, port, and current operational status. Services marked <strong>hold</strong> are installed but intentionally stopped pending a rebuild or external dependency.</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Unit / cmd</th>
+<th>Port</th>
+<th>Purpose</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>sheepsoc-landing</strong></td>
+<td><code>sheepsoc-landing.service</code></td>
+<td>80</td>
+<td>LAN landing page and these docs (Python http.server)</td>
+<td>up</td>
+</tr>
+<tr>
+<td><strong>Vikunja</strong></td>
+<td><code>vikunja.service</code></td>
+<td>3000</td>
+<td>Self-hosted kanban / task manager</td>
+<td>up</td>
+</tr>
+<tr>
+<td><strong>Elasticsearch</strong></td>
+<td><code>elasticsearch.service</code></td>
+<td>9200</td>
+<td>Elasticsearch 8.19.14 · single-node cluster <em>sheepsoc</em> · data at <code>/mnt/elastic_data</code> · <strong>auth enabled</strong> (<code>xpack.security</code> on, no TLS) · vector store for OpenWebUI RAG</td>
+<td>up</td>
+</tr>
+<tr>
+<td><strong>Kibana</strong></td>
+<td><code>kibana.service</code></td>
+<td>5601</td>
+<td>Log &amp; metrics visualization (Filebeat / Metricbeat / syslog)</td>
+<td>up</td>
+</tr>
+<tr>
+<td><strong>Logstash</strong></td>
+<td><code>logstash.service</code></td>
+<td>5514/udp</td>
+<td>Syslog ingestion from ASUS router + OPNsense</td>
+<td>up</td>
+</tr>
+<tr>
+<td><strong>Filebeat</strong></td>
+<td><code>filebeat.service</code></td>
+<td>—</td>
+<td>Ships local log files to Elasticsearch</td>
+<td>up</td>
+</tr>
+<tr>
+<td><strong>Metricbeat</strong></td>
+<td><code>metricbeat.service</code></td>
+<td>—</td>
+<td>Ships host metrics (CPU, RAM, disk, net) to Elasticsearch</td>
+<td>up</td>
+</tr>
+<tr>
+<td><strong>Open WebUI</strong></td>
+<td><code>open-webui.service</code></td>
+<td>8080</td>
+<td><strong>Primary AI interface.</strong> OpenWebUI 0.6.12 · browser-based chat and RAG frontend · connects to Ollama for LLM inference · RAG via Elasticsearch (<code>nomic-embed-text</code>, 768d, HNSW/cosine) · runs in <code>openwebui</code> conda env (Python 3.11)</td>
+<td>up</td>
+</tr>
+<tr>
+<td><strong>Jupyter Notebook</strong></td>
+<td><code>jupyter.service</code></td>
+<td>8888</td>
+<td>Notebook server, notebook dir <code>~/repositories/sheepsoc</code></td>
+<td>up</td>
+</tr>
+<tr>
+<td><strong>Ollama</strong></td>
+<td><code>ollama.service</code></td>
+<td>11434</td>
+<td>Local LLM inference (uses RTX 5060 Ti)</td>
+<td>up</td>
+</tr>
+<tr>
+<td><strong>SSH</strong></td>
+<td><code>ssh.service</code></td>
+<td>22</td>
+<td>Remote shell · key auth only</td>
+<td>up</td>
+</tr>
+<tr>
+<td><strong>cron</strong></td>
+<td><code>cron.service</code></td>
+<td>—</td>
+<td>Scheduled tasks</td>
+<td>up</td>
+</tr>
+<tr>
+<td><strong>MicroK8s</strong></td>
+<td><code>snap.microk8s.*</code></td>
+<td>—</td>
+<td>Kubernetes — <em>stopped</em>, needs rebuild</td>
+<td><strong>hold</strong></td>
+</tr>
+<tr>
+<td><strong>Matrix Bot</strong></td>
+<td><code>matrix-bot.service</code></td>
+<td>—</td>
+<td>E2EE Matrix bot (<code>@sheepsoc-bot:matrix.pmabry.com</code>) · bridges Element rooms to OpenWebUI RAG + Ollama · runs in <code>matrixbot</code> conda env</td>
+<td>up</td>
+</tr>
+<tr>
+<td><strong>OpenProject</strong></td>
+<td><code>docker: openproject</code></td>
+<td>3001</td>
+<td>Project management (tasks, milestones, Gantt) · OpenProject 15 all-in-one Docker image · data at <code>/mnt/ssd_working/openproject/</code> · installed 2026-04-24</td>
+<td>up</td>
+</tr>
+</tbody>
+</table>
+<h2 id="health-checks">Health Checks<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h2>
+<p>The first question is always: <em>is it up?</em> The second is <em>is it healthy?</em> These commands answer both for every service on the box.</p>
+<h3 id="check-one-service">Check One Service<a class="headerlink" href="#check-one-service" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>ollama.service
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>elasticsearch.service
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pmabry@sheepsoc:~$<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>kibana.service
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>pmabry@sheepsoc:~$<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>jupyter.service
+</code></pre></div>
+<h3 id="check-everything-at-once">Check Everything at Once<a class="headerlink" href="#check-everything-at-once" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># list every service and whether it is running or failed</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>systemctl<span class="w"> </span>list-units<span class="w"> </span>--type<span class="o">=</span>service<span class="w"> </span>--state<span class="o">=</span>running
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>pmabry@sheepsoc:~$<span class="w"> </span>systemctl<span class="w"> </span>list-units<span class="w"> </span>--type<span class="o">=</span>service<span class="w"> </span>--state<span class="o">=</span>failed
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># the short, human-friendly version</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>pmabry@sheepsoc:~$<span class="w"> </span>systemctl<span class="w"> </span>--failed
+</code></pre></div>
+<h3 id="poke-each-service-at-its-port">Poke Each Service at Its Port<a class="headerlink" href="#poke-each-service-at-its-port" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Elasticsearch cluster health — auth required (xpack.security enabled 2026-04-21)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>-u<span class="w"> </span>elastic:&lt;password&gt;<span class="w"> </span>http://localhost:9200/_cluster/health<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Ollama — lists loaded models</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>pmabry@sheepsoc:~$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:11434/api/tags<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Kibana status</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>pmabry@sheepsoc:~$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:5601/api/status<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="c1"># Vikunja info</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>pmabry@sheepsoc:~$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:3000/api/v1/info<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="c1"># OpenProject (Docker) — HTTP 200 = healthy</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>pmabry@sheepsoc:~$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>/dev/null<span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;%{http_code}&quot;</span><span class="w"> </span>http://192.168.50.100:3001/
+</code></pre></div>
+<h3 id="gpu-sanity-check-for-ollama">GPU Sanity Check (for Ollama)<a class="headerlink" href="#gpu-sanity-check-for-ollama" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>nvidia-smi
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># When a query is running, you should see an `ollama` process holding VRAM.</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># Idle Ollama may hold 0 MB — that is fine.</span>
+</code></pre></div>
+<h2 id="start-stop-restart">Start / Stop / Restart<a class="headerlink" href="#start-stop-restart" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Careful</p>
+<p><code>systemctl</code> actions that change state require <code>sudo</code>. These are not silent — tell Phillip what you are restarting and why before doing it.</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># standard lifecycle</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>ollama.service
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>pmabry@sheepsoc:~$<span class="w"> </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>stop<span class="w">    </span>jupyter.service
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>pmabry@sheepsoc:~$<span class="w"> </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w">   </span>jupyter.service
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="c1"># enable/disable on boot</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>pmabry@sheepsoc:~$<span class="w"> </span>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w">  </span>metricbeat.service
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>pmabry@sheepsoc:~$<span class="w"> </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>disable<span class="w"> </span>&lt;service&gt;
+</code></pre></div>
+<h2 id="reading-service-logs">Reading Service Logs<a class="headerlink" href="#reading-service-logs" title="Permanent link">&para;</a></h2>
+<p>Per-service logs, most recent first, with optional follow:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>ollama.service<span class="w"> </span>-n<span class="w"> </span><span class="m">200</span><span class="w"> </span>--no-pager
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>elasticsearch.service<span class="w"> </span>-f
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>pmabry@sheepsoc:~$<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>logstash.service<span class="w"> </span>--since<span class="w"> </span><span class="s2">&quot;10 min ago&quot;</span>
+</code></pre></div>
+<p>For ES / syslog / beats data, Kibana is usually easier — see <a href="../sops/#5-read-logs-in-kibana">SOPs: Reading Logs in Kibana</a>.</p>
+<h2 id="web-endpoints">Web Endpoints<a class="headerlink" href="#web-endpoints" title="Permanent link">&para;</a></h2>
+<p>All web interfaces are LAN-only (UFW restricts access to 192.168.50.0/24).</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>URL</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Landing</td>
+<td><code>http://192.168.50.100/</code></td>
+<td>Dashboard</td>
+</tr>
+<tr>
+<td>Docs (this site)</td>
+<td><code>http://192.168.50.100/docs/</code></td>
+<td>You are here</td>
+</tr>
+<tr>
+<td>Vikunja</td>
+<td><code>http://192.168.50.100:3000</code></td>
+<td>Kanban</td>
+</tr>
+<tr>
+<td>OpenProject</td>
+<td><code>http://192.168.50.100:3001</code></td>
+<td>Project management — Docker container</td>
+</tr>
+<tr>
+<td>Jupyter</td>
+<td><code>http://192.168.50.100:8888</code></td>
+<td>Token in <code>journalctl -u jupyter</code></td>
+</tr>
+<tr>
+<td>Kibana</td>
+<td><code>http://192.168.50.100:5601</code></td>
+<td>Log / metric dashboards</td>
+</tr>
+<tr>
+<td>Elasticsearch</td>
+<td><code>http://192.168.50.100:9200</code></td>
+<td>REST API, not a UI</td>
+</tr>
+<tr>
+<td>Open WebUI</td>
+<td><code>http://192.168.50.100:8080</code></td>
+<td>Primary AI interface — chat + RAG</td>
+</tr>
+<tr>
+<td>Ollama</td>
+<td><code>http://192.168.50.100:11434</code></td>
+<td>REST API, not a UI</td>
+</tr>
+<tr>
+<td>ASUS router</td>
+<td><code>http://192.168.50.1</code></td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>OPNsense</td>
+<td><code>https://192.168.50.253</code></td>
+<td>Self-signed cert</td>
+</tr>
+</tbody>
+</table>
+<h2 id="openwebui-rag-configuration">OpenWebUI RAG Configuration<a class="headerlink" href="#openwebui-rag-configuration" title="Permanent link">&para;</a></h2>
+<p>OpenWebUI is configured to use Elasticsearch as its vector store rather than the default Chroma backend. This was set up on 2026-04-20. The configuration lives in a systemd drop-in file that injects environment variables into the service at startup.</p>
+<h3 id="key-config-file">Key Config File<a class="headerlink" href="#key-config-file" title="Permanent link">&para;</a></h3>
+<p><code>/etc/systemd/system/open-webui.service.d/elasticsearch.conf</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">[Service]</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="na">Environment</span><span class="o">=</span><span class="s">&quot;VECTOR_DB=elasticsearch&quot;</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="na">Environment</span><span class="o">=</span><span class="s">&quot;ELASTICSEARCH_URL=http://127.0.0.1:9200&quot;</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="na">Environment</span><span class="o">=</span><span class="s">&quot;ELASTICSEARCH_USERNAME=elastic&quot;</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="na">Environment</span><span class="o">=</span><span class="s">&quot;ELASTICSEARCH_PASSWORD=&lt;elastic-password&gt;&quot;</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="na">Environment</span><span class="o">=</span><span class="s">&quot;RAG_EMBEDDING_ENGINE=ollama&quot;</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="na">Environment</span><span class="o">=</span><span class="s">&quot;RAG_EMBEDDING_MODEL=nomic-embed-text&quot;</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="na">Environment</span><span class="o">=</span><span class="s">&quot;ELASTICSEARCH_INDEX_PREFIX=open_webui_collections&quot;</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Auth Note</p>
+<p><code>xpack.security</code> was enabled on 2026-04-21. The drop-in now includes <code>ELASTICSEARCH_USERNAME</code> and <code>ELASTICSEARCH_PASSWORD</code>. Kibana connects as <code>kibana_system</code>. Filebeat, Metricbeat, and Logstash connect as the custom <code>beats_writer</code> user — see <a href="#elasticsearch-authentication-for-data-shippers">Elasticsearch Auth for Data Shippers</a> for why <code>beats_system</code> must <em>not</em> be used.</p>
+</div>
+<h3 id="es-index">ES Index<a class="headerlink" href="#es-index" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Index name</td>
+<td><code>open_webui_collections_d768</code></td>
+</tr>
+<tr>
+<td>Embedding model</td>
+<td><code>nomic-embed-text:latest</code> via Ollama · 768 dimensions</td>
+</tr>
+<tr>
+<td>Similarity</td>
+<td>HNSW / cosine</td>
+</tr>
+<tr>
+<td>Vector field</td>
+<td><code>vector</code> — 768-dim dense float · written by OpenWebUI at ingest</td>
+</tr>
+<tr>
+<td>Sparse field</td>
+<td><code>text_elser</code> — ELSER sparse tokens · written by ingest pipeline (added 2026-04-23)</td>
+</tr>
+<tr>
+<td>Ingest pipeline</td>
+<td><code>elser-embed-openwebui</code> — set as index default; auto-runs on every new OpenWebUI upload</td>
+</tr>
+<tr>
+<td>ELSER model</td>
+<td><code>.elser-2-elasticsearch</code> — built-in, adaptive allocation (scales to zero when idle)</td>
+</tr>
+<tr>
+<td>Document count</td>
+<td>8,136 chunks as of 2026-04-23 · all backfilled with ELSER tokens</td>
+</tr>
+</tbody>
+</table>
+<h3 id="openwebui-rag-troubleshooting">OpenWebUI RAG Troubleshooting<a class="headerlink" href="#openwebui-rag-troubleshooting" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenWebUI won't start</td>
+<td><code>journalctl -u open-webui.service -n 50</code> — look for <code>ImportError</code> on <code>elasticsearch</code>. If the <code>openwebui</code> conda env was rebuilt, the <code>elasticsearch==8.19.3</code> pip package must be reinstalled manually (it is not bundled).</td>
+</tr>
+<tr>
+<td>Uploads fail silently</td>
+<td>Confirm Ollama is up (<code>systemctl status ollama</code>) and <code>nomic-embed-text</code> is present (<code>ollama list</code>).</td>
+</tr>
+<tr>
+<td>RAG returns nothing</td>
+<td>Check ES is up: <code>curl -u elastic:&lt;password&gt; http://localhost:9200/_cluster/health</code></td>
+</tr>
+<tr>
+<td>Roll back to Chroma</td>
+<td>Delete the drop-in: <code>sudo rm /etc/systemd/system/open-webui.service.d/elasticsearch.conf</code>, then <code>sudo systemctl daemon-reload &amp;&amp; sudo systemctl restart open-webui</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="check-rag-index-document-count">Check RAG Index Document Count<a class="headerlink" href="#check-rag-index-document-count" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>-u<span class="w"> </span>elastic:&lt;password&gt;<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="s2">&quot;http://localhost:9200/open_webui_collections_d768/_count&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>json.tool
+</code></pre></div>
+<h2 id="elser-sparse-embeddings-querying-from-outside-openwebui">ELSER Sparse Embeddings — Querying from Outside OpenWebUI<a class="headerlink" href="#elser-sparse-embeddings-querying-from-outside-openwebui" title="Permanent link">&para;</a></h2>
+<p>Since 2026-04-23, the <code>open_webui_collections_d768</code> index is dual-use. OpenWebUI continues to do kNN search on the <code>vector</code> field exactly as before. In addition, every document now carries a <code>text_elser</code> sparse vector field populated by the <code>elser-embed-openwebui</code> ingest pipeline.</p>
+<div class="admonition note">
+<p class="admonition-title">OpenWebUI Unchanged</p>
+<p>OpenWebUI chat behaviour is completely unaffected. It still performs kNN search on <code>vector</code>. The ELSER field and the query patterns below are for direct Elasticsearch queries you run yourself — from the CLI, scripts, or Kibana Dev Tools.</p>
+</div>
+<h3 id="pattern-1-pure-elser-search-text_expansion">Pattern 1 — Pure ELSER Search (<code>text_expansion</code>)<a class="headerlink" href="#pattern-1-pure-elser-search-text_expansion" title="Permanent link">&para;</a></h3>
+<p>Passes your query through ELSER at query time and matches against stored sparse vectors. No pre-computed query vector needed. Good for keyword-intent queries.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>-u<span class="w"> </span>elastic:&lt;password&gt;<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;http://localhost:9200/open_webui_collections_d768/_search&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="s1">  &quot;size&quot;: 5,</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="s1">  &quot;query&quot;: {</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="s1">    &quot;text_expansion&quot;: {</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="s1">      &quot;text_elser&quot;: {</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="s1">        &quot;model_id&quot;: &quot;.elser-2-elasticsearch&quot;,</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="s1">        &quot;model_text&quot;: &quot;your search query here&quot;</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="s1">      }</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="s1">    }</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="s1">  },</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="s1">  &quot;_source&quot;: [&quot;text&quot;, &quot;metadata.name&quot;, &quot;metadata.page&quot;]</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="s1">}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>json.tool
+</code></pre></div>
+<h3 id="pattern-2-hybrid-rrf-search-elser-knn">Pattern 2 — Hybrid RRF Search (ELSER + kNN)<a class="headerlink" href="#pattern-2-hybrid-rrf-search-elser-knn" title="Permanent link">&para;</a></h3>
+<p>Combines keyword-intent retrieval (ELSER) and semantic similarity retrieval (kNN) using Reciprocal Rank Fusion. Best overall recall.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Step 1: get query embedding from Ollama</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>pmabry@sheepsoc:~$<span class="w"> </span><span class="nv">QUERY_VEC</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;http://localhost:11434/v1/embeddings&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;model&quot;: &quot;nomic-embed-text&quot;, &quot;input&quot;: &quot;your search query here&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import json,sys; print(json.load(sys.stdin)[&#39;data&#39;][0][&#39;embedding&#39;])&quot;</span><span class="k">)</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1"># Step 2: hybrid RRF query</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>pmabry@sheepsoc:~$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>-u<span class="w"> </span>elastic:&lt;password&gt;<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">    </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;http://localhost:9200/open_webui_collections_d768/_search&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">    </span>-d<span class="w"> </span><span class="s2">&quot;{</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="s2">  \&quot;size\&quot;: 5,</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="s2">  \&quot;retriever\&quot;: {</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="s2">    \&quot;rrf\&quot;: {</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="s2">      \&quot;retrievers\&quot;: [</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="s2">        {\&quot;knn\&quot;: {\&quot;field\&quot;: \&quot;vector\&quot;, \&quot;query_vector\&quot;: </span><span class="nv">$QUERY_VEC</span><span class="s2">, \&quot;k\&quot;: 10, \&quot;num_candidates\&quot;: 50}},</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="s2">        {\&quot;standard\&quot;: {\&quot;query\&quot;: {\&quot;text_expansion\&quot;: {\&quot;text_elser\&quot;: {\&quot;model_id\&quot;: \&quot;.elser-2-elasticsearch\&quot;, \&quot;model_text\&quot;: \&quot;your search query here\&quot;}}}}}</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="s2">      ],</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="s2">      \&quot;rank_window_size\&quot;: 10,</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="s2">      \&quot;rank_constant\&quot;: 60</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="s2">    }</span>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="s2">  },</span>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="s2">  \&quot;_source\&quot;: [\&quot;text\&quot;, \&quot;metadata.name\&quot;, \&quot;metadata.page\&quot;]</span>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a><span class="s2">}&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>json.tool
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A detailed walk-through of the pipeline setup, backfill procedure, field mapping, and all three query patterns lives at <code>~/infrastructure/elasticsearch/howto-elser-openwebui-pipeline.md</code>.</p>
+</div>
+<h3 id="verify-elser-coverage">Verify ELSER Coverage<a class="headerlink" href="#verify-elser-coverage" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Docs with ELSER tokens (should equal total doc count)</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>-u<span class="w"> </span>elastic:&lt;password&gt;<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="s2">&quot;http://localhost:9200/open_webui_collections_d768/_count&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;query&quot;: {&quot;exists&quot;: {&quot;field&quot;: &quot;text_elser&quot;}}}&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import json,sys; d=json.load(sys.stdin); print(f&#39;With text_elser: {d[\&quot;count\&quot;]}&#39;)&quot;</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="c1"># Docs still missing ELSER tokens (should be 0)</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>pmabry@sheepsoc:~$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>-u<span class="w"> </span>elastic:&lt;password&gt;<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="s2">&quot;http://localhost:9200/open_webui_collections_d768/_count&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">    </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;query&quot;: {&quot;bool&quot;: {&quot;must_not&quot;: {&quot;exists&quot;: {&quot;field&quot;: &quot;text_elser&quot;}}}}}&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">    </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import json,sys; d=json.load(sys.stdin); print(f&#39;Still missing: {d[\&quot;count\&quot;]}&#39;)&quot;</span>
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Rebuild Note</p>
+<p>If the <code>openwebui</code> conda env is ever rebuilt, you must manually reinstall the Elasticsearch client: <code>pip install elasticsearch==8.19.3</code> (inside the activated env). It is not bundled with OpenWebUI and is easy to miss.</p>
+</div>
+<h2 id="elasticsearch-authentication-for-data-shippers">Elasticsearch Authentication for Data Shippers<a class="headerlink" href="#elasticsearch-authentication-for-data-shippers" title="Permanent link">&para;</a></h2>
+<p>Filebeat, Metricbeat, Logstash, and any future Elastic data shipper must use the <code>beats_writer</code> custom user when connecting to Elasticsearch. Using the built-in <code>beats_system</code> account for this purpose is a common mistake — do not repeat it.</p>
+<div class="admonition danger">
+<p class="admonition-title">Gotcha — Discovered 2026-04-21</p>
+<p><strong>Do not use <code>beats_system</code> for data ingestion.</strong> Despite its name, <code>beats_system</code> only has monitor access and can only write to internal <code>.monitoring-beats-*</code> indices. It cannot perform ILM setup calls or write to regular data streams. Any shipper configured with this account will fail immediately with:</p>
+<p><code>action [cluster:admin/ilm/get] is unauthorized for user [beats_system]</code></p>
+</div>
+<h3 id="why-beats_system-fails">Why beats_system Fails<a class="headerlink" href="#why-beats_system-fails" title="Permanent link">&para;</a></h3>
+<p>Elasticsearch ships with a small set of reserved built-in users. Each is scoped to a specific internal purpose. <code>beats_system</code> exists only so the beats monitoring module can report its own health to Elasticsearch — it was never intended for general data ingestion. When a shipper tries to set up ILM policies, create index templates, or write to a data stream like <code>filebeat-8.18.3</code>, those actions all require cluster-level privileges that <code>beats_system</code> does not have.</p>
+<h3 id="the-correct-user-beats_writer">The Correct User: beats_writer<a class="headerlink" href="#the-correct-user-beats_writer" title="Permanent link">&para;</a></h3>
+<p><code>beats_writer</code> is a custom role and user created on sheepsoc on 2026-04-21. It holds exactly the privileges that Filebeat, Metricbeat, and Logstash need to operate fully — no more, no less.</p>
+<h4 id="cluster-privileges">Cluster Privileges<a class="headerlink" href="#cluster-privileges" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Privilege</th>
+<th>Why It Is Needed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>monitor</code></td>
+<td>Read cluster health and node info</td>
+</tr>
+<tr>
+<td><code>manage_ilm</code></td>
+<td>Create and update ILM lifecycle policies</td>
+</tr>
+<tr>
+<td><code>manage_index_templates</code></td>
+<td>Register composable index templates</td>
+</tr>
+<tr>
+<td><code>manage_pipeline</code></td>
+<td>Install ingest pipelines (e.g. geoip)</td>
+</tr>
+<tr>
+<td><code>manage_ingest_pipelines</code></td>
+<td>Alias; covers pipeline CRUD via beats APIs</td>
+</tr>
+</tbody>
+</table>
+<h4 id="index-patterns-and-privileges">Index Patterns and Privileges<a class="headerlink" href="#index-patterns-and-privileges" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Index Pattern</th>
+<th>Privileges</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>filebeat-*</code> · <code>.ds-filebeat-*</code></td>
+<td><code>create_index</code>, <code>create</code>, <code>write</code>, <code>manage</code>, <code>auto_configure</code></td>
+</tr>
+<tr>
+<td><code>metricbeat-*</code> · <code>.ds-metricbeat-*</code></td>
+<td>(same)</td>
+</tr>
+<tr>
+<td><code>logstash-*</code> · <code>.ds-logstash-*</code></td>
+<td>(same)</td>
+</tr>
+<tr>
+<td><code>logs-*</code> · <code>.ds-logs-*</code></td>
+<td>(same)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="services-currently-using-beats_writer">Services Currently Using beats_writer<a class="headerlink" href="#services-currently-using-beats_writer" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Config File</th>
+<th>Field</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Filebeat</td>
+<td><code>/home/pmabry/infrastructure/filebeat/filebeat-8.18.3-linux-x86_64/filebeat.yml</code></td>
+<td><code>output.elasticsearch.username</code></td>
+</tr>
+<tr>
+<td>Metricbeat</td>
+<td><code>/home/pmabry/infrastructure/metricbeat/metricbeat-8.18.2-linux-x86_64/metricbeat.yml</code></td>
+<td><code>output.elasticsearch.username</code></td>
+</tr>
+<tr>
+<td>Logstash</td>
+<td><code>/etc/logstash/conf.d/99-elasticsearch-output.conf</code></td>
+<td><code>user</code> field in each <code>elasticsearch</code> output block</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rule-for-adding-new-data-shippers">Rule for Adding New Data Shippers<a class="headerlink" href="#rule-for-adding-new-data-shippers" title="Permanent link">&para;</a></h3>
+<p>Any new Filebeat, Metricbeat, Logstash, or other Elastic shipper added to sheepsoc must use <code>beats_writer</code> credentials in its Elasticsearch output block. If the new shipper writes to index patterns not yet covered by the role, update the role first before starting the shipper.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Update the beats_writer role to add new index patterns</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>pmabry@sheepsoc:~$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>-u<span class="w"> </span>elastic:&lt;password&gt;<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span>-X<span class="w"> </span>PUT<span class="w"> </span><span class="s2">&quot;http://localhost:9200/_security/role/beats_writer&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="s1">  &quot;cluster&quot;: [&quot;monitor&quot;,&quot;manage_ilm&quot;,&quot;manage_index_templates&quot;,&quot;manage_pipeline&quot;,&quot;manage_ingest_pipelines&quot;],</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="s1">  &quot;indices&quot;: [</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="s1">    {</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="s1">      &quot;names&quot;: [&quot;filebeat-*&quot;,&quot;.ds-filebeat-*&quot;,&quot;metricbeat-*&quot;,&quot;.ds-metricbeat-*&quot;,</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="s1">                &quot;logstash-*&quot;,&quot;.ds-logstash-*&quot;,&quot;logs-*&quot;,&quot;.ds-logs-*&quot;],</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="s1">      &quot;privileges&quot;: [&quot;create_index&quot;,&quot;create&quot;,&quot;write&quot;,&quot;manage&quot;,&quot;auto_configure&quot;]</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="s1">    }</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="s1">  ]</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="s1">}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>json.tool
+</code></pre></div>
+<h2 id="kibana-to-ollama-connector">Kibana to Ollama Connector<a class="headerlink" href="#kibana-to-ollama-connector" title="Permanent link">&para;</a></h2>
+<p>Kibana includes a built-in OpenAI-compatible connector (<code>.gen-ai</code> connector type) that can be pointed at the local Ollama instance. <code>xpack.security</code> must be enabled for connectors to be available in Kibana (enabled 2026-04-21).</p>
+<h3 id="the-url-gotcha-read-this-first">The URL Gotcha — Read This First<a class="headerlink" href="#the-url-gotcha-read-this-first" title="Permanent link">&para;</a></h3>
+<p>When the <strong>API Provider</strong> is set to <em>Other</em>, Kibana posts directly to the <code>apiUrl</code> value as-is. It does <strong>not</strong> treat it as a base URL and append <code>/chat/completions</code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Gotcha</p>
+<p>The API URL field must contain the <strong>full endpoint path</strong>, not just the base URL.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Wrong</th>
+<th>Right</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API URL</td>
+<td><code>http://192.168.50.100:11434/v1</code></td>
+<td><code>http://192.168.50.100:11434/v1/chat/completions</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="working-connector-configuration">Working Connector Configuration<a class="headerlink" href="#working-connector-configuration" title="Permanent link">&para;</a></h3>
+<p>Configure via Kibana → Stack Management → Connectors → Create connector → OpenAI.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name</td>
+<td>Sheepsoc</td>
+</tr>
+<tr>
+<td>Connector type</td>
+<td>OpenAI (<code>.gen-ai</code>)</td>
+</tr>
+<tr>
+<td>API Provider</td>
+<td>Other</td>
+</tr>
+<tr>
+<td>API URL</td>
+<td><code>http://192.168.50.100:11434/v1/chat/completions</code></td>
+</tr>
+<tr>
+<td>Default Model</td>
+<td><code>qwen3</code> (or any model name from <code>ollama list</code>)</td>
+</tr>
+<tr>
+<td>API Key</td>
+<td>Leave blank or use any dummy value — Ollama does not require authentication</td>
+</tr>
+</tbody>
+</table>
+<h3 id="listing-available-models">Listing Available Models<a class="headerlink" href="#listing-available-models" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>pmabry@sheepsoc:~$<span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:11434/v1/models<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>json.tool
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="c1"># Returns a list of model ids, e.g.: qwen3:latest, gemma3:12b, nomic-embed-text:latest, ...</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="c1"># Use the bare name without the :tag suffix in the Default Model field (e.g. &quot;qwen3&quot;)</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Embedding models such as <code>nomic-embed-text</code> will appear in the model list but cannot be used for chat completions. Use a generation model (e.g. <code>qwen3</code>, <code>gemma3:12b</code>, <code>mistral:7b</code>).</p>
+</div>
+<h2 id="matrix-bot">Matrix Bot<a class="headerlink" href="#matrix-bot" title="Permanent link">&para;</a></h2>
+<p>The Matrix bot (<code>@sheepsoc-bot:matrix.pmabry.com</code>) is a separate systemd service that connects Element chat rooms to OpenWebUI's RAG and Ollama LLM inference. It uses full E2EE via the <code>matrix-nio[e2e]</code> library.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Systemd unit</td>
+<td><code>matrix-bot.service</code> — enabled at boot, runs as <code>pmabry</code></td>
+</tr>
+<tr>
+<td>Bot MXID</td>
+<td><code>@sheepsoc-bot:matrix.pmabry.com</code></td>
+</tr>
+<tr>
+<td>Homeserver</td>
+<td><code>matrix.pmabry.com</code> (Synapse)</td>
+</tr>
+<tr>
+<td>OpenWebUI API</td>
+<td><code>http://localhost:8080/api/chat/completions</code></td>
+</tr>
+<tr>
+<td>Default model</td>
+<td><code>gemma3:12b</code></td>
+</tr>
+<tr>
+<td>Conda env</td>
+<td><code>matrixbot</code></td>
+</tr>
+</tbody>
+</table>
+<p>For full configuration details, room mapping procedures, file locations, and troubleshooting, see the dedicated <a href="../matrix-bot/">Matrix Bot</a> page.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "search.suggest", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

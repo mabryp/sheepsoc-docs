@@ -1,0 +1,1840 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Sheepsoc operations hub — architecture, SOPs, configuration, and operational guides">
+      
+      
+      
+        <link rel="canonical" href="http://192.168.50.100/docs/agile-team/">
+      
+      
+        <link rel="prev" href="../..">
+      
+      
+        <link rel="next" href="../topology/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>The Agile Team - sheepsoc</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#the-agile-team" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="sheepsoc" class="md-header__button md-logo" aria-label="sheepsoc" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            sheepsoc
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              The Agile Team
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="sheepsoc" class="md-nav__button md-logo" aria-label="sheepsoc" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    sheepsoc
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture & Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Agile Team
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Agile Team
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-team" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Team
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Team">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#claude-code-team-lead" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Claude Code — Team Lead
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#infrastructure-admin-system-administration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        infrastructure-admin — System Administration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polyglot-dev-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        polyglot-dev — Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docs-site-manager-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        docs-site-manager — Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vikunja-scrum-master-kanban-board" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vikunja-scrum-master — Kanban Board
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-wrangler-elastic-elasticsearch-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        data-wrangler-elastic — Elasticsearch &amp; Data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network-engineer-home-network" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        network-engineer — Home Network
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#explore-codebase-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Explore — Codebase Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plan-architecture-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plan — Architecture &amp; Design
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-standard-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Standard Workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-nothing-happens-without-phillip-knowing-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The "Nothing Happens Without Phillip Knowing" Rule
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#claudemd-context-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLAUDE.md Context Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Topology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    AI & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sheepsoc-rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RAG & Knowledge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../elser-openwebui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ELSER & OpenWebUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge Bases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bulk-ingest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bulk Ingest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../matrix-bot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Matrix Bot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github-rag-sync/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub & RAG Sync
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOPs & Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SOPs & Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOPs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runbook-shutdown-startup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shutdown & Startup Runbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nightly-backups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nightly Backups
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config-backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Config Backup & Encryption
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../future-improvements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Future Improvements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environment & Tools
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Environment & Tools
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conda/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conda Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/research_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research Report (RAG-001)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/precision_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Precision Audit (RAG-001)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../research/protocol_v1_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experimental Protocol v1.1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-team" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Team
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Team">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#claude-code-team-lead" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Claude Code — Team Lead
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#infrastructure-admin-system-administration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        infrastructure-admin — System Administration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polyglot-dev-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        polyglot-dev — Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docs-site-manager-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        docs-site-manager — Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vikunja-scrum-master-kanban-board" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vikunja-scrum-master — Kanban Board
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-wrangler-elastic-elasticsearch-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        data-wrangler-elastic — Elasticsearch &amp; Data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network-engineer-home-network" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        network-engineer — Home Network
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#explore-codebase-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Explore — Codebase Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plan-architecture-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plan — Architecture &amp; Design
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-standard-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Standard Workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-nothing-happens-without-phillip-knowing-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The "Nothing Happens Without Phillip Knowing" Rule
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#claudemd-context-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLAUDE.md Context Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="the-agile-team">The Agile Team<a class="headerlink" href="#the-agile-team" title="Permanent link">&para;</a></h1>
+<p><strong>Purpose:</strong> How sheepsoc is managed — Claude Code as team lead, specialized agents as delegates.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Added</td>
+<td>2026-04-22</td>
+</tr>
+<tr>
+<td>Tool</td>
+<td>Claude Code CLI (<code>claude</code>) · Anthropic claude-sonnet-4-6</td>
+</tr>
+</tbody>
+</table>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Sheepsoc is not managed by clicking through admin panels or running shell commands by hand. It is managed by describing what you want in plain English and letting a team of specialized AI agents work out the details, ask for clarification where needed, and explain every action before taking it.</p>
+<p>The tool is <strong>Claude Code</strong> — Anthropic's CLI for the Claude language model, invoked as <code>claude</code> from any terminal on the machine. Claude Code acts as the team lead: it reads context about the system from CLAUDE.md files, plans the work, delegates to specialists where appropriate, and synthesizes the results into a clear summary for Phillip.</p>
+<p>The specialist agents each own a tightly-defined domain. When Claude Code recognizes that a task falls within a specialist's area, it delegates to that agent rather than attempting the work itself. This keeps each agent focused, reduces errors from context overload, and makes the division of responsibility explicit and auditable.</p>
+<div class="admonition note">
+<p class="admonition-title">Important</p>
+<p>Nothing happens on this machine without Phillip knowing about it first. Every agent is explicitly instructed to explain what it plans to do and why before taking any action, never run silent <code>sudo</code> commands, prefer reversible changes, and check before installing anything new. This is a non-negotiable rule, not a suggestion.</p>
+</div>
+<h2 id="the-team">The Team<a class="headerlink" href="#the-team" title="Permanent link">&para;</a></h2>
+<p>Eight agents make up the team. Claude Code (the CLI itself) is the team lead. The remaining seven are specialized delegates, each invoked via the <code>/agent</code> mechanism inside a Claude Code session.</p>
+<h3 id="claude-code-team-lead">Claude Code — Team Lead<a class="headerlink" href="#claude-code-team-lead" title="Permanent link">&para;</a></h3>
+<p>Claude Code is the entry point for every interaction. It reads the system's CLAUDE.md context files, understands the full picture of what is being asked, breaks down complex requests, and decides which specialist agents to invoke and in what order. It also handles tasks that don't belong to a specific specialist: asking clarifying questions, synthesizing results from multiple agents, and confirming with Phillip before any significant action.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Invoked as</td>
+<td><code>claude</code> from any terminal on sheepsoc</td>
+</tr>
+<tr>
+<td>Context</td>
+<td>Reads <code>CLAUDE.md</code> files automatically from the working directory and parent directories</td>
+</tr>
+<tr>
+<td>Example</td>
+<td>"Set up a new service for X" — Claude Code assesses the system, plans the work, and delegates to infrastructure-admin, docs-site-manager, and vikunja-scrum-master in sequence</td>
+</tr>
+</tbody>
+</table>
+<h3 id="infrastructure-admin-system-administration">infrastructure-admin — System Administration<a class="headerlink" href="#infrastructure-admin-system-administration" title="Permanent link">&para;</a></h3>
+<p>The infrastructure-admin agent handles anything that touches the OS, services, or hardware. It knows the sheepsoc machine's specific configuration: the systemd service layout, the UFW firewall rules, the conda environments, the storage mounts, the GPU driver constraints. When a task requires root access, infrastructure-admin explains exactly what the privileged command does before running it.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Domain</td>
+<td>OS configuration, systemd service management, package installation, SSH, UFW firewall, kernel and driver decisions, storage, networking</td>
+</tr>
+<tr>
+<td>Example</td>
+<td>Installing a new service — creates the systemd unit, opens the correct UFW port for LAN access, confirms the service starts and survives a restart</td>
+</tr>
+</tbody>
+</table>
+<h3 id="polyglot-dev-implementation">polyglot-dev — Implementation<a class="headerlink" href="#polyglot-dev-implementation" title="Permanent link">&para;</a></h3>
+<p>The polyglot-dev agent writes clean, production-quality code from a specification. It handles Python, JavaScript, and TypeScript. When a new feature or script is designed and the architecture is agreed upon, polyglot-dev receives the spec and implements it. It does not invent requirements — it executes them.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Domain</td>
+<td>Python, JavaScript, TypeScript implementation; translating specifications into working code</td>
+</tr>
+<tr>
+<td>Example</td>
+<td>Writing the RAG sync script (<code>rag_sync.py</code>) from a spec describing what files to sync, how to authenticate to OpenWebUI, and how to handle encrypted files</td>
+</tr>
+</tbody>
+</table>
+<h3 id="docs-site-manager-documentation">docs-site-manager — Documentation<a class="headerlink" href="#docs-site-manager-documentation" title="Permanent link">&para;</a></h3>
+<p>The docs-site-manager agent creates and maintains this documentation site. It is invoked automatically after any major system change to ensure the docs reflect the current state of the machine. It reads existing pages before touching anything, matches the site's conventions exactly, and explains every change before making it.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Domain</td>
+<td>Documentation pages in <code>~/repositories/sheepsoc/landing/</code> (MkDocs), HTML/CSS structure, nav</td>
+</tr>
+<tr>
+<td>Example</td>
+<td>Adding a new service page after infrastructure-admin installs the service</td>
+</tr>
+</tbody>
+</table>
+<h3 id="vikunja-scrum-master-kanban-board">vikunja-scrum-master — Kanban Board<a class="headerlink" href="#vikunja-scrum-master-kanban-board" title="Permanent link">&para;</a></h3>
+<p>The vikunja-scrum-master agent manages the Vikunja task tracker at <a href="http://localhost:3000">http://localhost:3000</a>. It is invoked at the end of multi-step tasks to record what was done, update task status, and log completion notes. A task is not considered done until it is recorded on the board.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Domain</td>
+<td>Vikunja kanban board at <code>http://localhost:3000</code> — creating tasks, updating status, logging completion notes</td>
+</tr>
+<tr>
+<td>Example</td>
+<td>After a security hardening session completes, marking the corresponding task done and adding notes about what was changed and what remains pending</td>
+</tr>
+</tbody>
+</table>
+<h3 id="data-wrangler-elastic-elasticsearch-data">data-wrangler-elastic — Elasticsearch &amp; Data<a class="headerlink" href="#data-wrangler-elastic-elasticsearch-data" title="Permanent link">&para;</a></h3>
+<p>The data-wrangler-elastic agent handles the data layer: Elasticsearch index design, Logstash and Beats pipeline configuration, document ingestion, and vector search configuration. It understands the sheepsoc Elasticsearch cluster specifically — the current index mappings, the HNSW/cosine vector configuration, and the Filebeat and Metricbeat data streams.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Domain</td>
+<td>Elasticsearch index design, Logstash/Beats pipelines, data ingestion, vector search configuration, Kibana</td>
+</tr>
+<tr>
+<td>Example</td>
+<td>Designing an index mapping for a new document collection, troubleshooting why Filebeat is not shipping logs</td>
+</tr>
+</tbody>
+</table>
+<h3 id="network-engineer-home-network">network-engineer — Home Network<a class="headerlink" href="#network-engineer-home-network" title="Permanent link">&para;</a></h3>
+<p>The network-engineer agent handles the home network infrastructure: the ASUS RT-AX5400 router (gateway), the OPNsense firewall and DNS resolver, port forwarding rules, DHCP, and VPN configuration.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Domain</td>
+<td>ASUS RT-AX5400 router, OPNsense firewall/DNS, port forwarding, DHCP, VPN, <code>mabry.lan</code> DNS records</td>
+</tr>
+<tr>
+<td>Example</td>
+<td>Opening a new port on OPNsense, diagnosing why <code>mabry.lan</code> DNS resolution is failing</td>
+</tr>
+</tbody>
+</table>
+<h3 id="explore-codebase-search">Explore — Codebase Search<a class="headerlink" href="#explore-codebase-search" title="Permanent link">&para;</a></h3>
+<p>The Explore agent is a fast codebase search tool. It answers "where is X defined?", "which file handles Y?", and "what calls this function?" questions without requiring a full read-through of the code.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Domain</td>
+<td>Searching files by pattern, grepping for symbols, tracing call paths, understanding project structure</td>
+</tr>
+<tr>
+<td>Example</td>
+<td>Finding which file in the matrix-bot repository handles the JWT refresh logic before polyglot-dev adds a new feature</td>
+</tr>
+</tbody>
+</table>
+<h3 id="plan-architecture-design">Plan — Architecture &amp; Design<a class="headerlink" href="#plan-architecture-design" title="Permanent link">&para;</a></h3>
+<p>The Plan agent handles software architecture and implementation design. It is invoked before writing code when the approach is not obvious — to think through the design, identify edge cases, and agree on a structure before any implementation starts.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Domain</td>
+<td>Software architecture, schema design, implementation planning, trade-off analysis</td>
+</tr>
+<tr>
+<td>Example</td>
+<td>Designing the schema for a new Elasticsearch index before any ingestion code is written</td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-standard-workflow">The Standard Workflow<a class="headerlink" href="#the-standard-workflow" title="Permanent link">&para;</a></h2>
+<p>Every task on sheepsoc follows the same pattern, regardless of complexity. The steps may compress for simple tasks, but they are never skipped entirely.</p>
+<ol>
+<li><strong>Assess.</strong> Before anything is touched, the current state is understood. Claude Code reads CLAUDE.md files, checks relevant service status, and reads existing config or code. It never assumes the system is in a known state.</li>
+<li><strong>Explain.</strong> Claude Code describes what it plans to do and why. This is not optional. If the plan is wrong or if Phillip has a preference that conflicts with the proposal, this is the moment to surface it — before any changes are made.</li>
+<li><strong>Delegate.</strong> Tasks that fall within a specialist's domain are handed off to the appropriate agent. Claude Code provides the agent with the relevant context and a clear description of the expected outcome.</li>
+<li><strong>Parallelize.</strong> When multiple tasks are independent of each other, they are run across agents simultaneously.</li>
+<li><strong>Log.</strong> After the work completes, vikunja-scrum-master is invoked to record what was done on the Vikunja kanban board.</li>
+<li><strong>Document.</strong> After any major system change, docs-site-manager is invoked to update the documentation site so it reflects current reality.</li>
+</ol>
+<h2 id="the-nothing-happens-without-phillip-knowing-rule">The "Nothing Happens Without Phillip Knowing" Rule<a class="headerlink" href="#the-nothing-happens-without-phillip-knowing-rule" title="Permanent link">&para;</a></h2>
+<p>Every agent that works on sheepsoc is given the same core instruction: <em>explain before acting, and never make a silent change.</em></p>
+<p>In practice, this means:</p>
+<ul>
+<li><strong>Explain before acting.</strong> Before running any command that modifies state, the agent describes what the command does, why it is being run, and what the expected outcome is.</li>
+<li><strong>No silent sudo.</strong> Every command that requires root access is announced explicitly, along with what it changes on the system.</li>
+<li><strong>Prefer reversible actions.</strong> Back up files before editing. Comment out lines rather than deleting them. Prefer <code>systemctl stop</code> over removing a service entirely.</li>
+<li><strong>Check before installing.</strong> No new packages, services, or dependencies are installed without Phillip confirming.</li>
+</ul>
+<p>This rule exists because this machine is a single-box production environment with no staging equivalent. A bad change can take down Ollama inference, corrupt an Elasticsearch index, or break the bot.</p>
+<h2 id="claudemd-context-files">CLAUDE.md Context Files<a class="headerlink" href="#claudemd-context-files" title="Permanent link">&para;</a></h2>
+<p>Every time Claude Code is invoked, it automatically reads one or more <code>CLAUDE.md</code> files to understand the project context before doing anything. Claude Code reads these in a hierarchical order:</p>
+<ul>
+<li><code>~/.claude/CLAUDE.md</code> — global rules that apply to every session on this machine</li>
+<li><code>~/CLAUDE.md</code> — the main sheepsoc system context: hardware, services, conda environments, known issues, and rules for Claude</li>
+<li><code>~/repositories/sheepsoc/CLAUDE.md</code> — project-specific context for the sheepsoc RAG application</li>
+</ul>
+<p>Any directory can have its own CLAUDE.md. When Claude Code is run from that directory, it loads the CLAUDE.md for that directory as well as any parent-directory CLAUDE.md files up to the home directory.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "search.suggest", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
