@@ -8,6 +8,16 @@
 | IP | `192.168.50.100` |
 | OS | Ubuntu 24.04.3 LTS |
 
+## Services Covered
+
+This runbook operates the following services. See each page for configuration details and health check commands.
+
+- [Services](../services.md) — full service catalog with ports and unit names
+- [OpenWebUI & RAG](../platforms/openwebui-rag.md) — depends on Elasticsearch; stop first, start last
+- [Elasticsearch & ELSER](../platforms/elasticsearch-elser.md) — must be running before OpenWebUI, Kibana, and the Matrix bot
+- [Matrix Bot](../platforms/matrix-bot.md) — stopped before Elasticsearch in planned shutdown
+- [Conda](../platforms/conda.md) — relevant for the OpenWebUI ImportError troubleshooting step
+
 ## 1. Planned Shutdown
 
 Follow this sequence whenever a deliberate shutdown is required (hardware maintenance, power work, etc.). The order matters: services that depend on Elasticsearch should be stopped before Elasticsearch itself.

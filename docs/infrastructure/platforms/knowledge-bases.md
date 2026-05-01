@@ -8,6 +8,17 @@
 | Vector store | Elasticsearch · index `open_webui_collections_d768` |
 | Status | KBs created 2026-04-24 · bulk ingestion pending · system KBs populated by nightly cron |
 
+## Dependencies
+
+- [OpenWebUI & RAG](openwebui-rag.md) — Knowledge Bases are created and queried through OpenWebUI; the KB catalog here maps to collections in OpenWebUI's SQLite database (`webui.db`)
+- [Elasticsearch & ELSER](elasticsearch-elser.md) — all KB chunk vectors are stored in the `open_webui_collections_d768` index; a healthy ES cluster is required for KB queries to return results
+- [Ollama](../services.md) — `nomic-embed-text` is used to embed every chunk at ingest time and every query at retrieval time
+
+## Runbooks
+
+- [OpenWebUI KB Bulk Ingest](../runbooks/openwebui-kb-bulk-ingest.md) — step-by-step SOP for populating KBs from the pre-extracted text collections in `/mnt/ssd_working/Data/Ingest_Ready/`
+- [Nightly Backups](../runbooks/nightly-backups.md) — the `rag_sync` cron job that automatically manages the Sheepsoc System Docs and Sheepsoc System Config KBs
+
 The sheepsoc RAG system organises its document collections into thematic Knowledge Bases (KBs) inside OpenWebUI. Each KB groups related source material so that chat queries can be scoped to a relevant topic domain. Content is chunked, embedded via `nomic-embed-text` (768 dimensions), and stored in Elasticsearch, where OpenWebUI retrieves it using HNSW cosine similarity search.
 
 !!! note "Status — 2026-04-24"

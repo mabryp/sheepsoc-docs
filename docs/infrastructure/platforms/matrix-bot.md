@@ -194,6 +194,13 @@ Condition 2 exists because Element formats @mention pills using the user's displ
 
 ## Dependencies
 
+### Services
+
+- [OpenWebUI & RAG](openwebui-rag.md) — the bot routes every @mention through OpenWebUI's chat completions API (`/api/chat/completions`); OpenWebUI must be running for the bot to answer
+- [Ollama](../services.md) — provides the LLM inference that OpenWebUI calls on behalf of the bot; default model is `gemma3:12b`
+- [Elasticsearch & ELSER](elasticsearch-elser.md) — OpenWebUI depends on Elasticsearch as its vector store; if ES is down, RAG context retrieval will fail and bot answers will lack document context
+- [Conda](conda.md) — the `matrixbot` conda environment (Python 3.11) is the runtime for `matrix-bot.service`
+
 ### System Packages (apt)
 
 `libolm` is the C library that implements the Olm/Megolm E2EE protocol. matrix-nio's E2EE support is a Python binding to this library. These must be installed on the host OS before the Python packages can be installed.
@@ -285,3 +292,9 @@ The `[e2e]` extras selector on `matrix-nio` is mandatory — it installs the Pyt
 
 !!! note "Invite Behavior"
     The bot auto-accepts all room invites. It does not enforce an allowlist of rooms by default. Any user who can invite on the homeserver could add the bot to a room. If this is a concern, add an invite filter to `bot.py`.
+
+## See Also
+
+- [Knowledge Bases](knowledge-bases.md) — catalog of all OpenWebUI Knowledge Base UUIDs; use these to configure room → collection mappings in `config.yaml`
+- [Services](../services.md) — service catalog entry for `matrix-bot.service`
+- [Shutdown & Startup](../runbooks/shutdown-startup.md) — includes the Matrix bot in the planned shutdown and post-boot verification sequences

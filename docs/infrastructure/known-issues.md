@@ -10,7 +10,7 @@
 ## Active Landmines — Do Not Touch
 
 !!! danger "Do Not"
-    **MicroK8s: do not start.** The previous install's OpenEBS Node Disk Manager leaked to **247 GB of RAM**, starved the machine, and drove load average above 100. Persistent volumes were misconfigured and the cluster was unusable. The snap is installed but the services are stopped.
+    **MicroK8s: do not start.** The previous install's OpenEBS Node Disk Manager leaked to **247 GB of RAM**, starved the machine, and drove load average above 100. Persistent volumes were misconfigured and the cluster was unusable. The snap is installed but the services are stopped. See the [Services catalog](services.md) — MicroK8s is marked **hold**.
 
     Before restart, a proper rebuild plan is required. Key requirements:
 
@@ -22,7 +22,7 @@
     **NFS mount to `san01.mabry.lan`: keep fstab line commented.** The NFS server is offline. Uncommenting the mount will hang boot while the kernel retries. Only restore after the NFS server is back *and* reachable from sheepsoc.
 
 !!! danger "Do Not"
-    **NVIDIA driver: do not update without checking.** Current combination is driver **570.169** / CUDA **12.8** on the RTX 5060 Ti, and Ollama is stable on it. The 5060 Ti needs a modern driver — rolling forward incautiously can leave the GPU in a broken state and take Ollama inference offline. Plan the upgrade, have a rollback, and announce before running `apt upgrade` on the NVIDIA packages.
+    **NVIDIA driver: do not update without checking.** Current combination is driver **570.169** / CUDA **12.8** on the RTX 5060 Ti, and [Ollama](services.md) is stable on it. The 5060 Ti needs a modern driver — rolling forward incautiously can leave the GPU in a broken state and take Ollama inference offline. Plan the upgrade, have a rollback, and announce before running `apt upgrade` on the NVIDIA packages.
 
 !!! warning "Handle with Care"
     **Reserved disks:** `/mnt/k8s_ssd_1`, `/mnt/k8s_nvme_1`, `/mnt/k8s_nvme_2`, `/mnt/k8s_nvme_3` are earmarked for the k8s rebuild. Do not put permanent data there — they will be reformatted when the cluster is rebuilt.
@@ -49,7 +49,7 @@
 - Ingest pipeline `elser-embed-openwebui` created. Set as the index default pipeline — all future OpenWebUI document uploads automatically receive ELSER tokens at ingest time. No changes to OpenWebUI itself.
 - ELSER inference endpoint: `.elser-2-elasticsearch` (built-in, adaptive allocation — scales to zero when idle).
 - All 8,136 existing documents backfilled with ELSER tokens in two passes. First pass processed 7,235 documents; 901 (~11%) were skipped due to ELSER scaling from zero on the first batch (a known cold-start behaviour). Second pass completed the remaining 901. Final coverage: 8,136 / 8,136, zero conflicts.
-- New capability: `text_expansion` queries and hybrid RRF (Reciprocal Rank Fusion) queries can now be run against the index from outside OpenWebUI. See [RAG & Knowledge — ELSER](platforms/openwebui-rag.md) and the how-to at `~/infrastructure/elasticsearch/howto-elser-openwebui-pipeline.md`.
+- New capability: `text_expansion` queries and hybrid RRF (Reciprocal Rank Fusion) queries can now be run against the index from outside OpenWebUI. See [RAG & Knowledge — ELSER](platforms/openwebui-rag.md), [ELSER & OpenWebUI](platforms/elasticsearch-elser.md), and the how-to at `~/infrastructure/elasticsearch/howto-elser-openwebui-pipeline.md`.
 
 ### 2026-04-21 — Elasticsearch xpack.security Enabled
 

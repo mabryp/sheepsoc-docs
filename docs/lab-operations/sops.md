@@ -168,6 +168,14 @@ pmabry@sheepsoc:~$ conda activate sheepsoc
 pmabry@sheepsoc:~$ source ~/infrastructure/miniconda3/etc/profile.d/conda.sh
 ```
 
+## 9. Planned Shutdown and Startup
+
+For a safe, ordered shutdown and post-boot verification sequence, follow the dedicated runbook:
+
+**[Shutdown & Startup Runbook](../infrastructure/runbooks/shutdown-startup.md)**
+
+The runbook covers the correct stop order (OpenWebUI → Elasticsearch → Ollama), emergency shutdown, post-boot service verification, and common startup failure troubleshooting.
+
 ## 8. What NOT to Do
 
 !!! danger "Do Not"

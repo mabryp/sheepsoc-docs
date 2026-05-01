@@ -338,6 +338,14 @@ All pre-extracted text collections available for ingest live under `/mnt/ssd_wor
 !!! warning "Mother Earth News"
     The `mother_earth_news_text` collection is 19,688 files (~38 GB of extracted text). It is too large to run through this script without significant modification — it requires a dedicated bulk script and should land in a separate Elasticsearch index. This is flagged as future work. Do not ingest with this script.
 
+## See Also
+
+- [OpenWebUI & RAG](../platforms/openwebui-rag.md) — service page for the primary RAG interface this runbook feeds data into
+- [Elasticsearch & ELSER](../platforms/elasticsearch-elser.md) — the index (`open_webui_collections_d768`) this script writes chunk vectors to
+- [Knowledge Bases](../platforms/knowledge-bases.md) — catalog of all KB UUIDs and their source directory assignments
+- [Conda Guide](../platforms/conda.md) — the `openwebui` conda environment required to run this script
+- [SOPs: Add Documents to Elasticsearch](../../lab-operations/sops.md#4-add-documents-to-elasticsearch) — quick reference entry in the SOPs page
+
 ## Troubleshooting
 
 | Symptom | Cause | Fix |

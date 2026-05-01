@@ -10,18 +10,18 @@ Every service running on sheepsoc, its systemd unit name, port, and current oper
 |---|---|---|---|---|
 | **sheepsoc-landing** | `sheepsoc-landing.service` | 80 | LAN landing page and these docs (Python http.server) | up |
 | **Vikunja** | `vikunja.service` | 3000 | Self-hosted kanban / task manager | up |
-| **Elasticsearch** | `elasticsearch.service` | 9200 | Elasticsearch 8.19.14 · single-node cluster *sheepsoc* · data at `/mnt/elastic_data` · **auth enabled** (`xpack.security` on, no TLS) · vector store for OpenWebUI RAG | up |
+| **Elasticsearch** | `elasticsearch.service` | 9200 | Elasticsearch 8.19.14 · single-node cluster *sheepsoc* · data at `/mnt/elastic_data` · **auth enabled** (`xpack.security` on, no TLS) · vector store for OpenWebUI RAG — see [ELSER & OpenWebUI](platforms/elasticsearch-elser.md) | up |
 | **Kibana** | `kibana.service` | 5601 | Log & metrics visualization (Filebeat / Metricbeat / syslog) | up |
 | **Logstash** | `logstash.service` | 5514/udp | Syslog ingestion from ASUS router + OPNsense | up |
 | **Filebeat** | `filebeat.service` | — | Ships local log files to Elasticsearch | up |
 | **Metricbeat** | `metricbeat.service` | — | Ships host metrics (CPU, RAM, disk, net) to Elasticsearch | up |
-| **Open WebUI** | `open-webui.service` | 8080 | **Primary AI interface.** OpenWebUI 0.9.2 · browser-based chat and RAG frontend · connects to Ollama for LLM inference · RAG via Elasticsearch (`nomic-embed-text`, 768d, HNSW/cosine) · runs in `openwebui` conda env (Python 3.11) | up |
+| **Open WebUI** | `open-webui.service` | 8080 | **Primary AI interface.** OpenWebUI 0.9.2 · browser-based chat and RAG frontend · connects to Ollama for LLM inference · RAG via Elasticsearch (`nomic-embed-text`, 768d, HNSW/cosine) · runs in `openwebui` conda env (Python 3.11) — see [OpenWebUI & RAG](platforms/openwebui-rag.md) | up |
 | **Jupyter Notebook** | `jupyter.service` | 8888 | Notebook server, notebook dir `~/repositories/sheepsoc` | up |
 | **Ollama** | `ollama.service` | 11434 | Local LLM inference (uses RTX 5060 Ti) | up |
 | **SSH** | `ssh.service` | 22 | Remote shell · key auth only | up |
 | **cron** | `cron.service` | — | Scheduled tasks | up |
 | **MicroK8s** | `snap.microk8s.*` | — | Kubernetes — *stopped*, needs rebuild | **hold** |
-| **Matrix Bot** | `matrix-bot.service` | — | E2EE Matrix bot (`@sheepsoc-bot:matrix.pmabry.com`) · bridges Element rooms to OpenWebUI RAG + Ollama · runs in `matrixbot` conda env | up |
+| **Matrix Bot** | `matrix-bot.service` | — | E2EE Matrix bot (`@sheepsoc-bot:matrix.pmabry.com`) · bridges Element rooms to OpenWebUI RAG + Ollama · runs in `matrixbot` conda env — see [Matrix Bot](platforms/matrix-bot.md) | up |
 | **OpenProject** | `docker: openproject` | 3001 | Project management (tasks, milestones, Gantt) · OpenProject 15 all-in-one Docker image · data at `/mnt/ssd_working/openproject/` · installed 2026-04-24 | up |
 
 ## Health Checks

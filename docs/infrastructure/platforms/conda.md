@@ -7,6 +7,13 @@
 | Install | Miniconda at `~/infrastructure/miniconda3/` |
 | Environments | `openwebui` (Python 3.11), `sheepsoc` (Python 3.12), `datawrangler`, `base` |
 
+## See Also
+
+- [OpenWebUI & RAG](openwebui-rag.md) — runs in the `openwebui` conda environment (Python 3.11); the `elasticsearch==8.19.3` package must be pip-installed into this env manually
+- [Matrix Bot](matrix-bot.md) — runs in the `matrixbot` conda environment (Python 3.11)
+- [Nightly Backups](../runbooks/nightly-backups.md) — the `rag_sync` cron job runs in the `sheepsoc` conda environment; cron requires special initialization for conda to work
+- [Services](../services.md) — lists which conda environment each service uses
+
 ## What Conda Is (Plain English)
 
 **Conda** is an environment manager for Python. An *environment* is a self-contained Python install with its own packages, isolated from everything else on the system.

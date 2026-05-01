@@ -12,6 +12,12 @@
 !!! note "Primary Interface"
     **OpenWebUI** is the only supported RAG interface on sheepsoc. All document ingestion, Knowledge base management, and AI-assisted querying is done through OpenWebUI at `:8080`. A legacy CLI RAG prototype exists at `~/repositories/sheepsoc` but is no longer maintained — see the [Legacy / Deprecated section](#legacy-cli-rag-prototype-deprecated) at the bottom of this page.
 
+## Dependencies
+
+- [Elasticsearch & ELSER](elasticsearch-elser.md) — vector store for all Knowledge Base collections; OpenWebUI cannot perform RAG without it
+- [Ollama](../services.md) — provides LLM inference for chat and the `nomic-embed-text` embedding model used for RAG
+- [Conda](conda.md) — the `openwebui` conda environment (Python 3.11) is the runtime for `open-webui.service`
+
 ## RAG Stack Overview
 
 Sheepsoc's RAG system answers questions from your own document collections. A query goes through four stages: the question is embedded into a vector, Elasticsearch retrieves the most relevant document chunks, the chunks are injected into the prompt as context, and an Ollama LLM generates the answer. OpenWebUI orchestrates all of this through a browser UI.
@@ -217,6 +223,18 @@ pmabry@sheepsoc:~$ curl -s -u elastic:<password> \
 | Roll back to Chroma | Delete the drop-in: `sudo rm /etc/systemd/system/open-webui.service.d/elasticsearch.conf`, then `sudo systemctl daemon-reload && sudo systemctl restart open-webui`. |
 | ELSER query returns zero results | ELSER may be cold-starting. Wait 30–60 seconds and retry. Check model status: `curl -u elastic:<password> http://localhost:9200/_ml/trained_models/.elser-2-elasticsearch/_stats`. |
 | ES auth errors after restart | Confirm the drop-in at `/etc/systemd/system/open-webui.service.d/elasticsearch.conf` still contains `ELASTICSEARCH_USERNAME` and `ELASTICSEARCH_PASSWORD`. Security was enabled 2026-04-21. |
+
+## Runbooks
+
+- [OpenWebUI KB Bulk Ingest](../runbooks/openwebui-kb-bulk-ingest.md) — step-by-step SOP for bulk-loading pre-extracted text collections into Knowledge Base collections
+- [Nightly Backups](../runbooks/nightly-backups.md) — automated nightly sync that keeps the Sheepsoc System Docs and Sheepsoc System Config KBs current
+- [Shutdown & Startup](../runbooks/shutdown-startup.md) — safe service shutdown and post-boot verification sequence
+
+## See Also
+
+- [Knowledge Bases](knowledge-bases.md) — catalog of all OpenWebUI Knowledge Base collections with UUIDs
+- [Elasticsearch & ELSER](elasticsearch-elser.md) — ELSER sparse-vector search layered on the same index OpenWebUI uses
+- [Known Issues](../known-issues.md) — active issues that may affect OpenWebUI operation
 
 ## Legacy: CLI RAG Prototype (Deprecated)
 

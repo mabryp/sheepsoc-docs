@@ -13,6 +13,22 @@
 !!! note "What This Page Covers"
     This page explains the ELSER architecture added to the sheepsoc RAG stack on 2026-04-23. It covers the conceptual difference between dense and sparse embeddings, what was configured, how the dual-use index works, and how to run ELSER and hybrid queries manually. OpenWebUI's behaviour is completely unchanged by this work — the changes are additive and transparent.
 
+## Dependencies
+
+- [OpenWebUI & RAG](openwebui-rag.md) — the primary consumer of the `open_webui_collections_d768` index; ELSER is layered on the same index that OpenWebUI writes to
+- [Ollama](../services.md) — provides the `nomic-embed-text` embedding model used for the dense kNN half of hybrid queries
+
+## Runbooks
+
+- [OpenWebUI KB Bulk Ingest](../runbooks/openwebui-kb-bulk-ingest.md) — ingest script that writes to the same index this page describes
+- [Shutdown & Startup](../runbooks/shutdown-startup.md) — Elasticsearch must be started before OpenWebUI and the bot; see startup sequence
+
+## See Also
+
+- [Knowledge Bases](knowledge-bases.md) — the collections stored in this index, with UUIDs
+- [Services](../services.md) — Elasticsearch service entry, port, auth details, and cluster health commands
+- [Known Issues](../known-issues.md) — history of the xpack.security enablement and beats_writer configuration
+
 ## Background: Dense vs. Sparse Embeddings
 
 Sheepsoc's RAG system originally used only dense embeddings to find relevant document chunks. Understanding the difference between dense and sparse is the key to understanding why ELSER was added.

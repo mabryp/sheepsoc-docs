@@ -1316,6 +1316,14 @@ def run_sanity_checks():
 
 ---
 
+## See Also
+
+- [Research Agenda](../agenda.md) — the strategic research questions this protocol is designed to answer
+- [RAG-001 Precision Audit](precision-audit.md) — citation audit and formal measurement methodology for the claims underlying this protocol's design
+- [OpenWebUI & RAG](../../infrastructure/platforms/openwebui-rag.md) — the RAG platform providing the Elasticsearch index and Ollama inference used in this study
+- [Elasticsearch & ELSER](../../infrastructure/platforms/elasticsearch-elser.md) — ELSER configuration and dual-use index that this protocol runs queries against
+- [Knowledge Bases](../../infrastructure/platforms/knowledge-bases.md) — the document corpora that serve as the research corpus
+
 ## 15. Study Deliverables Checklist
 
 At study completion, verify the following exist and are complete:

@@ -188,3 +188,10 @@ The nightly cron job is not the only way `rag_sync.py` is invoked. The same scri
 | Sync completes but Knowledge Base is not updating in OpenWebUI | Collection UUIDs in `.env` do not match the actual collections | In OpenWebUI, go to Workspace → Knowledge and note the URL of each collection — the UUID is the last segment. Compare against `OPENWEBUI_DOCS_COLLECTION_ID` and `OPENWEBUI_CONFIGS_COLLECTION_ID` in `.env`. |
 | Log file is empty or missing entries from last night | Cron did not run, or the job definition was lost | Verify the cron entry is still present: `crontab -l`. If the line is missing, re-add it. Check cron daemon: `systemctl status cron.service`. |
 | Ollama embedding errors during upload | Ollama is down or `nomic-embed-text` model is not loaded | `systemctl status ollama.service` and `ollama list`. If `nomic-embed-text:latest` is missing, pull it: `ollama pull nomic-embed-text`. |
+
+## See Also
+
+- [OpenWebUI & RAG](../platforms/openwebui-rag.md) — the sync uploads files into OpenWebUI Knowledge Base collections via the OpenWebUI HTTP API
+- [Knowledge Bases](../platforms/knowledge-bases.md) — catalog of the Sheepsoc System Docs and Sheepsoc System Config KBs that this runbook manages
+- [GitHub & RAG Sync](../backup-and-recovery/github-rag-sync.md) — the companion offsite backup system; the post-commit hook runs the same sync script
+- [Conda Guide](../platforms/conda.md) — the `sheepsoc` conda environment required by the cron job; cron requires special initialization

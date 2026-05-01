@@ -250,3 +250,11 @@ This is the normal sequence for adding or updating a file in the backup reposito
 | Encrypted file committed as plaintext (accidental) | Remove the file from git history immediately using `git filter-repo` or contact GitHub support to scrub the commit. Treat any exposed credentials as compromised and rotate them. Going forward: always grep for `ENC[` before staging files that match `.sops.yaml` patterns. |
 | Post-commit hook not firing | Verify the hook file exists and is executable: `ls -l ~/repositories/sheepsoc-backup/.git/hooks/post-commit`. The file must have execute permission (`chmod +x`). Git hooks are not tracked by git — if the repository was re-cloned, the hook must be recreated manually. |
 | Sync script errors with `ModuleNotFoundError: requests` | The script must run inside the `sheepsoc` conda environment. Run: `conda activate sheepsoc && pip install requests`. |
+
+## See Also
+
+- [Config Backup & Encryption](config-backup.md) — conceptual companion; explains the encryption model, deploy key isolation, and day-to-day backup workflow
+- [Nightly Backups](../runbooks/nightly-backups.md) — the cron job that runs the same `rag_sync.py` script on a nightly schedule
+- [OpenWebUI & RAG](../platforms/openwebui-rag.md) — the sync uploads files into OpenWebUI Knowledge Base collections; OpenWebUI must be running for the sync to succeed
+- [Knowledge Bases](../platforms/knowledge-bases.md) — the Sheepsoc System Docs and Sheepsoc System Config KBs that the sync manages
+- [Conda Guide](../platforms/conda.md) — the `sheepsoc` conda environment required by the sync script

@@ -214,3 +214,9 @@ The RGB Benchmark (Chen et al., AAAI 2024, arXiv:2309.01431) is the best-studied
 | "18% nDCG ELSER v2 over BM25" | ✅ Elastic's own BEIR benchmark | Moderate (self-reported) | Run your own BEIR-style test on SheepSOC corpus |
 | Precision@K → hallucination causal link | ✅ Multiple papers (RAGCHECKER, Agnihotram 2025) | High | Use Precision@5 as your primary retrieval metric |
 | Chunking affects quality as much as model | ✅ Vectara NAACL 2025 (arXiv:2410.13070) | High | Run chunking ablation as first experiment |
+
+## See Also
+
+- [Research Agenda](../agenda.md) — the strategic questions this audit supports with verified citations and methodology
+- [RAG-001 Protocol](protocol.md) — the experimental protocol that operationalizes the measurement framework defined in this audit
+- [Elasticsearch & ELSER](../../infrastructure/platforms/elasticsearch-elser.md) — ELSER configuration on sheepsoc; the 18% nDCG claim (Claim D) is directly relevant to this deployment

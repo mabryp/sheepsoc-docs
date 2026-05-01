@@ -187,3 +187,11 @@ Your **251 GB of RAM** means you can hold all indices in memory simultaneously. 
 - There is surprisingly little published work on the *exact* dose-response relationship between retrieval quality (measured by nDCG) and final answer quality (measured by hallucination rate) *specifically for 7B–13B models* — the range SheepSOC runs. Most papers study either very small (<3B) or very large (>70B) models.
 - The "negative rejection" capability (knowing when retrieved context is bad) in small models is understudied. The RGB benchmark from 2023 raised this issue but it hasn't been systematically quantified across the Ollama model library.
 - ELSER requires an Elastic subscription for full production use. SheepSOC should verify whether the trial/developer license covers the intended research workload — this is an operational gap, not a research gap, but it matters for the experiment plan.
+
+## See Also
+
+- [RAG-001 Precision Audit](rag-001/precision-audit.md) — citation audit and methodology review for the quantitative claims in this agenda
+- [RAG-001 Protocol](rag-001/protocol.md) — experimental protocol implementing the research designs described here
+- [OpenWebUI & RAG](../infrastructure/platforms/openwebui-rag.md) — the RAG platform this research evaluates
+- [Elasticsearch & ELSER](../infrastructure/platforms/elasticsearch-elser.md) — ELSER sparse-vector search and the dual-use index used as the research testbed
+- [Knowledge Bases](../infrastructure/platforms/knowledge-bases.md) — the document corpora used in experiments

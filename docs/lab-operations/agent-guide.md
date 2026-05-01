@@ -167,6 +167,13 @@ The MkDocs Material theme handles visual styling. Key configuration in `mkdocs.y
 
 Do not add custom CSS overrides unless absolutely necessary. Let Material handle the visual presentation.
 
+## See Also
+
+- [Docs Workflow](docs-workflow.md) — CI pipeline details, runner status, and the correct commit/push workflow for agents
+- [The Agile Team](agile-team.md) — full roster of agents, their domains, and the standard task workflow
+- [SOPs](sops.md) — standard operating procedures for common sheepsoc tasks
+- `schema.md` (repo root) — the wiki schema that defines page structure, link rules, and update triggers; read before editing any page
+
 ## Live Site and the CI Pipeline
 
 The sheepsoc documentation site is served by `sheepsoc-landing.service`, a Python `http.server` instance on port 80 pointing at `~/infrastructure/mkdocs-site/site/`. The site directory is written by the self-hosted Actions runner on every successful push to `main`. The HTTP server does not need to be restarted after a build — it reads updated files on each request.

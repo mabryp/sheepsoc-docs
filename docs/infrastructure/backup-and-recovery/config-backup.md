@@ -210,3 +210,9 @@ If this machine is lost or destroyed and needs to be rebuilt from scratch, here 
 
 !!! note "Scope of the Backup"
     The backup repository does not store live service data — Elasticsearch indices, OpenWebUI knowledge base files, and conda environments are not included. What it stores is the *configuration* needed to rebuild and reconnect those services. Recovering the configuration is the hard part; the data can be re-ingested once the services are running again.
+
+## See Also
+
+- [GitHub & RAG Sync](github-rag-sync.md) — technical reference for the full backup system: SSH deploy key, SOPS rules, RAG sync script, and post-commit hook
+- [Nightly Backups](../runbooks/nightly-backups.md) — the cron job that runs the RAG sync on a nightly schedule; conceptually part of the same backup system
+- [Matrix Bot](../platforms/matrix-bot.md) — `config.yaml` for the Matrix bot is one of the files backed up and encrypted by this system
