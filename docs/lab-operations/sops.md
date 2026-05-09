@@ -168,7 +168,26 @@ pmabry@sheepsoc:~$ conda activate sheepsoc
 pmabry@sheepsoc:~$ source ~/infrastructure/miniconda3/etc/profile.d/conda.sh
 ```
 
-## 9. Planned Shutdown and Startup
+## 9. Remote Access via Tailscale
+
+Tailscale provides encrypted remote access to all sheepsoc services from any enrolled device. From a remote device on the tailnet, substitute `100.117.117.43` for `192.168.50.100` in any URL or SSH command.
+
+```bash
+# SSH to sheepsoc over Tailscale (same key, same port)
+ssh pmabry@100.117.117.43
+
+# Or via MagicDNS
+ssh pmabry@sheepsoc.tail0f68e4.ts.net
+
+# Check tailnet status from sheepsoc
+pmabry@sheepsoc:~$ tailscale status
+```
+
+For procedures covering peer enrollment, peer removal, key rotation, and full uninstall, see the dedicated runbook:
+
+**[Tailscale Operations](../infrastructure/runbooks/tailscale-ops.md)**
+
+## 10. Planned Shutdown and Startup
 
 For a safe, ordered shutdown and post-boot verification sequence, follow the dedicated runbook:
 
@@ -176,7 +195,7 @@ For a safe, ordered shutdown and post-boot verification sequence, follow the ded
 
 The runbook covers the correct stop order (OpenWebUI → Elasticsearch → Ollama), emergency shutdown, post-boot service verification, and common startup failure troubleshooting.
 
-## 8. What NOT to Do
+## 11. What NOT to Do
 
 !!! danger "Do Not"
     **Do not start MicroK8s.** The previous install's OpenEBS NDM leaked to 247 GB, starved the machine, and drove load average to 100+. The cluster is stopped until a proper rebuild plan exists. See [Known Issues](../infrastructure/known-issues.md).

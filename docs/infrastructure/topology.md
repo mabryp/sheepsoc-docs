@@ -4,11 +4,11 @@
 
 ## Network Topology
 
-Sheepsoc lives on a flat home LAN behind an ASUS router that does DHCP and upstream NAT, with OPNsense acting as the internal DNS resolver for `mabry.lan`. There is no public ingress — everything is LAN-only.
+Sheepsoc lives on a flat home LAN behind an ASUS router that does DHCP and upstream NAT, with OPNsense acting as the internal DNS resolver for `mabry.lan`. There is no public inbound port-forwarding — LAN services are reached directly on the LAN, and remotely via Tailscale (see [Remote Access — Tailscale](#remote-access-tailscale) below).
 
 ```
                       ┌─────────────────────────────┐
-                      │  Internet                   │
+                      │  Internet (Starlink · CGNAT) │
                       └──────────────┬──────────────┘
                                      │ WAN
                       ┌──────────────┴──────────────┐
@@ -26,10 +26,18 @@ Sheepsoc lives on a flat home LAN behind an ASUS router that does DHCP and upstr
 │ DNS · FW       │         │ Xeon · 251G · GPU  │          │                │
 │ *.mabry.lan    │         │ Ubuntu 24.04       │          │                │
 │ syslog → LS    │         │ all services       │          │                │
-└────────────────┘         └───────────────────┘          └────────────────┘
+└────────────────┘         └──────┬────────────┘          └────────────────┘
+                                  │ tailscale0 (WireGuard)
+                           100.117.117.43
+                                  │ (outbound to Tailscale coordination
+                                  │  server · DERP relay for remote peers)
+                                  │
+                    [ Tailscale peers · tail0f68e4 tailnet ]
+                    phillips-macbook-pro-3  100.88.90.20
 
  DNS chain : client → OPNsense (192.168.50.253) → 8.8.8.8 / 1.1.1.1 upstream
  Logs      : ASUS + OPNsense → sheepsoc:5514/udp (Logstash) → Elasticsearch
+ Remote    : Tailscale WireGuard overlay · no inbound port-forwarding needed
 ```
 
 | Key | Value |
@@ -37,16 +45,35 @@ Sheepsoc lives on a flat home LAN behind an ASUS router that does DHCP and upstr
 | Gateway | 192.168.50.1 · ASUS RT-AX5400 · SSH on port 1024, key auth |
 | Firewall/DNS | 192.168.50.253 · OPNsense · resolves `*.mabry.lan` |
 | DNS upstream | 8.8.8.8 · 1.1.1.1 (configured in netplan) |
-| sheepsoc | 192.168.50.100 · static on `eno1` · `sheepsoc.mabry.lan` |
+| sheepsoc | 192.168.50.100 · static on `eno1` · `sheepsoc.mabry.lan` · Tailscale `100.117.117.43` |
 | Printer | 192.168.50.213 · admin console |
-| Scope | LAN only — no inbound from WAN, no Tailscale |
+| Scope | LAN + Tailscale remote access (WireGuard overlay, no inbound WAN port-forwarding) |
+
+## Remote Access — Tailscale
+
+Sheepsoc's internet uplink is Starlink, which uses CGNAT (Carrier-Grade NAT). The ASUS RT-AX5400 does not hold a routable public IP address, making inbound port-forwarding from the public internet impossible at the ASUS layer. Remote access is provided instead by [Tailscale](platforms/tailscale.md), a WireGuard-based mesh VPN.
+
+Tailscale was installed on 2026-05-09 and enrolled to the `tail0f68e4` tailnet (Google SSO). The key configuration choices are:
+
+| Setting | Value | Rationale |
+|---|---|---|
+| Tailscale IPv4 | `100.117.117.43` | Stable tailnet address for sheepsoc |
+| MagicDNS | `sheepsoc.tail0f68e4.ts.net` | Human-readable hostname for the tailnet |
+| Subnet routing | Off | Phillip only needs to reach sheepsoc itself; no LAN subnet advertisement needed |
+| Exit node | Off | Would route remote-device internet traffic through Starlink; undesirable |
+| Tailscale SSH | Off | Existing hardened OpenSSH is preserved; SSH works normally over the Tailscale tunnel |
+| UFW rule | `allow in on tailscale0` | Permits all authenticated tailnet traffic to reach sheepsoc services |
+
+Due to Starlink CGNAT, direct peer-to-peer WireGuard connections to sheepsoc from external devices are not possible. Tailscale falls back to its DERP relay network (`derp-9`, auto-selected), which is transparent and expected for this network configuration.
+
+To reach any sheepsoc service remotely, substitute `100.117.117.43` for `192.168.50.100` in any URL or SSH command.
 
 ## Host Layout
 
 Everything runs on sheepsoc itself as systemd units — no containers for the primary stack. MicroK8s is installed but stopped pending a rebuild (see [Known Issues](known-issues.md)).
 
 ```
-sheepsoc  (192.168.50.100)
+sheepsoc  (192.168.50.100 · tailscale 100.117.117.43)
 ├─ systemd services
 │  ├─ sheepsoc-landing.service  → :80     # docs site (MkDocs, Python http.server)
 │  ├─ ollama.service            → :11434  # LLM inference, uses GPU
@@ -59,6 +86,7 @@ sheepsoc  (192.168.50.100)
 │  ├─ metricbeat                → ES      # local metrics → ES
 │  ├─ vikunja                   → :3000   # kanban / task mgmt
 │  ├─ matrix-bot.service                 # E2EE Matrix bot
+│  ├─ tailscaled.service        → tailscale0 (100.117.117.43) # WireGuard mesh VPN
 │  ├─ ssh.service               → :22    # key auth only
 │  └─ cron.service                       # scheduled tasks
 ├─ conda environments  (~/infrastructure/miniconda3/)

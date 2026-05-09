@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Rule | Read this before making infrastructure changes |
-| Last reviewed | 2026-04-23 |
+| Last reviewed | 2026-05-09 |
 
 ## Active Landmines — Do Not Touch
 
@@ -32,8 +32,19 @@
 - **Security hardening steps 7–10** are still pending from the 2026-04-19 session. See the persistent memory pointer `project_security_hardening.md` for the list.
 - **Config management** lives at `/home/pmabry/infrastructure/config-mgmt/`. New infrastructure changes should land there, not as ad-hoc edits scattered across the filesystem.
 - **Disk watch:** `/` is at 202 GB of 936 GB used. Plenty of headroom, but keep an eye on ES data growth on `/` if indexes stay local.
+- **Tailscale uses DERP relay (informational):** Due to Starlink CGNAT, direct peer-to-peer WireGuard connections to sheepsoc from external devices are not possible. Tailscale falls back to DERP relay automatically. This is expected and transparent — not a fault. If the uplink changes to a non-CGNAT provider, Tailscale will prefer direct paths automatically. See [Tailscale](platforms/tailscale.md).
 
 ## History Log
+
+### 2026-05-09 — Tailscale Installed (Fresh)
+
+- [Tailscale](platforms/tailscale.md) installed from the official Tailscale apt repository (`pkgs.tailscale.com/stable/ubuntu/noble`). This replaces the failed installation that was purged on 2026-04-19.
+- Enrolled to tailnet `tail0f68e4` (Phillip's existing tailnet, Google SSO). Sheepsoc's tailnet address is `100.117.117.43`; MagicDNS hostname is `sheepsoc.tail0f68e4.ts.net`.
+- `tailscaled.service` enabled at boot and active.
+- UFW rule added: `ufw allow in on tailscale0` — permits all inbound traffic from tailnet peers on the `tailscale0` interface.
+- Sysctl file `/etc/sysctl.d/99-tailscale.conf` created with `net.ipv4.ip_forward = 1`.
+- Subnet routing, exit node, and Tailscale SSH intentionally left disabled. See [Tailscale](platforms/tailscale.md) for the full rationale.
+- Due to Starlink CGNAT, direct WireGuard connections are not possible; Tailscale uses DERP relay (`derp-9`). This is expected and transparent.
 
 ### 2026-04-27 — OpenWebUI Upgraded from 0.6.12 to 0.9.2
 
@@ -86,7 +97,7 @@
 ### 2026-04-19 — Security Hardening Session
 
 - UFW firewall enabled. Ports 22, 80, 443, 8080, 8888, 9200, 5601, 11434, and 3000 restricted to LAN (`192.168.50.0/24`) or localhost only.
-- Tailscale package fully purged (64.9 MB freed). The daemon had been failing for ~2 months.
+- Tailscale package fully purged (64.9 MB freed). The daemon had been failing for ~2 months. **Note:** Tailscale was reinstalled fresh on 2026-05-09 — see the history entry above.
 - Config management system bootstrapped at `~/infrastructure/config-mgmt/`.
 - Steps 7–10 of the hardening plan remain pending.
 

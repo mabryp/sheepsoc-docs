@@ -12,6 +12,7 @@ Use this section when you are checking system health, changing services, recover
 - [Elasticsearch & ELSER](platforms/elasticsearch-elser.md) — ELSER sparse-vector search and dual-use index configuration
 - [Knowledge Bases](platforms/knowledge-bases.md) — catalog of all OpenWebUI RAG Knowledge Base collections
 - [Matrix Bot](platforms/matrix-bot.md) — E2EE Matrix bot bridging Element rooms to OpenWebUI RAG
+- [Tailscale](platforms/tailscale.md) — WireGuard mesh VPN for remote access to sheepsoc services
 - [Conda Guide](platforms/conda.md) — Python environment management
 
 ## Runbooks
@@ -19,6 +20,7 @@ Use this section when you are checking system health, changing services, recover
 - [Shutdown & Startup](runbooks/shutdown-startup.md) — safe ordered shutdown and post-boot verification
 - [OpenWebUI KB Bulk Ingest](runbooks/openwebui-kb-bulk-ingest.md) — bulk-loading documents into Knowledge Base collections
 - [Nightly Backups](runbooks/nightly-backups.md) — scheduled RAG knowledge base sync via cron
+- [Tailscale Operations](runbooks/tailscale-ops.md) — adding/removing tailnet peers, key rotation, full uninstall
 
 ## Backup & Recovery
 

@@ -19,6 +19,7 @@ Every service running on sheepsoc, its systemd unit name, port, and current oper
 | **Jupyter Notebook** | `jupyter.service` | 8888 | Notebook server, notebook dir `~/repositories/sheepsoc` | up |
 | **Ollama** | `ollama.service` | 11434 | Local LLM inference (uses RTX 5060 Ti) | up |
 | **SSH** | `ssh.service` | 22 | Remote shell · key auth only | up |
+| **Tailscale** | `tailscaled.service` | — (WireGuard overlay) | Mesh VPN for remote access · tailnet `tail0f68e4` · IP `100.117.117.43` · MagicDNS `sheepsoc.tail0f68e4.ts.net` · no subnet routing, no exit node — see [Tailscale](platforms/tailscale.md) | up |
 | **cron** | `cron.service` | — | Scheduled tasks | up |
 | **MicroK8s** | `snap.microk8s.*` | — | Kubernetes — *stopped*, needs rebuild | **hold** |
 | **Matrix Bot** | `matrix-bot.service` | — | E2EE Matrix bot (`@sheepsoc-bot:matrix.pmabry.com`) · bridges Element rooms to OpenWebUI RAG + Ollama · runs in `matrixbot` conda env — see [Matrix Bot](platforms/matrix-bot.md) | up |
@@ -105,7 +106,7 @@ For ES / syslog / beats data, Kibana is usually easier — see [SOPs: Reading Lo
 
 ## Web Endpoints
 
-All web interfaces are LAN-only (UFW restricts access to 192.168.50.0/24).
+All web interfaces are LAN-only (UFW restricts access to `192.168.50.0/24`). From a Tailscale-enrolled device off the LAN, substitute `100.117.117.43` for `192.168.50.100` to reach any service — the `tailscale0` UFW rule permits all tailnet traffic. See [Tailscale](platforms/tailscale.md) for remote-access configuration details.
 
 | Service | URL | Notes |
 |---|---|---|

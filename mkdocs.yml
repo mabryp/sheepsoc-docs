@@ -59,11 +59,13 @@ nav:
       - Elasticsearch & ELSER: infrastructure/platforms/elasticsearch-elser.md
       - Knowledge Bases: infrastructure/platforms/knowledge-bases.md
       - Matrix Bot: infrastructure/platforms/matrix-bot.md
+      - Tailscale: infrastructure/platforms/tailscale.md
       - Conda: infrastructure/platforms/conda.md
     - Runbooks:
       - Shutdown & Startup: infrastructure/runbooks/shutdown-startup.md
       - OpenWebUI KB Bulk Ingest: infrastructure/runbooks/openwebui-kb-bulk-ingest.md
       - Nightly Backups: infrastructure/runbooks/nightly-backups.md
+      - Tailscale Operations: infrastructure/runbooks/tailscale-ops.md
     - Backup & Recovery:
       - Config Backup & Encryption: infrastructure/backup-and-recovery/config-backup.md
       - GitHub & RAG Sync: infrastructure/backup-and-recovery/github-rag-sync.md
