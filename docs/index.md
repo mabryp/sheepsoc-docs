@@ -19,6 +19,8 @@ Live service status is monitored by Uptime Kuma. Click the badge below to view c
 
 ## Quick Reference — Services
 
+### On the LAN (192.168.50.0/24)
+
 | Service | URL | Purpose |
 |---|---|---|
 | Open WebUI | [http://192.168.50.100:8080](http://192.168.50.100:8080) | Primary AI interface — chat + RAG |
@@ -31,7 +33,19 @@ Live service status is monitored by Uptime Kuma. Click the badge below to view c
 | ASUS Router | [http://192.168.50.1](http://192.168.50.1) | Home gateway admin |
 | OPNsense | [https://192.168.50.253](https://192.168.50.253) | DNS · firewall (self-signed cert) |
 
-All web interfaces are LAN-only — restricted to 192.168.50.0/24 via UFW.
+All LAN web interfaces are restricted to 192.168.50.0/24 via UFW.
+
+### Via Tailscale (tailnet `tail0f68e4` — enrolled devices only)
+
+Three services are also accessible over HTTPS via Tailscale Serve. These URLs are reachable only from devices enrolled in Phillip's tailnet — not publicly accessible.
+
+| Service | Tailnet URL | Auth |
+|---|---|---|
+| Open WebUI | [https://sheepsoc-1.tail0f68e4.ts.net/](https://sheepsoc-1.tail0f68e4.ts.net/) | OpenWebUI login |
+| Jupyter Notebook | [https://sheepsoc-1.tail0f68e4.ts.net:8443/](https://sheepsoc-1.tail0f68e4.ts.net:8443/) | Jupyter password |
+| Docs (this site) | [https://sheepsoc-1.tail0f68e4.ts.net:10000/](https://sheepsoc-1.tail0f68e4.ts.net:10000/) | None — intentional |
+
+All other services are reachable off-LAN via `100.117.117.43` (Tailscale IP) substituted for `192.168.50.100`. See [Tailscale](infrastructure/platforms/tailscale.md) for details.
 
 ---
 

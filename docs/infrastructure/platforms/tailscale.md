@@ -5,18 +5,22 @@
 | Key | Value |
 |---|---|
 | Added | 2026-05-09 |
+| Updated | 2026-05-09 |
 | Status | Running — `tailscaled.service` |
 | Tailscale IPv4 | `100.117.117.43` |
 | Tailscale IPv6 | `fd7a:115c:a1e0::1834:752b` |
-| MagicDNS hostname | `sheepsoc.tail0f68e4.ts.net` |
+| MagicDNS hostname | `sheepsoc-1.tail0f68e4.ts.net` |
 | Tailnet | `tail0f68e4` (Google SSO) |
 | Firewall rule | `ufw allow in on tailscale0` |
+
+!!! note "Why the `-1` suffix?"
+    Tailscale auto-suffixed `-1` to this node's hostname because a stale prior "sheepsoc" entry already holds the unsuffixed name in the tailnet. The `-1` suffix is cosmetic and has no functional impact — all IPs and Serve URLs resolve correctly. To reclaim the unsuffixed `sheepsoc.tail0f68e4.ts.net` hostname in the future, delete the stale entry at [https://login.tailscale.com/admin/machines](https://login.tailscale.com/admin/machines), then run `sudo tailscale up --force-reauth` to re-register under the clean name. This is low priority — address it if the extra suffix becomes confusing.
 
 ## Overview
 
 Tailscale is a mesh VPN built on top of WireGuard. It assigns each enrolled device a stable private IP address in the `100.x.x.x` range (the "tailnet") and handles NAT traversal, key exchange, and device authentication automatically. No manual WireGuard key management is required.
 
-On sheepsoc, Tailscale provides a single encrypted tunnel for remote access to all services on the box. When Phillip is off the LAN, he connects to `100.117.117.43` (or `sheepsoc.tail0f68e4.ts.net` via MagicDNS) and reaches OpenWebUI, Kibana, Jupyter, the docs site, and every other service on the box directly — no port-forwarding and no VPN server to maintain.
+On sheepsoc, Tailscale provides a single encrypted tunnel for remote access to all services on the box. When Phillip is off the LAN, he connects to `100.117.117.43` (or `sheepsoc-1.tail0f68e4.ts.net` via MagicDNS) and reaches OpenWebUI, Kibana, Jupyter, the docs site, and every other service on the box directly — no port-forwarding and no VPN server to maintain.
 
 The installation was intentionally minimal: no subnet routing, no exit-node advertising, and no Tailscale SSH. The rationale for each decision is documented in the [Configuration](#configuration) section.
 
@@ -40,7 +44,7 @@ Tailscale solves this without requiring any changes to the upstream Starlink con
 | Feature | State | Rationale |
 |---|---|---|
 | `tailscaled.service` | Enabled, active | Runs at boot; manages the WireGuard tunnel and coordination |
-| MagicDNS | Enabled (tailnet-level) | Resolves `sheepsoc.tail0f68e4.ts.net` to `100.117.117.43` |
+| MagicDNS | Enabled (tailnet-level) | Resolves `sheepsoc-1.tail0f68e4.ts.net` to `100.117.117.43` |
 | UFW rule on `tailscale0` | Present | Permits all inbound traffic from tailnet peers on the `tailscale0` interface |
 
 ### What Is Deliberately Disabled
@@ -114,7 +118,7 @@ pmabry@sheepsoc:~$ systemctl is-active tailscaled.service
 
 # Is the tailnet connection up?
 pmabry@sheepsoc:~$ tailscale status
-# Healthy output shows: sheepsoc   100.117.117.43 linux   -
+# Healthy output shows: sheepsoc-1   100.117.117.43 linux   -
 # and any connected peers
 
 # What relay is being used (if no direct path)?
@@ -129,9 +133,78 @@ pmabry@sheepsoc:~$ tailscale ip -4
 !!! note "PollNetMap: unexpected EOF"
     Log entries containing `PollNetMap: unexpected EOF` are normal. This is the Tailscale daemon recycling its long-poll connection to the coordination server. It is not an error.
 
+## Tailscale Serve
+
+`tailscale serve` exposes local HTTP services to tailnet peers over HTTPS on the MagicDNS hostname, with Let's Encrypt certificates provisioned and renewed automatically by `tailscaled`. This is **tailnet-only** access — not Tailscale Funnel — so these URLs are only reachable from devices enrolled in Phillip's `tail0f68e4` tailnet.
+
+### Active Serve Configuration (configured 2026-05-09)
+
+| HTTPS Port | URL | Backend | Auth |
+|---|---|---|---|
+| 443 | `https://sheepsoc-1.tail0f68e4.ts.net/` | `http://localhost:8080` (OpenWebUI) | OpenWebUI's own login |
+| 8443 | `https://sheepsoc-1.tail0f68e4.ts.net:8443/` | `http://localhost:8888` (Jupyter) | Jupyter argon2 password |
+| 10000 | `https://sheepsoc-1.tail0f68e4.ts.net:10000/` | `http://localhost:80` (sheepsoc-docs) | None — intentional (see note below) |
+
+Verified HTTP response codes from sheepsoc at time of configuration: 443 → 200, 8443 → 302 (Jupyter login redirect), 10000 → 200.
+
+### Why Port-Based Rather Than Path-Based
+
+Serve rules were configured on separate HTTPS ports rather than under different paths on the same port (e.g., `/jupyter/`, `/docs/`). The reason is OpenWebUI: its frontend assets and WebSocket connections assume they are mounted at the root path. Path-based proxying breaks its UI and real-time features. Using separate ports avoids this entirely and keeps each service cleanly isolated.
+
+### How It Was Configured
+
+```bash
+# Add each service (--bg writes to Tailscale's persistent state)
+pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=443   http://localhost:8080
+pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=8443  http://localhost:8888
+pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=10000 http://localhost:80
+```
+
+The `--bg` flag writes serve rules to Tailscale's persistent state at `/var/lib/tailscale/`. Rules survive `tailscaled` restarts and reboots — no separate systemd unit is needed.
+
+### Auto TLS
+
+Let's Encrypt certificates for `sheepsoc-1.tail0f68e4.ts.net` are provisioned and renewed automatically by `tailscaled`. No certbot, no manual DNS records, no separate cert management required.
+
+### Firewall and UFW
+
+No UFW changes were needed. `tailscale serve` proxies traffic via loopback inside the host — the existing `ALLOW IN on tailscale0` rule already covers all tailnet-side access, and loopback traffic is not subject to UFW.
+
+### Per-Node Serve Enablement
+
+Serve was enabled for this node via the per-node grant URL (`https://login.tailscale.com/f/serve?node=...`). The global "Serve / Funnel" toggle in the Tailscale admin console was not visible at the time of configuration, but per-node enablement is sufficient. If sheepsoc is ever recreated or re-enrolled, this per-node grant will need to be re-applied — keep the grant URL or repeat the enablement step from the admin console.
+
+### Removing Serve Rules
+
+Individual rules can be removed without affecting the underlying services — only the Tailscale proxy layer is removed:
+
+```bash
+# Remove a specific service
+pmabry@sheepsoc:~$ sudo tailscale serve --https=443   off   # remove OpenWebUI
+pmabry@sheepsoc:~$ sudo tailscale serve --https=8443  off   # remove Jupyter
+pmabry@sheepsoc:~$ sudo tailscale serve --https=10000 off   # remove docs
+
+# Remove all serve config at once
+pmabry@sheepsoc:~$ sudo tailscale serve reset
+```
+
+### Security Notes
+
+`tailscale serve` adds no authentication of its own. Each service retains its own auth layer:
+
+- **OpenWebUI** — requires OpenWebUI account login
+- **Jupyter** — requires the argon2 password configured at setup
+- **sheepsoc-docs** — intentionally unauthenticated; Phillip approved this explicitly on 2026-05-09. Exposure is equivalent to the existing LAN access (any device on `192.168.50.0/24` can already reach it). If a third tailnet device is added that should not have docs access, remove the port-10000 rule or front it with an auth proxy at that time.
+
+### View Current Serve Config
+
+```bash
+pmabry@sheepsoc:~$ tailscale serve status
+```
+
 ## Runbooks
 
-- [Tailscale Operations](../runbooks/tailscale-ops.md) — adding a node to the tailnet, removing a node, rotating auth keys, and full uninstall procedure
+- [Tailscale Operations](../runbooks/tailscale-ops.md) — adding a node to the tailnet, removing a node, rotating auth keys, managing serve rules, and full uninstall procedure
 
 ## Known Issues / Gotchas
 

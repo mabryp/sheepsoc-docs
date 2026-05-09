@@ -58,7 +58,7 @@ Tailscale was installed on 2026-05-09 and enrolled to the `tail0f68e4` tailnet (
 | Setting | Value | Rationale |
 |---|---|---|
 | Tailscale IPv4 | `100.117.117.43` | Stable tailnet address for sheepsoc |
-| MagicDNS | `sheepsoc.tail0f68e4.ts.net` | Human-readable hostname for the tailnet |
+| MagicDNS | `sheepsoc-1.tail0f68e4.ts.net` | Human-readable hostname for the tailnet (see [Known Issues](known-issues.md) for the `-1` suffix) |
 | Subnet routing | Off | Phillip only needs to reach sheepsoc itself; no LAN subnet advertisement needed |
 | Exit node | Off | Would route remote-device internet traffic through Starlink; undesirable |
 | Tailscale SSH | Off | Existing hardened OpenSSH is preserved; SSH works normally over the Tailscale tunnel |
@@ -66,7 +66,7 @@ Tailscale was installed on 2026-05-09 and enrolled to the `tail0f68e4` tailnet (
 
 Due to Starlink CGNAT, direct peer-to-peer WireGuard connections to sheepsoc from external devices are not possible. Tailscale falls back to its DERP relay network (`derp-9`, auto-selected), which is transparent and expected for this network configuration.
 
-To reach any sheepsoc service remotely, substitute `100.117.117.43` for `192.168.50.100` in any URL or SSH command.
+To reach any sheepsoc service remotely, substitute `100.117.117.43` for `192.168.50.100` in any URL or SSH command. OpenWebUI, Jupyter, and the docs site also have dedicated HTTPS URLs via Tailscale Serve — see [Services — Tailnet HTTPS URLs](services.md#tailnet-https-urls-tailscale-serve--configured-2026-05-09).
 
 ## Host Layout
 

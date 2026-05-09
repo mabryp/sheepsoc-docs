@@ -19,7 +19,7 @@ Every service running on sheepsoc, its systemd unit name, port, and current oper
 | **Jupyter Notebook** | `jupyter.service` | 8888 | Notebook server, notebook dir `~/repositories/sheepsoc` | up |
 | **Ollama** | `ollama.service` | 11434 | Local LLM inference (uses RTX 5060 Ti) | up |
 | **SSH** | `ssh.service` | 22 | Remote shell · key auth only | up |
-| **Tailscale** | `tailscaled.service` | — (WireGuard overlay) | Mesh VPN for remote access · tailnet `tail0f68e4` · IP `100.117.117.43` · MagicDNS `sheepsoc.tail0f68e4.ts.net` · no subnet routing, no exit node — see [Tailscale](platforms/tailscale.md) | up |
+| **Tailscale** | `tailscaled.service` | — (WireGuard overlay) | Mesh VPN for remote access · tailnet `tail0f68e4` · IP `100.117.117.43` · MagicDNS `sheepsoc-1.tail0f68e4.ts.net` · no subnet routing, no exit node — see [Tailscale](platforms/tailscale.md) | up |
 | **cron** | `cron.service` | — | Scheduled tasks | up |
 | **MicroK8s** | `snap.microk8s.*` | — | Kubernetes — *stopped*, needs rebuild | **hold** |
 | **Matrix Bot** | `matrix-bot.service` | — | E2EE Matrix bot (`@sheepsoc-bot:matrix.pmabry.com`) · bridges Element rooms to OpenWebUI RAG + Ollama · runs in `matrixbot` conda env — see [Matrix Bot](platforms/matrix-bot.md) | up |
@@ -106,7 +106,9 @@ For ES / syslog / beats data, Kibana is usually easier — see [SOPs: Reading Lo
 
 ## Web Endpoints
 
-All web interfaces are LAN-only (UFW restricts access to `192.168.50.0/24`). From a Tailscale-enrolled device off the LAN, substitute `100.117.117.43` for `192.168.50.100` to reach any service — the `tailscale0` UFW rule permits all tailnet traffic. See [Tailscale](platforms/tailscale.md) for remote-access configuration details.
+All web interfaces are LAN-only (UFW restricts access to `192.168.50.0/24`). From a Tailscale-enrolled device off the LAN, substitute `100.117.117.43` for `192.168.50.100` to reach any service via IP — or use the dedicated HTTPS serve URLs below for OpenWebUI, Jupyter, and the docs site. See [Tailscale](platforms/tailscale.md) for remote-access configuration details.
+
+### LAN URLs
 
 | Service | URL | Notes |
 |---|---|---|
@@ -121,6 +123,18 @@ All web interfaces are LAN-only (UFW restricts access to `192.168.50.0/24`). Fro
 | Ollama | `http://192.168.50.100:11434` | REST API, not a UI |
 | ASUS router | `http://192.168.50.1` | Admin |
 | OPNsense | `https://192.168.50.253` | Self-signed cert |
+
+### Tailnet HTTPS URLs (Tailscale Serve — configured 2026-05-09)
+
+Three services are also exposed to tailnet peers over HTTPS via `tailscale serve`. These URLs are reachable only from devices enrolled in the `tail0f68e4` tailnet — they are not public.
+
+| Service | Tailnet URL | Notes |
+|---|---|---|
+| Open WebUI | `https://sheepsoc-1.tail0f68e4.ts.net/` | OpenWebUI login required |
+| Jupyter | `https://sheepsoc-1.tail0f68e4.ts.net:8443/` | Jupyter password required |
+| Docs (this site) | `https://sheepsoc-1.tail0f68e4.ts.net:10000/` | No auth — intentional (same exposure as LAN) |
+
+Auto-provisioned Let's Encrypt certs. For configuration details and reversibility commands, see [Tailscale — Tailscale Serve](platforms/tailscale.md#tailscale-serve).
 
 ## OpenWebUI RAG Configuration
 

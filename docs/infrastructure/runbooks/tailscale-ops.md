@@ -177,8 +177,73 @@ pmabry@sheepsoc:~$ sudo ufw status verbose | grep tailscale
 
 ---
 
+---
+
+## 5. Managing Tailscale Serve Rules
+
+`tailscale serve` proxies local HTTP services to tailnet peers over HTTPS. The rules are written to Tailscale's persistent state and survive restarts — no systemd unit needed.
+
+### Where the State Lives
+
+Serve configuration is stored by `tailscaled` at `/var/lib/tailscale/`. It is **not** a file you edit directly — always use the `tailscale serve` CLI to modify it.
+
+### Verify Current Config
+
+```bash
+pmabry@sheepsoc:~$ tailscale serve status
+```
+
+This lists all active serve rules: which HTTPS ports are in use and which backend each one proxies to.
+
+### Add a New Service to Serve
+
+```bash
+# Expose a local service on a chosen HTTPS port
+# Format: sudo tailscale serve --bg --https=<port> http://localhost:<local-port>
+pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=<port> http://localhost:<local-port>
+```
+
+The `--bg` flag writes the rule to persistent state immediately. The rule takes effect without restarting any service. After adding, verify with `tailscale serve status`.
+
+Example — to expose a service running on port 9090 at `https://sheepsoc-1.tail0f68e4.ts.net:9090/`:
+
+```bash
+pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=9090 http://localhost:9090
+```
+
+!!! note "Auth is your responsibility"
+    `tailscale serve` adds no authentication of its own. Ensure the service at the local port has its own auth before exposing it, or explicitly acknowledge the exposure is intentional if left unauthenticated.
+
+### Remove a Specific Rule
+
+```bash
+# Remove the serve rule on a specific HTTPS port
+pmabry@sheepsoc:~$ sudo tailscale serve --https=<port> off
+```
+
+This removes only the Tailscale proxy layer. The underlying local service is unaffected.
+
+### Remove All Serve Rules
+
+```bash
+pmabry@sheepsoc:~$ sudo tailscale serve reset
+```
+
+This clears the entire serve configuration. All three currently-active rules (ports 443, 8443, 10000) would be removed by this command. Use it with care.
+
+### Persistence Behaviour
+
+Serve rules are written to `/var/lib/tailscale/` by `tailscaled` and restored automatically at daemon startup. They survive:
+
+- `tailscaled` restarts
+- System reboots
+
+They do **not** survive a full Tailscale uninstall (see [section 4 — Full Uninstall](#4-full-uninstall), which removes `/var/lib/tailscale/`). After a reinstall, the serve rules must be re-added manually.
+
+---
+
 ## See Also
 
-- [Tailscale](../platforms/tailscale.md) — platform page covering configuration, rationale, and health checks
+- [Tailscale](../platforms/tailscale.md) — platform page covering configuration, rationale, health checks, and the full Serve configuration
 - [Services](../services.md) — service catalog entry for `tailscaled.service`
 - [Topology](../topology.md) — network context, including the Starlink CGNAT situation

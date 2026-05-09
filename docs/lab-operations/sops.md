@@ -170,20 +170,36 @@ pmabry@sheepsoc:~$ source ~/infrastructure/miniconda3/etc/profile.d/conda.sh
 
 ## 9. Remote Access via Tailscale
 
-Tailscale provides encrypted remote access to all sheepsoc services from any enrolled device. From a remote device on the tailnet, substitute `100.117.117.43` for `192.168.50.100` in any URL or SSH command.
+Tailscale provides encrypted remote access to all sheepsoc services from any enrolled device. There are two ways to reach services off the LAN.
+
+### Option A — Tailscale Serve (HTTPS, easier for browser-based services)
+
+Three services have dedicated HTTPS URLs via `tailscale serve` (configured 2026-05-09). These are the simplest way to reach OpenWebUI, Jupyter, and the docs site from a remote device — no port-substitution needed, and the browser gets a valid TLS cert automatically.
+
+| Service | URL |
+|---|---|
+| Open WebUI | `https://sheepsoc-1.tail0f68e4.ts.net/` |
+| Jupyter Notebook | `https://sheepsoc-1.tail0f68e4.ts.net:8443/` |
+| Docs (this site) | `https://sheepsoc-1.tail0f68e4.ts.net:10000/` |
+
+These URLs are reachable only from devices enrolled in the `tail0f68e4` tailnet. They are not public.
+
+### Option B — IP Substitution (all services)
+
+For all other services (Kibana, Elasticsearch, Ollama, Vikunja, etc.), substitute `100.117.117.43` for `192.168.50.100` in any LAN URL or SSH command.
 
 ```bash
-# SSH to sheepsoc over Tailscale (same key, same port)
+# SSH to sheepsoc over Tailscale (same key, same port — port 22)
 ssh pmabry@100.117.117.43
 
 # Or via MagicDNS
-ssh pmabry@sheepsoc.tail0f68e4.ts.net
+ssh pmabry@sheepsoc-1.tail0f68e4.ts.net
 
 # Check tailnet status from sheepsoc
 pmabry@sheepsoc:~$ tailscale status
 ```
 
-For procedures covering peer enrollment, peer removal, key rotation, and full uninstall, see the dedicated runbook:
+For procedures covering peer enrollment, peer removal, key rotation, managing serve rules, and full uninstall, see the dedicated runbook:
 
 **[Tailscale Operations](../infrastructure/runbooks/tailscale-ops.md)**
 

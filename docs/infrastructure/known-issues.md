@@ -33,13 +33,23 @@
 - **Config management** lives at `/home/pmabry/infrastructure/config-mgmt/`. New infrastructure changes should land there, not as ad-hoc edits scattered across the filesystem.
 - **Disk watch:** `/` is at 202 GB of 936 GB used. Plenty of headroom, but keep an eye on ES data growth on `/` if indexes stay local.
 - **Tailscale uses DERP relay (informational):** Due to Starlink CGNAT, direct peer-to-peer WireGuard connections to sheepsoc from external devices are not possible. Tailscale falls back to DERP relay automatically. This is expected and transparent — not a fault. If the uplink changes to a non-CGNAT provider, Tailscale will prefer direct paths automatically. See [Tailscale](platforms/tailscale.md).
+- **Tailscale MagicDNS hostname is `sheepsoc-1` not `sheepsoc` (cosmetic):** Tailscale auto-suffixed `-1` because a stale prior "sheepsoc" entry holds the unsuffixed name in the tailnet. All IPs and Serve URLs resolve correctly. To reclaim the cleaner name, delete the stale entry at [https://login.tailscale.com/admin/machines](https://login.tailscale.com/admin/machines), then re-authenticate with `sudo tailscale up --force-reauth`. Low priority — address when convenient.
 
 ## History Log
+
+### 2026-05-09 — Tailscale Serve Configured
+
+- `tailscale serve` configured to expose three services to the tailnet over HTTPS. All three rules were written with `--bg` (persistent state) and survive restarts.
+- Active rules: OpenWebUI at port 443, Jupyter at port 8443, sheepsoc-docs at port 10000. All use auto-provisioned Let's Encrypt certs for `sheepsoc-1.tail0f68e4.ts.net`.
+- Port-based (not path-based) to avoid breaking OpenWebUI's root-path assumption.
+- No UFW changes required — existing `ALLOW IN on tailscale0` rule covers tailnet access; proxy runs via loopback.
+- Docs site is intentionally unauthenticated at port 10000 (approved by Phillip). OpenWebUI and Jupyter retain their own auth layers.
+- See [Tailscale — Tailscale Serve](platforms/tailscale.md#tailscale-serve) for full details and [Tailscale Operations — Managing Serve Rules](runbooks/tailscale-ops.md#5-managing-tailscale-serve-rules) for the management runbook.
 
 ### 2026-05-09 — Tailscale Installed (Fresh)
 
 - [Tailscale](platforms/tailscale.md) installed from the official Tailscale apt repository (`pkgs.tailscale.com/stable/ubuntu/noble`). This replaces the failed installation that was purged on 2026-04-19.
-- Enrolled to tailnet `tail0f68e4` (Phillip's existing tailnet, Google SSO). Sheepsoc's tailnet address is `100.117.117.43`; MagicDNS hostname is `sheepsoc.tail0f68e4.ts.net`.
+- Enrolled to tailnet `tail0f68e4` (Phillip's existing tailnet, Google SSO). Sheepsoc's tailnet address is `100.117.117.43`; MagicDNS hostname is `sheepsoc-1.tail0f68e4.ts.net`. (The `-1` suffix is cosmetic — a stale prior entry holds the unsuffixed name. See Watchlist.)
 - `tailscaled.service` enabled at boot and active.
 - UFW rule added: `ufw allow in on tailscale0` — permits all inbound traffic from tailnet peers on the `tailscale0` interface.
 - Sysctl file `/etc/sysctl.d/99-tailscale.conf` created with `net.ipv4.ip_forward = 1`.
