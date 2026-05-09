@@ -5,6 +5,7 @@
 | | |
 |---|---|
 | Added | 2026-04-22 |
+| Updated | 2026-05-09 — vikunja-scrum-master workflow retired pending redesign |
 | Tool | Claude Code CLI (`claude`) · Anthropic claude-sonnet-4-6 |
 
 ## Overview
@@ -20,7 +21,7 @@ The specialist agents each own a tightly-defined domain. When Claude Code recogn
 
 ## The Team
 
-Eight agents make up the team. Claude Code (the CLI itself) is the team lead. The remaining seven are specialized delegates, each invoked via the `/agent` mechanism inside a Claude Code session.
+Seven agents make up the team. Claude Code (the CLI itself) is the team lead. The remaining six are specialized delegates, each invoked via the `/agent` mechanism inside a Claude Code session.
 
 ### Claude Code — Team Lead
 
@@ -30,7 +31,7 @@ Claude Code is the entry point for every interaction. It reads the system's CLAU
 |---|---|
 | Invoked as | `claude` from any terminal on sheepsoc |
 | Context | Reads `CLAUDE.md` files automatically from the working directory and parent directories |
-| Example | "Set up a new service for X" — Claude Code assesses the system, plans the work, and delegates to infrastructure-admin, docs-site-manager, and vikunja-scrum-master in sequence |
+| Example | "Set up a new service for X" — Claude Code assesses the system, plans the work, and delegates to infrastructure-admin and docs-site-manager in sequence |
 
 ### infrastructure-admin — System Administration
 
@@ -58,15 +59,6 @@ The docs-site-manager agent creates and maintains this documentation site. It is
 |---|---|
 | Domain | Documentation pages in `~/repositories/sheepsoc/landing/` (MkDocs), HTML/CSS structure, nav |
 | Example | Adding a new service page after infrastructure-admin installs the service |
-
-### vikunja-scrum-master — Kanban Board
-
-The vikunja-scrum-master agent manages the Vikunja task tracker at [http://localhost:3000](http://localhost:3000). It is invoked at the end of multi-step tasks to record what was done, update task status, and log completion notes. A task is not considered done until it is recorded on the board.
-
-| Key | Value |
-|---|---|
-| Domain | Vikunja kanban board at `http://localhost:3000` — creating tasks, updating status, logging completion notes |
-| Example | After a security hardening session completes, marking the corresponding task done and adding notes about what was changed and what remains pending |
 
 ### data-wrangler-elastic — Elasticsearch & Data
 
@@ -112,8 +104,10 @@ Every task on sheepsoc follows the same pattern, regardless of complexity. The s
 2. **Explain.** Claude Code describes what it plans to do and why. This is not optional. If the plan is wrong or if Phillip has a preference that conflicts with the proposal, this is the moment to surface it — before any changes are made.
 3. **Delegate.** Tasks that fall within a specialist's domain are handed off to the appropriate agent. Claude Code provides the agent with the relevant context and a clear description of the expected outcome.
 4. **Parallelize.** When multiple tasks are independent of each other, they are run across agents simultaneously.
-5. **Log.** After the work completes, vikunja-scrum-master is invoked to record what was done on the Vikunja kanban board.
-6. **Document.** After any major system change, docs-site-manager is invoked to update the documentation site so it reflects current reality.
+5. **Document.** After any major system change, docs-site-manager is invoked to update the documentation site so it reflects current reality.
+
+!!! note "Completion Tracking"
+    The wiki is the team's authoritative record of completed work. Until a separate task-board workflow is redesigned, all completion tracking happens through wiki updates — services.md for service state changes, known-issues.md for resolved issues, runbook entries for procedural changes, and platform pages for configuration history. A change is not considered done until the relevant wiki pages reflect the new state.
 
 ## The "Nothing Happens Without Phillip Knowing" Rule
 

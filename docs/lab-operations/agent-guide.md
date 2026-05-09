@@ -142,14 +142,13 @@ The homepage at `docs/index.md` contains a service quick reference table. To add
 | Admonitions not callouts | Use `!!! note/warning/danger` — not HTML `.callout` divs. |
 | MicroK8s is STOPPED | Document it as stopped. Do not describe any k8s service as running. |
 | LAN only | This site contains internal IPs and service details. Do not expose it to the public internet. |
-| Notify scrum master | After every documentation change, invoke the vikunja-scrum-master agent to log the change on the kanban board. A task is not complete until it is logged. |
 
 ## Quick Task Reference
 
 | Task | How to Do It |
 |---|---|
 | Add a new doc page | Create `.md` in the appropriate `docs/` subdirectory, add to `mkdocs.yml` nav, commit and push to `main` |
-| Update an existing page | Read the file, make the edit, verify the section reads correctly, commit and push, notify scrum master |
+| Update an existing page | Read the file, make the edit, verify the section reads correctly, commit and push |
 | Add a service to the homepage | Edit `docs/index.md` — update the service quick reference table |
 | Change a known issue | Edit `docs/infrastructure/known-issues.md` — add to history or update watchlist |
 | Add a future improvement | Edit `docs/infrastructure/future-improvements.md` — follow the existing entry structure |
