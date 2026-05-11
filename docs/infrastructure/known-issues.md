@@ -37,6 +37,19 @@
 
 ## History Log
 
+### 2026-05-10 — Elasticsearch Migrated to Elastic Cloud (Local ES Decommissioned)
+
+- Local single-node `elasticsearch.service` on sheepsoc (8.19.14, `/mnt/elastic_data`) was **decommissioned**. All ES traffic now goes to **Elastic Cloud 9.4.0** at `https://gateway.es.us-central1.gcp.cloud.es.io` (GCP us-central1, cluster UUID `DaBtVAvNQNmqT0thJwt-7Q`, 3 nodes / 2 data nodes, green).
+- Auth changed from `basic_auth=("elastic","<password>")` to API key (`Authorization: ApiKey <key>`). New env var `ELASTICSEARCH_API_KEY` set in `~/.env` (renamed from typoed `ELASTICSEARH_API`). The new name also matches OpenWebUI's native env var.
+- All prior local indexes (including `open_webui_collections_d768`, the RAG_001 v2/v3 indexes, all syslog data streams) are **not carried over**. Each consumer must be reconfigured to point at the cloud cluster and, where applicable, re-ingest from source.
+- Status of consumers as of 2026-05-11:
+    - **RAG_001 v2** re-ingested into cloud cluster — 48,266 docs, 0 errors (used existing pre-embedded bulk JSONL).
+    - **RAG_001 v3** ingest in progress.
+    - **RAG_002** deferred — chunks exist but were never embedded; held pending Cloudflare/native-Assistant decision.
+    - **OpenWebUI, Filebeat, Metricbeat, Logstash, Kibana** still configured for `localhost:9200` and will fail until pointed at the cloud cluster — pending Phillip's decision on each.
+- Resolves the long-running landmine of the loose mini-PCIe NVMe carrier under `/mnt/elastic_data` that produced recurring EIO and cluster hangs — ES no longer touches that storage path.
+- See [project wiki: Elastic Cloud Migration](https://github.com/...) (`docs/runbooks/elastic_cloud_migration.md` in `~/jupyter/rag_experiments/`) for the RAG-specific procedure and `concepts/elastic_cloud_deployment.md` for the new connection model.
+
 ### 2026-05-09 — Tailscale Serve Configured
 
 - `tailscale serve` configured to expose three services to the tailnet over HTTPS. All three rules were written with `--bg` (persistent state) and survive restarts.

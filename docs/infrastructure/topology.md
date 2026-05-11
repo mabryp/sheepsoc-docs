@@ -79,7 +79,7 @@ sheepsoc  (192.168.50.100 · tailscale 100.117.117.43)
 │  ├─ ollama.service            → :11434  # LLM inference, uses GPU
 │  ├─ open-webui                → :8080   # chat UI + RAG (conda: openwebui, Py 3.11)
 │  ├─ jupyter.service           → :8888   # notebook dir ~/repositories/sheepsoc
-│  ├─ elasticsearch             → :9200   # 8.19.14 · single-node "sheepsoc" · /mnt/elastic_data
+│  ├─ elasticsearch             → :9200   # DECOMMISSIONED 2026-05-10 — moved to Elastic Cloud (GCP us-central1, 9.4.0)
 │  ├─ kibana                    → :5601   # log/metrics UI
 │  ├─ logstash                  → :5514/udp # syslog ingest from ASUS + OPNsense
 │  ├─ filebeat                  → ES      # local logs → ES

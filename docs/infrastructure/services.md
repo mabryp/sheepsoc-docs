@@ -10,7 +10,7 @@ Every service running on sheepsoc, its systemd unit name, port, and current oper
 |---|---|---|---|---|
 | **sheepsoc-landing** | `sheepsoc-landing.service` | 80 | LAN landing page and these docs (Python http.server) | up |
 | **Vikunja** | `vikunja.service` | 3000 | Self-hosted kanban / task manager | up |
-| **Elasticsearch** | `elasticsearch.service` | 9200 | Elasticsearch 8.19.14 · single-node cluster *sheepsoc* · data at `/mnt/elastic_data` · **auth enabled** (`xpack.security` on, no TLS) · vector store for OpenWebUI RAG — see [ELSER & OpenWebUI](platforms/elasticsearch-elser.md) | up |
+| ~~**Elasticsearch (local)**~~ | ~~`elasticsearch.service`~~ | ~~9200~~ | **DECOMMISSIONED 2026-05-10.** ES migrated to **Elastic Cloud 9.4.0** (GCP us-central1, `gateway.es.us-central1.gcp.cloud.es.io`, API-key auth via `ELASTICSEARCH_API_KEY`). The local single-node cluster on `/mnt/elastic_data` is retired; see [Known Issues — 2026-05-10](known-issues.md) for the migration record. OpenWebUI / Filebeat / Metricbeat / Logstash consumers must be reconfigured to use the cloud endpoint before resuming. | **decommissioned** |
 | **Kibana** | `kibana.service` | 5601 | Log & metrics visualization (Filebeat / Metricbeat / syslog) | up |
 | **Logstash** | `logstash.service` | 5514/udp | Syslog ingestion from ASUS router + OPNsense | up |
 | **Filebeat** | `filebeat.service` | — | Ships local log files to Elasticsearch | up |

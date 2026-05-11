@@ -1,5 +1,10 @@
 # ELSER & OpenWebUI
 
+!!! danger "Outdated — Local ES Decommissioned 2026-05-10"
+    **The local single-node Elasticsearch service this page describes was decommissioned on 2026-05-10.** ES traffic now goes to **Elastic Cloud 9.4.0** (`gateway.es.us-central1.gcp.cloud.es.io`, API-key auth). Everything below — `localhost:9200`, `basic_auth=("elastic","<password>")`, the local `open_webui_collections_d768` index, the `elser-embed-openwebui` ingest pipeline, the backfill numbers, all `curl -u elastic:<password>` examples — describes the **retired** local setup and is preserved as a historical reference.
+
+    See [Known Issues — 2026-05-10](../known-issues.md#2026-05-10-elasticsearch-migrated-to-elastic-cloud-local-es-decommissioned) for the migration record. OpenWebUI is currently still pointed at `localhost:9200` and its RAG will not return results until it is reconfigured for the cloud cluster — that work is pending.
+
 **Purpose:** How ELSER sparse-vector search is layered onto the OpenWebUI RAG pipeline, what it adds, and how to query against it.
 
 | Key | Value |
