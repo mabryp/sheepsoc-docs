@@ -23,7 +23,6 @@ Every service running on sheepsoc, its systemd unit name, port, and current oper
 | **cron** | `cron.service` | — | Scheduled tasks | up |
 | **MicroK8s** | `snap.microk8s.*` | — | Kubernetes — *stopped*, needs rebuild | **hold** |
 | **Matrix Bot** | `matrix-bot.service` | — | E2EE Matrix bot (`@sheepsoc-bot:matrix.pmabry.com`) · bridges Element rooms to OpenWebUI RAG + Ollama · runs in `matrixbot` conda env — see [Matrix Bot](platforms/matrix-bot.md) | up |
-| **OpenProject** | `docker: openproject` | 3001 | Project management (tasks, milestones, Gantt) · OpenProject 15 all-in-one Docker image · data at `/mnt/ssd_working/openproject/` · installed 2026-04-24 | up |
 
 ## Health Checks
 
@@ -63,9 +62,6 @@ pmabry@sheepsoc:~$ curl -s http://localhost:5601/api/status | jq
 
 # Vikunja info
 pmabry@sheepsoc:~$ curl -s http://localhost:3000/api/v1/info | jq
-
-# OpenProject (Docker) — HTTP 200 = healthy
-pmabry@sheepsoc:~$ curl -s -o /dev/null -w "%{http_code}" http://192.168.50.100:3001/
 ```
 
 ### GPU Sanity Check (for Ollama)
@@ -115,7 +111,6 @@ All web interfaces are LAN-only (UFW restricts access to `192.168.50.0/24`). Fro
 | Landing | `http://192.168.50.100/` | Dashboard |
 | Docs (this site) | `http://192.168.50.100/docs/` | You are here |
 | Vikunja | `http://192.168.50.100:3000` | Kanban |
-| OpenProject | `http://192.168.50.100:3001` | Project management — Docker container |
 | Jupyter | `http://192.168.50.100:8888` | Token in `journalctl -u jupyter` |
 | Kibana | `http://192.168.50.100:5601` | Log / metric dashboards |
 | Elasticsearch | `http://192.168.50.100:9200` | REST API, not a UI |

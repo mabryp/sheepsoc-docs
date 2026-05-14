@@ -25,7 +25,6 @@ Live service status is monitored by Uptime Kuma. Click the badge below to view c
 |---|---|---|
 | Open WebUI | [http://192.168.50.100:8080](http://192.168.50.100:8080) | Primary AI interface — chat + RAG |
 | Vikunja | [http://192.168.50.100:3000](http://192.168.50.100:3000) | Kanban / task management |
-| OpenProject | [http://192.168.50.100:3001](http://192.168.50.100:3001) | Project management (Docker) |
 | Jupyter Notebook | [http://192.168.50.100:8888](http://192.168.50.100:8888) | Python notebooks |
 | Kibana | [http://192.168.50.100:5601](http://192.168.50.100:5601) | Log & metrics dashboards |
 | Elasticsearch | [http://192.168.50.100:9200](http://192.168.50.100:9200) | REST API — not a UI |

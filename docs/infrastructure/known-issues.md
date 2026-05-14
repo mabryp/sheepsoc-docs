@@ -34,6 +34,19 @@
 
 ## History Log
 
+### 2026-05-14 — OpenProject Decommissioned
+
+OpenProject was removed from sheepsoc. It never worked as a fit for Phillip's workflow and the container had been stopped for approximately two weeks before formal removal.
+
+**What was removed:**
+
+- Docker container `openproject` (image `openproject/openproject:15`) — removed via `docker rm` / `docker rmi`
+- Bind-mount data directory `/mnt/ssd_working/openproject/` — wiped (`sudo rm -rf`; `pgdata` subdirectory was owned by a non-pmabry UID)
+- Orphaned bridge network `openproject_default` — removed via `docker network rm`
+- `~/infrastructure/sheepsoc-shutdown.sh` — cleaned up: removed `openproject` from `APP_SERVICES`, removed the `docker stop openproject` line, and removed the docker-check block in the final verification step
+
+Port 3001 is retained by Uptime Kuma. No UFW changes were made.
+
 ### 2026-05-14 — NVMe Reseat and New SATA SSD Added
 
 - **`nvme3n1` (Samsung 990 PRO 2TB, S/N S7KHNU0Y529975Z) reseated.** This is the drive that was previously loose in its mini-PCIe carrier (see the 2026-05-10 entry). The reseat held — both PVs of `vg_elastic` reported healthy, LV `lv_elastic_data` is active and mounted r/w at `/mnt/elastic_data`, SMART is PASSED, wear 4%, no dmesg I/O errors observed post-reseat. Monitor for recurrence.
