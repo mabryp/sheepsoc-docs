@@ -116,7 +116,7 @@ The dual-socket CPU means two NUMA nodes. For most of what this box does (Ollama
 
 ## Storage Map
 
-*Last updated: 2026-05-14 — NVMe reseat + new SATA SSD added. See [Known Issues — history](known-issues.md#2026-05-14-nvme-reseat-and-new-sata-ssd-added) for details.*
+*Last updated: 2026-05-14 (evening) — PNY 4TB SSD repartitioned to single partition; P3-1TB formatted and mounted. See [Known Issues — history](known-issues.md#2026-05-14-evening-storage-reshuffle-pny-4tb-repartitioned-and-p3-1tb-commissioned) for details.*
 
 ### Physical Drives
 
@@ -130,7 +130,7 @@ The dual-socket CPU means two NUMA nodes. For most of what this box does (Ollama
 | `sdb` | SATA | P3-1TB | 1.02 TB | 0039914A03508 | PASSED | — | 0 |
 
 !!! note
-    `sdb` (P3-1TB) was added 2026-05-14 with 0 power-on hours. It is not yet partitioned, formatted, or mounted. Intended for additional data storage — configuration TBD.
+    `sdb` (P3-1TB) was added 2026-05-14 with 0 power-on hours. Formatted ext4 (label `data_extra`) and mounted at `/mnt/data_extra` on 2026-05-14 (evening). Currently empty.
 
 !!! warning
     `nvme3n1` (Samsung 990 PRO, S/N …975Z) is the drive in `vg_elastic` that was previously loose in its mini-PCIe carrier. It was reseated 2026-05-14 and came back cleanly. Monitor for recurrence of I/O errors in `dmesg` or `journalctl -u elasticsearch`.
@@ -144,9 +144,8 @@ The dual-socket CPU means two NUMA nodes. For most of what this box does (Ollama
 | `/` | `nvme0n1p3` → LV `ubuntu-lv` in `ubuntu-vg` | ext4 | 936 GiB | 23% | OS + home + applications |
 | `/mnt/nvme_working` | `nvme2n1` | ext4 | 938 GiB | ~1% | General working storage (hot NVMe) |
 | `/mnt/elastic_data` | LV `lv_elastic_data` in `vg_elastic` | ext4 | 3.6 TiB | 3% (87 GiB) | Elasticsearch data — see note below |
-| `/mnt/ssd_working` | `sda2` | ext4 | 1.8 TiB | 3% (48 GiB) | General working storage |
-| *(not mounted)* | `sda1` | ext4 | 1.8 TiB | — | **Purpose unknown — do not use until identified** |
-| *(not configured)* | `sdb` | none | 1.02 TB | — | New drive, no partitions — configuration TBD |
+| `/mnt/ssd_working` | `sda1` (single partition spanning full disk) | ext4 | 3.6 TiB | 2% (48 GiB) | General working storage — label `ssd_working`, UUID `a08d2cf0-5d95-4616-9dbe-54b1595df98d` |
+| `/mnt/data_extra` | `sdb1` | ext4 | ~938 GiB | ~0% (empty) | Bulk additional data storage — label `data_extra`, UUID `207e03a8-dbe0-4025-9f1e-6c9d4bd13e5c` |
 
 **LVM volume groups:**
 
@@ -154,9 +153,6 @@ The dual-socket CPU means two NUMA nodes. For most of what this box does (Ollama
 |---|---|---|---|---|
 | `ubuntu-vg` | `nvme0n1p3` | ~936 GiB | `ubuntu-lv` | `/` |
 | `vg_elastic` | `nvme1n1`, `nvme3n1` | 3.64 TiB | `lv_elastic_data` | `/mnt/elastic_data` |
-
-!!! warning
-    `sda1` is a 1.8 TiB ext4 partition (UUID `1c74cfed-7268-4c49-a72b-a6aa4600204c`) that is present but **not mounted and has no known purpose**. Do not format or repurpose it until its origin is confirmed with Phillip.
 
 !!! note "Elastic Cloud"
     As of 2026-05-10, the local `elasticsearch.service` on sheepsoc is **decommissioned**. The `/mnt/elastic_data` volume is physically healthy but no longer actively written by ES. All ES traffic now goes to Elastic Cloud (GCP us-central1). See [Known Issues — history](known-issues.md#2026-05-10-elasticsearch-migrated-to-elastic-cloud-local-es-decommissioned) for the migration record.

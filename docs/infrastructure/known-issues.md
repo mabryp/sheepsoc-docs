@@ -34,6 +34,15 @@
 
 ## History Log
 
+### 2026-05-14 (evening) — Storage Reshuffle: PNY 4TB Repartitioned and P3-1TB Commissioned
+
+- **PNY CS900 4TB SSD (`/dev/sda`) repartitioned** from a 1.8 TiB + 1.8 TiB split into a single 3.6 TiB `sda1` partition. The old `sda2` partition was the previously active `/mnt/ssd_working` mount; the old `sda1` was the unknown-purpose unmounted partition flagged in the morning's entry. Both are gone.
+- **Migration method:** all 48 GiB of data from the old `sda2` (`Data/` directory) was staged to `sdb` via rsync, `sda` was repartitioned and formatted fresh (ext4, label `ssd_working`, UUID `a08d2cf0-5d95-4616-9dbe-54b1595df98d`), then the data was rsynced back. Round-trip verified byte-identical: 108,738 files / 50,819,999,489 bytes, 0 errors.
+- **`/etc/fstab` updated:** old `ssd_working` UUID line (`cabf6ad5…`) is commented out as a rollback breadcrumb. New line uses UUID `a08d2cf0-5d95-4616-9dbe-54b1595df98d`. `systemctl daemon-reload` run to activate.
+- **P3-1TB SATA SSD (`/dev/sdb`) commissioned:** formatted ext4, label `data_extra`, UUID `207e03a8-dbe0-4025-9f1e-6c9d4bd13e5c`. Mounted at `/mnt/data_extra` (~938 GiB usable). Owned `pmabry:pmabry`. Currently empty. Intended for bulk additional data storage.
+- The unknown-purpose `sda1` flagged in the morning's entry is resolved — it no longer exists. No data was lost; the partition was confirmed empty before being subsumed.
+- See [Topology — Storage Map](topology.md#storage-map) for the updated logical layout.
+
 ### 2026-05-14 — OpenProject Decommissioned
 
 OpenProject was removed from sheepsoc. It never worked as a fit for Phillip's workflow and the container had been stopped for approximately two weeks before formal removal.
@@ -51,7 +60,7 @@ Port 3001 is retained by Uptime Kuma. No UFW changes were made.
 
 - **`nvme3n1` (Samsung 990 PRO 2TB, S/N S7KHNU0Y529975Z) reseated.** This is the drive that was previously loose in its mini-PCIe carrier (see the 2026-05-10 entry). The reseat held — both PVs of `vg_elastic` reported healthy, LV `lv_elastic_data` is active and mounted r/w at `/mnt/elastic_data`, SMART is PASSED, wear 4%, no dmesg I/O errors observed post-reseat. Monitor for recurrence.
 - **New SATA SSD added:** `sdb` (P3-1TB, S/N 0039914A03508, 0 power-on hours). Not yet partitioned, formatted, or mounted. Intended for additional data storage; configuration is TBD.
-- **`sda1` flagged as unknown-purpose:** A 1.8 TiB ext4 partition on `sda` (UUID `1c74cfed-7268-4c49-a72b-a6aa4600204c`) is present but unmounted. Its origin is not documented. Do not format or repurpose until confirmed with Phillip.
+- **`sda1` flagged as unknown-purpose** *(resolved same day, evening)*: A 1.8 TiB ext4 partition on `sda` (UUID `1c74cfed-7268-4c49-a72b-a6aa4600204c`) was present but unmounted. Confirmed empty during the evening storage reshuffle. The partition was removed when `sda` was repartitioned into a single 3.6 TiB `sda1`. See the evening entry above.
 - The prior loose-NVMe landmine documented in the 2026-05-10 entry (below) is superseded by this reseat — the physical issue was addressed at the hardware level. The 2026-05-10 migration to Elastic Cloud also removed ES I/O dependence on this drive, providing software-level resilience if the seat loosens again.
 - See [Topology — Storage Map](topology.md#storage-map) for the full updated drive table and logical layout.
 
