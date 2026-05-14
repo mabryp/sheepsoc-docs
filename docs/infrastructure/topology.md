@@ -116,18 +116,50 @@ The dual-socket CPU means two NUMA nodes. For most of what this box does (Ollama
 
 ## Storage Map
 
-| Mount | Device Class | Size | Purpose |
-|---|---|---|---|
-| `/` | NVMe (LVM) | 936 GB (202 GB used) | OS + home + most applications |
-| `/mnt/ssd_working` | SSD | 1.8 TB | General working storage |
-| `/mnt/nvme_working` | NVMe | 1.8 TB | General working storage (hot) |
-| `/mnt/k8s_ssd_1` | SSD | 1.8 TB | Reserved for k8s rebuild |
-| `/mnt/k8s_nvme_1` | NVMe | ~900 GB | Reserved for k8s rebuild |
-| `/mnt/k8s_nvme_2` | NVMe | ~900 GB | Reserved for k8s rebuild |
-| `/mnt/k8s_nvme_3` | NVMe | ~900 GB | Reserved for k8s rebuild |
+*Last updated: 2026-05-14 — NVMe reseat + new SATA SSD added. See [Known Issues — history](known-issues.md#2026-05-14-nvme-reseat-and-new-sata-ssd-added) for details.*
+
+### Physical Drives
+
+| Linux dev | Bus | Model | Capacity | Serial | SMART | Wear | Power-on hrs |
+|---|---|---|---|---|---|---|---|
+| `nvme0n1` | NVMe | T-FORCE TM8FFE001T | 1.02 TB | TPBF2503060040100397 | PASSED | 36% | — |
+| `nvme1n1` | NVMe | Samsung 990 PRO 2TB | 2.00 TB | S7KHNU0Y529972M | PASSED | 0% | — |
+| `nvme2n1` | NVMe | T-FORCE TM8FFE001T | 1.02 TB | TPBF2503060040100087 | PASSED | 3% | — |
+| `nvme3n1` | NVMe | Samsung 990 PRO 2TB | 2.00 TB | S7KHNU0Y529975Z | PASSED | 4% | — |
+| `sda` | SATA | PNY CS900 4TB SSD | 4.00 TB | PNY250725021101043D7 | PASSED | — | 7316 |
+| `sdb` | SATA | P3-1TB | 1.02 TB | 0039914A03508 | PASSED | — | 0 |
+
+!!! note
+    `sdb` (P3-1TB) was added 2026-05-14 with 0 power-on hours. It is not yet partitioned, formatted, or mounted. Intended for additional data storage — configuration TBD.
 
 !!! warning
-    Do not place long-term data on the `k8s_*` mounts — they are earmarked for the MicroK8s rebuild and will be reformatted / reprovisioned when that happens.
+    `nvme3n1` (Samsung 990 PRO, S/N …975Z) is the drive in `vg_elastic` that was previously loose in its mini-PCIe carrier. It was reseated 2026-05-14 and came back cleanly. Monitor for recurrence of I/O errors in `dmesg` or `journalctl -u elasticsearch`.
+
+### Logical Layout and Mounts
+
+| Mount | Device | Filesystem | Size | Used | Purpose |
+|---|---|---|---|---|---|
+| `/boot/efi` | `nvme0n1p1` | vfat | 1 GiB | — | EFI system partition |
+| `/boot` | `nvme0n1p2` | ext4 | 2 GiB | — | Kernel and initrd |
+| `/` | `nvme0n1p3` → LV `ubuntu-lv` in `ubuntu-vg` | ext4 | 936 GiB | 23% | OS + home + applications |
+| `/mnt/nvme_working` | `nvme2n1` | ext4 | 938 GiB | ~1% | General working storage (hot NVMe) |
+| `/mnt/elastic_data` | LV `lv_elastic_data` in `vg_elastic` | ext4 | 3.6 TiB | 3% (87 GiB) | Elasticsearch data — see note below |
+| `/mnt/ssd_working` | `sda2` | ext4 | 1.8 TiB | 3% (48 GiB) | General working storage |
+| *(not mounted)* | `sda1` | ext4 | 1.8 TiB | — | **Purpose unknown — do not use until identified** |
+| *(not configured)* | `sdb` | none | 1.02 TB | — | New drive, no partitions — configuration TBD |
+
+**LVM volume groups:**
+
+| VG | PVs | Total | LV | Mount |
+|---|---|---|---|---|
+| `ubuntu-vg` | `nvme0n1p3` | ~936 GiB | `ubuntu-lv` | `/` |
+| `vg_elastic` | `nvme1n1`, `nvme3n1` | 3.64 TiB | `lv_elastic_data` | `/mnt/elastic_data` |
+
+!!! warning
+    `sda1` is a 1.8 TiB ext4 partition (UUID `1c74cfed-7268-4c49-a72b-a6aa4600204c`) that is present but **not mounted and has no known purpose**. Do not format or repurpose it until its origin is confirmed with Phillip.
+
+!!! note "Elastic Cloud"
+    As of 2026-05-10, the local `elasticsearch.service` on sheepsoc is **decommissioned**. The `/mnt/elastic_data` volume is physically healthy but no longer actively written by ES. All ES traffic now goes to Elastic Cloud (GCP us-central1). See [Known Issues — history](known-issues.md#2026-05-10-elasticsearch-migrated-to-elastic-cloud-local-es-decommissioned) for the migration record.
 
 ## Data Flow — RAG + Observability
 

@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Rule | Read this before making infrastructure changes |
-| Last reviewed | 2026-05-09 |
+| Last reviewed | 2026-05-14 |
 
 ## Active Landmines — Do Not Touch
 
@@ -24,9 +24,6 @@
 !!! danger "Do Not"
     **NVIDIA driver: do not update without checking.** Current combination is driver **570.169** / CUDA **12.8** on the RTX 5060 Ti, and [Ollama](services.md) is stable on it. The 5060 Ti needs a modern driver — rolling forward incautiously can leave the GPU in a broken state and take Ollama inference offline. Plan the upgrade, have a rollback, and announce before running `apt upgrade` on the NVIDIA packages.
 
-!!! warning "Handle with Care"
-    **Reserved disks:** `/mnt/k8s_ssd_1`, `/mnt/k8s_nvme_1`, `/mnt/k8s_nvme_2`, `/mnt/k8s_nvme_3` are earmarked for the k8s rebuild. Do not put permanent data there — they will be reformatted when the cluster is rebuilt.
-
 ## Watchlist
 
 - **Security hardening steps 7–10** are still pending from the 2026-04-19 session. See the persistent memory pointer `project_security_hardening.md` for the list.
@@ -36,6 +33,14 @@
 - **Tailscale MagicDNS hostname is `sheepsoc-1` not `sheepsoc` (cosmetic):** Tailscale auto-suffixed `-1` because a stale prior "sheepsoc" entry holds the unsuffixed name in the tailnet. All IPs and Serve URLs resolve correctly. To reclaim the cleaner name, delete the stale entry at [https://login.tailscale.com/admin/machines](https://login.tailscale.com/admin/machines), then re-authenticate with `sudo tailscale up --force-reauth`. Low priority — address when convenient.
 
 ## History Log
+
+### 2026-05-14 — NVMe Reseat and New SATA SSD Added
+
+- **`nvme3n1` (Samsung 990 PRO 2TB, S/N S7KHNU0Y529975Z) reseated.** This is the drive that was previously loose in its mini-PCIe carrier (see the 2026-05-10 entry). The reseat held — both PVs of `vg_elastic` reported healthy, LV `lv_elastic_data` is active and mounted r/w at `/mnt/elastic_data`, SMART is PASSED, wear 4%, no dmesg I/O errors observed post-reseat. Monitor for recurrence.
+- **New SATA SSD added:** `sdb` (P3-1TB, S/N 0039914A03508, 0 power-on hours). Not yet partitioned, formatted, or mounted. Intended for additional data storage; configuration is TBD.
+- **`sda1` flagged as unknown-purpose:** A 1.8 TiB ext4 partition on `sda` (UUID `1c74cfed-7268-4c49-a72b-a6aa4600204c`) is present but unmounted. Its origin is not documented. Do not format or repurpose until confirmed with Phillip.
+- The prior loose-NVMe landmine documented in the 2026-05-10 entry (below) is superseded by this reseat — the physical issue was addressed at the hardware level. The 2026-05-10 migration to Elastic Cloud also removed ES I/O dependence on this drive, providing software-level resilience if the seat loosens again.
+- See [Topology — Storage Map](topology.md#storage-map) for the full updated drive table and logical layout.
 
 ### 2026-05-10 — Elasticsearch Migrated to Elastic Cloud (Local ES Decommissioned)
 
