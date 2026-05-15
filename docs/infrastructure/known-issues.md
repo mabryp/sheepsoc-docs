@@ -32,6 +32,16 @@
 - **Tailscale uses DERP relay (informational):** Due to Starlink CGNAT, direct peer-to-peer WireGuard connections to sheepsoc from external devices are not possible. Tailscale falls back to DERP relay automatically. This is expected and transparent — not a fault. If the uplink changes to a non-CGNAT provider, Tailscale will prefer direct paths automatically. See [Tailscale](platforms/tailscale.md).
 - **Tailscale MagicDNS hostname is `sheepsoc-1` not `sheepsoc` (cosmetic):** Tailscale auto-suffixed `-1` because a stale prior "sheepsoc" entry holds the unsuffixed name in the tailnet. All IPs and Serve URLs resolve correctly. To reclaim the cleaner name, delete the stale entry at [https://login.tailscale.com/admin/machines](https://login.tailscale.com/admin/machines), then re-authenticate with `sudo tailscale up --force-reauth`. Low priority — address when convenient.
 
+- **`vg_elastic` linear LV is exposed to a mechanically unreliable NVMe carrier (strategic decision pending):** `nvme3n1` (Samsung 990 PRO 2TB, S/N S7KHNU0Y529975Z) sits on a mini-PCIe carrier card that does not stay mechanically seated. The drive was reseated 2026-05-14 and held — see [history entry below](#2026-05-14-nvme-reseat-and-new-sata-ssd-added) — but the failure mode will recur. The failure mode is **intermittent disappearance from the bus** (not data corruption): the drive vanishes and reappears after reseating. The structural risk is that `vg_elastic` is a **linear** LV spanning `nvme1n1` + `nvme3n1`. A linear LV cannot tolerate a missing PV — if the loose drive drops, the entire 3.6 TiB `/mnt/elastic_data` goes offline. Three strategic options have been identified; none has been executed yet:
+
+    | Option | Summary | Usable capacity | Right when… |
+    |---|---|---|---|
+    | **A — Mirror `vg_elastic`** | `lvconvert --type raid1 -m1 vg_elastic/lv_elastic_data` — converts the LV to LVM RAID1 across both 990 PROs | 1.8 TiB (drops from 3.6 TiB) | `/mnt/elastic_data` is load-bearing — the volume survives the drive dropping out and degrades gracefully, resyncing on reseat |
+    | **B — Demote `nvme3n1` out of `vg_elastic`** | Shrink `vg_elastic` to a single-PV VG on reliable `nvme1n1`; repurpose `nvme3n1` for scratch/archive where intermittent disappearance is tolerable | 1.8 TiB | `/mnt/elastic_data` is no longer load-bearing (e.g., leftover from the 2026-05-10 Elastic Cloud migration) |
+    | **C — Root-cause hardware fix** | Replace the mini-PCIe carrier with a proper PCIe→M.2 adapter (full-height, screw-secured), or move the drive to an unused motherboard M.2 slot if one exists | No change | Always — A and B are workarounds; C is the actual fix and should run in parallel |
+
+    **Open question blocking the A vs. B decision:** Is `/mnt/elastic_data` still load-bearing? Local ES was decommissioned 2026-05-10 per the [migration history](#2026-05-10-elasticsearch-migrated-to-elastic-cloud-local-es-decommissioned), but approximately 87 GiB remains in the mount. Before choosing A or B, confirm whether anything (OpenWebUI RAG indexes, backups, staging, etc.) actively reads or writes that path. If nothing does, Option B is the lower-complexity choice.
+
 ## History Log
 
 ### 2026-05-14 (evening) — Storage Reshuffle: PNY 4TB Repartitioned and P3-1TB Commissioned

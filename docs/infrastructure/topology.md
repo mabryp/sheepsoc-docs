@@ -133,7 +133,7 @@ The dual-socket CPU means two NUMA nodes. For most of what this box does (Ollama
     `sdb` (P3-1TB) was added 2026-05-14 with 0 power-on hours. Formatted ext4 (label `data_extra`) and mounted at `/mnt/data_extra` on 2026-05-14 (evening). Currently empty.
 
 !!! warning
-    `nvme3n1` (Samsung 990 PRO, S/N …975Z) is the drive in `vg_elastic` that was previously loose in its mini-PCIe carrier. It was reseated 2026-05-14 and came back cleanly. Monitor for recurrence of I/O errors in `dmesg` or `journalctl -u elasticsearch`.
+    `nvme3n1` (Samsung 990 PRO, S/N …975Z) is the drive in `vg_elastic` that was previously loose in its mini-PCIe carrier. It was reseated 2026-05-14 and came back cleanly. Monitor for recurrence of I/O errors in `dmesg` or `journalctl -u elasticsearch`. A strategic decision on how to mitigate the structural risk to the linear `vg_elastic` LV is pending — see [Known Issues — Watchlist](known-issues.md#watchlist) for the three options (mirror, demote, hardware fix) and the open question that gates the decision.
 
 ### Logical Layout and Mounts
 
