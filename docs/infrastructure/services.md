@@ -23,6 +23,7 @@ Every service running on sheepsoc, its systemd unit name, port, and current oper
 | **cron** | `cron.service` | — | Scheduled tasks | up |
 | **MicroK8s** | `snap.microk8s.*` | — | Kubernetes — *stopped*, needs rebuild | **hold** |
 | **Matrix Bot** | `matrix-bot.service` | — | E2EE Matrix bot (`@sheepsoc-bot:matrix.pmabry.com`) · bridges Element rooms to OpenWebUI RAG + Ollama · runs in `matrixbot` conda env — see [Matrix Bot](platforms/matrix-bot.md) | up |
+| **Vaultwarden** | `docker compose` (`/home/pmabry/infrastructure/vaultwarden/`) | 8222 (loopback) | Self-hosted Bitwarden-compatible password and secrets manager · replacing LastPass · bound to `127.0.0.1:8222` only · exposed to tailnet at `https://sheepsoc-1.tail0f68e4.ts.net:8444/` via Tailscale Serve · no LAN UFW rule — see [Vaultwarden](platforms/vaultwarden.md) | up |
 
 ## Health Checks
 
@@ -128,6 +129,7 @@ Three services are also exposed to tailnet peers over HTTPS via `tailscale serve
 | Open WebUI | `https://sheepsoc-1.tail0f68e4.ts.net/` | OpenWebUI login required |
 | Jupyter | `https://sheepsoc-1.tail0f68e4.ts.net:8443/` | Jupyter password required |
 | Docs (this site) | `https://sheepsoc-1.tail0f68e4.ts.net:10000/` | No auth — intentional (same exposure as LAN) |
+| Vaultwarden | `https://sheepsoc-1.tail0f68e4.ts.net:8444/` | Bitwarden login required · admin at `/admin` — see [Vaultwarden](platforms/vaultwarden.md) |
 
 Auto-provisioned Let's Encrypt certs. For configuration details and reversibility commands, see [Tailscale — Tailscale Serve](platforms/tailscale.md#tailscale-serve).
 

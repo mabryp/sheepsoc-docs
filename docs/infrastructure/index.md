@@ -13,6 +13,7 @@ Use this section when you are checking system health, changing services, recover
 - [Knowledge Bases](platforms/knowledge-bases.md) — catalog of all OpenWebUI RAG Knowledge Base collections
 - [Matrix Bot](platforms/matrix-bot.md) — E2EE Matrix bot bridging Element rooms to OpenWebUI RAG
 - [Tailscale](platforms/tailscale.md) — WireGuard mesh VPN for remote access to sheepsoc services
+- [Vaultwarden](platforms/vaultwarden.md) — self-hosted password and secrets manager (LastPass replacement)
 - [Conda Guide](platforms/conda.md) — Python environment management
 
 ## Runbooks
