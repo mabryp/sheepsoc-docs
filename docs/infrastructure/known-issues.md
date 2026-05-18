@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Rule | Read this before making infrastructure changes |
-| Last reviewed | 2026-05-17 |
+| Last reviewed | 2026-05-18 |
 
 ## Active Landmines — Do Not Touch
 
@@ -32,6 +32,8 @@
 - **Tailscale uses DERP relay (informational):** Due to Starlink CGNAT, direct peer-to-peer WireGuard connections to sheepsoc from external devices are not possible. Tailscale falls back to DERP relay automatically. This is expected and transparent — not a fault. If the uplink changes to a non-CGNAT provider, Tailscale will prefer direct paths automatically. See [Tailscale](platforms/tailscale.md).
 - **Tailscale MagicDNS hostname is `sheepsoc-1` not `sheepsoc` (cosmetic):** Tailscale auto-suffixed `-1` because a stale prior "sheepsoc" entry holds the unsuffixed name in the tailnet. All IPs and Serve URLs resolve correctly. To reclaim the cleaner name, delete the stale entry at [https://login.tailscale.com/admin/machines](https://login.tailscale.com/admin/machines), then re-authenticate with `sudo tailscale up --force-reauth`. Low priority — address when convenient.
 
+- **`tailscale serve` bind collision when local service binds `0.0.0.0`:** When `tailscale serve --https=<port>` is configured, `tailscaled` binds a listener on the tailnet IP (`100.117.117.43:<port>`). If the local service being proxied already binds to `0.0.0.0:<port>` (all interfaces), tailscaled loses the bind race and the serve rule fails silently — `tailscale serve status` may show the rule present, but HTTPS connections will not work. **Workaround:** use a different, unused port for the tailscale serve rule and let it proxy to the app's local port. The `10000+` numbering range is the convention adopted on sheepsoc for this purpose (e.g., Open WebUI binds `0.0.0.0:8080`, so tailscale serve uses `:10001 → localhost:8080`). Services that bind loopback-only (`127.0.0.1`) are not affected and can use any convenient port (e.g., Jupyter's `:8443 → localhost:8888`). See [Tailscale — Port-Numbering Convention](platforms/tailscale.md#port-numbering-convention) for the full rationale and table. {: #tailscale-serve-bind-collision }
+
 - **Docker Compose v29 env-file variable substitution** — Docker Compose v29.4.1 performs `$variable` substitution on values loaded via `env_file:`. Any literal `$` in a value is treated as a variable reference. Argon2id hashes (and any PHC-format string) contain multiple `$` field separators that will be silently mangled. **Workaround: escape every `$` as `$$` in the env file.** Compose un-escapes `$$` → `$` when injecting into the container, so the runtime value is correct. This applies to any service using `env_file:` whose config values contain `$` — it is not Vaultwarden-specific. See [Vaultwarden — Docker Compose `$$` Escaping](platforms/vaultwarden.md#docker-compose-escaping-for-argon2-hashes) for the full example. {: #docker-compose-v29-env-file-variable-substitution }
 
 - **`vg_elastic` linear LV is exposed to a mechanically unreliable NVMe carrier (strategic decision pending):** `nvme3n1` (Samsung 990 PRO 2TB, S/N S7KHNU0Y529975Z) sits on a mini-PCIe carrier card that does not stay mechanically seated. The drive was reseated 2026-05-14 and held — see [history entry below](#2026-05-14-nvme-reseat-and-new-sata-ssd-added) — but the failure mode will recur. The failure mode is **intermittent disappearance from the bus** (not data corruption): the drive vanishes and reappears after reseating. The structural risk is that `vg_elastic` is a **linear** LV spanning `nvme1n1` + `nvme3n1`. A linear LV cannot tolerate a missing PV — if the loose drive drops, the entire 3.6 TiB `/mnt/elastic_data` goes offline. Three strategic options have been identified; none has been executed yet:
@@ -45,6 +47,15 @@
     **Open question blocking the A vs. B decision:** Is `/mnt/elastic_data` still load-bearing? Local ES was decommissioned 2026-05-10 per the [migration history](#2026-05-10-elasticsearch-migrated-to-elastic-cloud-local-es-decommissioned), but approximately 87 GiB remains in the mount. Before choosing A or B, confirm whether anything (OpenWebUI RAG indexes, backups, staging, etc.) actively reads or writes that path. If nothing does, Option B is the lower-complexity choice.
 
 ## History Log
+
+### 2026-05-18 — Tailscale Serve Map Expanded
+
+- **Docs landing page is now the default tailnet entry point.** `https://sheepsoc-1.tail0f68e4.ts.net/` (port 443) previously proxied to Open WebUI. It now proxies to the docs landing page (`localhost:80`). Open WebUI moved to `:10001`.
+- **Newly exposed via tailnet:** Kibana (`:10002 → localhost:5601`), Uptime Kuma (`:10003 → localhost:3001`).
+- **Port 10000 retained as backwards-compatibility alias** for the docs landing page.
+- **`10000+` port-numbering convention adopted** for services whose local process binds `0.0.0.0:<port>`. See the new Watchlist entry for the bind-collision rationale and the full convention at [Tailscale — Port-Numbering Convention](platforms/tailscale.md#port-numbering-convention).
+- `services.md` and `index.md` updated to show both LAN and tailnet URLs side-by-side.
+- Vikunja row flagged "to be decommissioned" in the service catalog.
 
 ### 2026-05-17 — Vaultwarden Admin Token Hashed; Env File Renamed
 

@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Added | 2026-05-09 |
-| Updated | 2026-05-09 |
+| Updated | 2026-05-18 |
 | Status | Running — `tailscaled.service` |
 | Tailscale IPv4 | `100.117.117.43` |
 | Tailscale IPv6 | `fd7a:115c:a1e0::1834:752b` |
@@ -137,27 +137,53 @@ pmabry@sheepsoc:~$ tailscale ip -4
 
 `tailscale serve` exposes local HTTP services to tailnet peers over HTTPS on the MagicDNS hostname, with Let's Encrypt certificates provisioned and renewed automatically by `tailscaled`. This is **tailnet-only** access — not Tailscale Funnel — so these URLs are only reachable from devices enrolled in Phillip's `tail0f68e4` tailnet.
 
-### Active Serve Configuration (configured 2026-05-09)
+### Active Serve Configuration (updated 2026-05-18)
 
 | HTTPS Port | URL | Backend | Auth |
 |---|---|---|---|
-| 443 | `https://sheepsoc-1.tail0f68e4.ts.net/` | `http://localhost:8080` (OpenWebUI) | OpenWebUI's own login |
+| 443 | `https://sheepsoc-1.tail0f68e4.ts.net/` | `http://localhost:80` (docs landing page) | None — intentional |
 | 8443 | `https://sheepsoc-1.tail0f68e4.ts.net:8443/` | `http://localhost:8888` (Jupyter) | Jupyter argon2 password |
-| 10000 | `https://sheepsoc-1.tail0f68e4.ts.net:10000/` | `http://localhost:80` (sheepsoc-docs) | None — intentional (see note below) |
+| 8444 | `https://sheepsoc-1.tail0f68e4.ts.net:8444/` | `http://localhost:8222` (Vaultwarden) | Bitwarden/Vaultwarden login |
+| 10000 | `https://sheepsoc-1.tail0f68e4.ts.net:10000/` | `http://localhost:80` (docs — alias) | None — backwards-compat alias; keep for anyone who has port 10000 bookmarked |
+| 10001 | `https://sheepsoc-1.tail0f68e4.ts.net:10001/` | `http://localhost:8080` (Open WebUI) | OpenWebUI's own login |
+| 10002 | `https://sheepsoc-1.tail0f68e4.ts.net:10002/` | `http://localhost:5601` (Kibana) | Kibana login |
+| 10003 | `https://sheepsoc-1.tail0f68e4.ts.net:10003/` | `http://localhost:3001` (Uptime Kuma) | Uptime Kuma login |
 
-Verified HTTP response codes from sheepsoc at time of configuration: 443 → 200, 8443 → 302 (Jupyter login redirect), 10000 → 200.
+!!! note "Default entry point changed 2026-05-18"
+    The bare `https://sheepsoc-1.tail0f68e4.ts.net/` (port 443) previously opened Open WebUI. It now opens the docs landing page. Open WebUI moved to `:10001`. The old `:10000` alias is retained for backwards compatibility.
+
+### Port-Numbering Convention
+
+Two patterns are used when choosing a `tailscale serve` HTTPS port. The pattern is determined by how the local service is bound:
+
+| Pattern | When to use | Example |
+|---|---|---|
+| **Matching port** (e.g., `:8443` → `localhost:8888`) | The local service binds **only to loopback** (`127.0.0.1`) — no collision possible with tailscaled's tailnet-IP bind | Jupyter: `127.0.0.1:8888` → Tailscale `:8443` |
+| **`10000+` offset port** (e.g., `:10001` → `localhost:8080`) | The local service binds **to `0.0.0.0`** (all interfaces, including the tailnet IP) — using the same port would cause a bind collision | Open WebUI: `0.0.0.0:8080` → Tailscale `:10001` |
+
+**Why the collision happens:** `tailscale serve --https=<port>` causes `tailscaled` to bind a listener on the tailnet IP (`100.117.117.43:<port>`). If the local service also binds `0.0.0.0:<port>`, that service already holds `:port` on every interface — including the tailnet IP — so tailscaled loses the race and the serve rule fails. The fix is to pick an unused port for tailscale serve and let it proxy to the local app's port.
+
+The `10000+` range was chosen because it is well above common application port numbers, clearly signals "tailscale serve proxy port" at a glance, and avoids conflicts with anything else on sheepsoc.
 
 ### Why Port-Based Rather Than Path-Based
 
-Serve rules were configured on separate HTTPS ports rather than under different paths on the same port (e.g., `/jupyter/`, `/docs/`). The reason is OpenWebUI: its frontend assets and WebSocket connections assume they are mounted at the root path. Path-based proxying breaks its UI and real-time features. Using separate ports avoids this entirely and keeps each service cleanly isolated.
+Serve rules are configured on separate HTTPS ports rather than under different paths on the same port (e.g., `/jupyter/`, `/docs/`). The reason is OpenWebUI: its frontend assets and WebSocket connections assume they are mounted at the root path. Path-based proxying breaks its UI and real-time features. Using separate ports avoids this entirely and keeps each service cleanly isolated.
 
 ### How It Was Configured
 
 ```bash
-# Add each service (--bg writes to Tailscale's persistent state)
-pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=443   http://localhost:8080
-pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=8443  http://localhost:8888
-pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=10000 http://localhost:80
+# Initial rules (2026-05-09)
+pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=443   http://localhost:8080  # was OpenWebUI
+pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=8443  http://localhost:8888  # Jupyter
+pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=10000 http://localhost:80    # Docs
+
+# Updated 2026-05-18: docs become the default; OpenWebUI, Kibana, Uptime Kuma added
+pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=443   http://localhost:80    # Docs (new default)
+pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=8444  http://localhost:8222  # Vaultwarden
+pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=10001 http://localhost:8080  # Open WebUI
+pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=10002 http://localhost:5601  # Kibana
+pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=10003 http://localhost:3001  # Uptime Kuma
+# Port 10000 (docs alias) was already present; retained as-is
 ```
 
 The `--bg` flag writes serve rules to Tailscale's persistent state at `/var/lib/tailscale/`. Rules survive `tailscaled` restarts and reboots — no separate systemd unit is needed.
@@ -180,9 +206,13 @@ Individual rules can be removed without affecting the underlying services — on
 
 ```bash
 # Remove a specific service
-pmabry@sheepsoc:~$ sudo tailscale serve --https=443   off   # remove OpenWebUI
+pmabry@sheepsoc:~$ sudo tailscale serve --https=443   off   # remove docs (default)
 pmabry@sheepsoc:~$ sudo tailscale serve --https=8443  off   # remove Jupyter
-pmabry@sheepsoc:~$ sudo tailscale serve --https=10000 off   # remove docs
+pmabry@sheepsoc:~$ sudo tailscale serve --https=8444  off   # remove Vaultwarden
+pmabry@sheepsoc:~$ sudo tailscale serve --https=10000 off   # remove docs alias
+pmabry@sheepsoc:~$ sudo tailscale serve --https=10001 off   # remove Open WebUI
+pmabry@sheepsoc:~$ sudo tailscale serve --https=10002 off   # remove Kibana
+pmabry@sheepsoc:~$ sudo tailscale serve --https=10003 off   # remove Uptime Kuma
 
 # Remove all serve config at once
 pmabry@sheepsoc:~$ sudo tailscale serve reset
@@ -192,9 +222,12 @@ pmabry@sheepsoc:~$ sudo tailscale serve reset
 
 `tailscale serve` adds no authentication of its own. Each service retains its own auth layer:
 
-- **OpenWebUI** — requires OpenWebUI account login
-- **Jupyter** — requires the argon2 password configured at setup
-- **sheepsoc-docs** — intentionally unauthenticated; Phillip approved this explicitly on 2026-05-09. Exposure is equivalent to the existing LAN access (any device on `192.168.50.0/24` can already reach it). If a third tailnet device is added that should not have docs access, remove the port-10000 rule or front it with an auth proxy at that time.
+- **Docs landing page** (ports 443 and 10000) — intentionally unauthenticated; approved by Phillip. Exposure is equivalent to existing LAN access (any device on `192.168.50.0/24` can already reach it). If a future tailnet device is added that should not have docs access, remove or restrict the rule at that time.
+- **Open WebUI** — requires OpenWebUI account login.
+- **Jupyter** — requires the argon2 password configured at setup.
+- **Kibana** — requires Kibana login.
+- **Uptime Kuma** — requires Uptime Kuma login.
+- **Vaultwarden** — requires Bitwarden/Vaultwarden account login; admin panel at `/admin` requires the admin token.
 
 ### View Current Serve Config
 
@@ -207,6 +240,14 @@ pmabry@sheepsoc:~$ tailscale serve status
 - [Tailscale Operations](../runbooks/tailscale-ops.md) — adding a node to the tailnet, removing a node, rotating auth keys, managing serve rules, and full uninstall procedure
 
 ## Known Issues / Gotchas
+
+### `tailscale serve` Bind Collision — `0.0.0.0` Services
+
+When a local service binds to `0.0.0.0:<port>` (all interfaces), `tailscaled` cannot also bind to the tailnet IP on that same port when a `--https=<port>` serve rule is configured. The result is a silent failure — the rule appears in `tailscale serve status` but HTTPS connections fail because tailscaled lost the bind race.
+
+**Workaround:** choose a different port for the tailscale serve rule and let it proxy to the app's local port. The `10000+` range is the convention on sheepsoc for this pattern (see the [Port-Numbering Convention](#port-numbering-convention) section above). Services that bind loopback-only (`127.0.0.1`) are not affected.
+
+See also: [Known Issues — tailscale serve bind collision](../known-issues.md#tailscale-serve-bind-collision).
 
 ### DERP Relay Due to Starlink CGNAT
 

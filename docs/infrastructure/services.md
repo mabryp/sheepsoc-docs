@@ -9,7 +9,7 @@ Every service running on sheepsoc, its systemd unit name, port, and current oper
 | Service | Unit / cmd | Port | Purpose | Status |
 |---|---|---|---|---|
 | **sheepsoc-landing** | `sheepsoc-landing.service` | 80 | LAN landing page and these docs (Python http.server) | up |
-| **Vikunja** | `vikunja.service` | 3000 | Self-hosted kanban / task manager | up |
+| **Vikunja** | `vikunja.service` | 3000 | Self-hosted kanban / task manager — **to be decommissioned** (see Monday board) | up |
 | ~~**Elasticsearch (local)**~~ | ~~`elasticsearch.service`~~ | ~~9200~~ | **DECOMMISSIONED 2026-05-10.** ES migrated to **Elastic Cloud 9.4.0** (GCP us-central1, `gateway.es.us-central1.gcp.cloud.es.io`, API-key auth via `ELASTICSEARCH_API_KEY`). The local single-node cluster on `/mnt/elastic_data` is retired; see [Known Issues — 2026-05-10](known-issues.md) for the migration record. OpenWebUI / Filebeat / Metricbeat / Logstash consumers must be reconfigured to use the cloud endpoint before resuming. | **decommissioned** |
 | **Kibana** | `kibana.service` | 5601 | Log & metrics visualization (Filebeat / Metricbeat / syslog) | up |
 | **Logstash** | `logstash.service` | 5514/udp | Syslog ingestion from ASUS router + OPNsense | up |
@@ -103,35 +103,26 @@ For ES / syslog / beats data, Kibana is usually easier — see [SOPs: Reading Lo
 
 ## Web Endpoints
 
-All web interfaces are LAN-only (UFW restricts access to `192.168.50.0/24`). From a Tailscale-enrolled device off the LAN, substitute `100.117.117.43` for `192.168.50.100` to reach any service via IP — or use the dedicated HTTPS serve URLs below for OpenWebUI, Jupyter, and the docs site. See [Tailscale](platforms/tailscale.md) for remote-access configuration details.
+All web interfaces are restricted to `192.168.50.0/24` via UFW on the LAN interface. Several services are also reachable from any Tailscale-enrolled device via `tailscale serve` HTTPS — these tailnet URLs are not public, only accessible to devices enrolled in Phillip's `tail0f68e4` tailnet. See [Tailscale](platforms/tailscale.md) for remote-access configuration details.
 
-### LAN URLs
+### Service URLs — LAN and Tailnet
 
-| Service | URL | Notes |
-|---|---|---|
-| Landing | `http://192.168.50.100/` | Dashboard |
-| Docs (this site) | `http://192.168.50.100/docs/` | You are here |
-| Vikunja | `http://192.168.50.100:3000` | Kanban |
-| Jupyter | `http://192.168.50.100:8888` | Token in `journalctl -u jupyter` |
-| Kibana | `http://192.168.50.100:5601` | Log / metric dashboards |
-| Elasticsearch | `http://192.168.50.100:9200` | REST API, not a UI |
-| Open WebUI | `http://192.168.50.100:8080` | Primary AI interface — chat + RAG |
-| Ollama | `http://192.168.50.100:11434` | REST API, not a UI |
-| ASUS router | `http://192.168.50.1` | Admin |
-| OPNsense | `https://192.168.50.253` | Self-signed cert |
+| Service | LAN URL | Tailnet URL | Notes |
+|---|---|---|---|
+| Landing / Docs | `http://192.168.50.100/` | `https://sheepsoc-1.tail0f68e4.ts.net/` | Default tailnet entry point (port 443) — no auth |
+| Docs (alias) | `http://192.168.50.100/` | `https://sheepsoc-1.tail0f68e4.ts.net:10000/` | Backwards-compatibility alias; same backend as default |
+| Open WebUI | `http://192.168.50.100:8080` | `https://sheepsoc-1.tail0f68e4.ts.net:10001/` | OpenWebUI login required |
+| Jupyter | `http://192.168.50.100:8888` | `https://sheepsoc-1.tail0f68e4.ts.net:8443/` | Jupyter argon2 password required |
+| Kibana | `http://192.168.50.100:5601` | `https://sheepsoc-1.tail0f68e4.ts.net:10002/` | Log / metric dashboards |
+| Uptime Kuma | `http://192.168.50.100:3001` | `https://sheepsoc-1.tail0f68e4.ts.net:10003/` | Live service status |
+| Vaultwarden | — (tailnet only by design) | `https://sheepsoc-1.tail0f68e4.ts.net:8444/` | Loopback-only locally; Bitwarden login required · admin at `/admin` — see [Vaultwarden](platforms/vaultwarden.md) |
+| Elasticsearch | `http://192.168.50.100:9200` | n/a (API endpoint) | REST API, not a browser UI |
+| Ollama | `http://192.168.50.100:11434` | n/a (API endpoint) | LLM inference REST API, not a browser UI |
+| Vikunja | `http://192.168.50.100:3000` | — | **To be decommissioned** — see Monday board |
+| ASUS router | `http://192.168.50.1` | — | Gateway admin |
+| OPNsense | `https://192.168.50.253` | — | Self-signed cert |
 
-### Tailnet HTTPS URLs (Tailscale Serve — configured 2026-05-09)
-
-Three services are also exposed to tailnet peers over HTTPS via `tailscale serve`. These URLs are reachable only from devices enrolled in the `tail0f68e4` tailnet — they are not public.
-
-| Service | Tailnet URL | Notes |
-|---|---|---|
-| Open WebUI | `https://sheepsoc-1.tail0f68e4.ts.net/` | OpenWebUI login required |
-| Jupyter | `https://sheepsoc-1.tail0f68e4.ts.net:8443/` | Jupyter password required |
-| Docs (this site) | `https://sheepsoc-1.tail0f68e4.ts.net:10000/` | No auth — intentional (same exposure as LAN) |
-| Vaultwarden | `https://sheepsoc-1.tail0f68e4.ts.net:8444/` | Bitwarden login required · admin at `/admin` — see [Vaultwarden](platforms/vaultwarden.md) |
-
-Auto-provisioned Let's Encrypt certs. For configuration details and reversibility commands, see [Tailscale — Tailscale Serve](platforms/tailscale.md#tailscale-serve).
+Tailnet URLs use auto-provisioned Let's Encrypt certs. For configuration details, the port-numbering convention, and management commands, see [Tailscale — Tailscale Serve](platforms/tailscale.md#tailscale-serve).
 
 ## OpenWebUI RAG Configuration
 
