@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Rule | Read this before making infrastructure changes |
-| Last reviewed | 2026-05-14 |
+| Last reviewed | 2026-05-17 |
 
 ## Active Landmines — Do Not Touch
 
@@ -32,7 +32,7 @@
 - **Tailscale uses DERP relay (informational):** Due to Starlink CGNAT, direct peer-to-peer WireGuard connections to sheepsoc from external devices are not possible. Tailscale falls back to DERP relay automatically. This is expected and transparent — not a fault. If the uplink changes to a non-CGNAT provider, Tailscale will prefer direct paths automatically. See [Tailscale](platforms/tailscale.md).
 - **Tailscale MagicDNS hostname is `sheepsoc-1` not `sheepsoc` (cosmetic):** Tailscale auto-suffixed `-1` because a stale prior "sheepsoc" entry holds the unsuffixed name in the tailnet. All IPs and Serve URLs resolve correctly. To reclaim the cleaner name, delete the stale entry at [https://login.tailscale.com/admin/machines](https://login.tailscale.com/admin/machines), then re-authenticate with `sudo tailscale up --force-reauth`. Low priority — address when convenient.
 
-- **Vaultwarden plaintext admin token** — the `ADMIN_TOKEN` in `/home/pmabry/infrastructure/vaultwarden/.env` is a plaintext string. Vaultwarden logs a startup notice about this on every container start. The correct fix is to replace it with an argon2 hash generated via `docker run --rm vaultwarden/server /vaultwarden hash`. Tracked as an open subtask on the Monday SheepSOC board ("Personal Secrets Manager" item, subtask #6). See [Vaultwarden — Rotate the Admin Token](platforms/vaultwarden.md#rotate-the-admin-token) for the procedure. {: #vaultwarden-plaintext-admin-token }
+- **Docker Compose v29 env-file variable substitution** — Docker Compose v29.4.1 performs `$variable` substitution on values loaded via `env_file:`. Any literal `$` in a value is treated as a variable reference. Argon2id hashes (and any PHC-format string) contain multiple `$` field separators that will be silently mangled. **Workaround: escape every `$` as `$$` in the env file.** Compose un-escapes `$$` → `$` when injecting into the container, so the runtime value is correct. This applies to any service using `env_file:` whose config values contain `$` — it is not Vaultwarden-specific. See [Vaultwarden — Docker Compose `$$` Escaping](platforms/vaultwarden.md#docker-compose-escaping-for-argon2-hashes) for the full example. {: #docker-compose-v29-env-file-variable-substitution }
 
 - **`vg_elastic` linear LV is exposed to a mechanically unreliable NVMe carrier (strategic decision pending):** `nvme3n1` (Samsung 990 PRO 2TB, S/N S7KHNU0Y529975Z) sits on a mini-PCIe carrier card that does not stay mechanically seated. The drive was reseated 2026-05-14 and held — see [history entry below](#2026-05-14-nvme-reseat-and-new-sata-ssd-added) — but the failure mode will recur. The failure mode is **intermittent disappearance from the bus** (not data corruption): the drive vanishes and reappears after reseating. The structural risk is that `vg_elastic` is a **linear** LV spanning `nvme1n1` + `nvme3n1`. A linear LV cannot tolerate a missing PV — if the loose drive drops, the entire 3.6 TiB `/mnt/elastic_data` goes offline. Three strategic options have been identified; none has been executed yet:
 
@@ -45,6 +45,13 @@
     **Open question blocking the A vs. B decision:** Is `/mnt/elastic_data` still load-bearing? Local ES was decommissioned 2026-05-10 per the [migration history](#2026-05-10-elasticsearch-migrated-to-elastic-cloud-local-es-decommissioned), but approximately 87 GiB remains in the mount. Before choosing A or B, confirm whether anything (OpenWebUI RAG indexes, backups, staging, etc.) actively reads or writes that path. If nothing does, Option B is the lower-complexity choice.
 
 ## History Log
+
+### 2026-05-17 — Vaultwarden Admin Token Hashed; Env File Renamed
+
+- **`ADMIN_TOKEN` rotated and replaced with an argon2id hash** using the Vaultwarden "bitwarden" preset (m=65540, t=3, p=4). The plaintext token was generated with `secrets.token_urlsafe(48)` entropy. The hash now lives in `vaultwarden.env`. Vaultwarden no longer logs a startup warning about a plaintext token.
+- **Env file renamed** from `.env` to `vaultwarden.env`. Docker Compose auto-loads a `.env` file in the project directory for its own variable interpolation. This caused every `$` in the argon2 hash to be processed as a variable reference before the value ever reached the container, silently mangling the hash on startup. Renaming the file to `vaultwarden.env` and referencing it via the `env_file:` directive in `docker-compose.yml` decouples it from Compose's auto-load behavior.
+- **Remaining `$$` escaping requirement:** Even with the renamed env file, Docker Compose v29.4.1 still performs variable substitution on `env_file:`-loaded values. The hash in `vaultwarden.env` has every `$` escaped as `$$`. This must be preserved on any future token rotation. See [Vaultwarden — Rotate the Admin Token](platforms/vaultwarden.md#rotate-the-admin-token) and the [Watchlist entry above](#docker-compose-v29-env-file-variable-substitution) for details.
+- Resolves: Vaultwarden plaintext admin token (previously in Watchlist).
 
 ### 2026-05-14 (evening) — Storage Reshuffle: PNY 4TB Repartitioned and P3-1TB Commissioned
 

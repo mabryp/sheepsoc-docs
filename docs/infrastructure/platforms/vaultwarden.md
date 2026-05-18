@@ -39,21 +39,21 @@ Vaultwarden is the authoritative store for:
 
 ## Configuration
 
-All runtime configuration is driven by environment variables in `.env`. The container image is unmodified — configuration changes never require rebuilding the image.
+All runtime configuration is driven by environment variables in `vaultwarden.env`. The container image is unmodified — configuration changes never require rebuilding the image.
 
 ### Key Files
 
 | File | Purpose |
 |---|---|
 | `docker-compose.yml` | Container definition — image pin, port binding, volume mount |
-| `.env` | Runtime config (mode 600) — holds `ADMIN_TOKEN` and signup flags |
+| `vaultwarden.env` | Runtime config (mode 600) — holds `ADMIN_TOKEN` and signup flags |
 | `data/` | Persistent volume — SQLite vault DB and file attachments |
 
 ### Key Environment Variables
 
 | Variable | Description | Current Value |
 |---|---|---|
-| `ADMIN_TOKEN` | Token required to access `/admin`. Currently plaintext — see [Known Issues](../known-issues.md#vaultwarden-plaintext-admin-token). | `<token>` (see `.env`) |
+| `ADMIN_TOKEN` | Token required to access `/admin`. Stored as an argon2id hash (Bitwarden preset: m=65540, t=3, p=4). See [Rotate the Admin Token](#rotate-the-admin-token) for escaping requirements. | `<hash>` (see `vaultwarden.env`) |
 | `SIGNUPS_ALLOWED` | Controls public account registration. Set to `false` after Phillip's account was created. | `false` |
 | `SMTP_*` | SMTP configuration for password-reset emails. | Not configured — see [No SMTP](#no-smtp) |
 
@@ -97,17 +97,17 @@ pmabry@sheepsoc:~/infrastructure/vaultwarden$ docker compose logs --tail=200 -f
 
 ### Change Configuration
 
-All config lives in `.env`. After editing it, the container must be re-created — a plain `restart` does **not** pick up environment variable changes.
+All config lives in `vaultwarden.env`. After editing it, the container must be re-created — a plain `restart` does **not** pick up environment variable changes.
 
 ```bash
 pmabry@sheepsoc:~$ cd /home/pmabry/infrastructure/vaultwarden
-pmabry@sheepsoc:~/infrastructure/vaultwarden$ vim .env
+pmabry@sheepsoc:~/infrastructure/vaultwarden$ vim vaultwarden.env
 # ... make your edits ...
 pmabry@sheepsoc:~/infrastructure/vaultwarden$ docker compose up -d --force-recreate
 ```
 
 !!! warning "Restart vs. recreate"
-    `docker compose restart vaultwarden` reloads the process but reads the **existing** environment baked into the running container. It will **not** pick up `.env` changes. Always use `docker compose up -d --force-recreate` when you have edited `.env`.
+    `docker compose restart vaultwarden` reloads the process but reads the **existing** environment baked into the running container. It will **not** pick up `vaultwarden.env` changes. Always use `docker compose up -d --force-recreate` when you have edited `vaultwarden.env`.
 
 ### Restart (no config change)
 
@@ -142,32 +142,82 @@ Data in `./data/` persists across re-creates because it is a bind-mount, not a D
 
 Signups are currently disabled (`SIGNUPS_ALLOWED=false`). If you need to add another user:
 
-**Option A — Temporary signup window:** Set `SIGNUPS_ALLOWED=true` in `.env`, recreate the container, let the user register, then set it back to `false` and recreate again.
+**Option A — Temporary signup window:** Set `SIGNUPS_ALLOWED=true` in `vaultwarden.env`, recreate the container, let the user register, then set it back to `false` and recreate again.
 
-**Option B — Admin panel invite:** Navigate to `https://sheepsoc-1.tail0f68e4.ts.net:8444/admin`, authenticate with the `ADMIN_TOKEN` from `.env`, and use the "Invite User" function. Requires SMTP to be configured for the invitation email to be delivered.
+**Option B — Admin panel invite:** Navigate to `https://sheepsoc-1.tail0f68e4.ts.net:8444/admin`, authenticate with the `ADMIN_TOKEN` from `vaultwarden.env`, and use the "Invite User" function. Requires SMTP to be configured for the invitation email to be delivered.
 
 ### Rotate the Admin Token
 
-The admin token authenticates access to `/admin`. To rotate it:
+The admin token authenticates access to `/admin`. The current token is stored as an **argon2id hash** (Bitwarden preset: m=65540, t=3, p=4) in `vaultwarden.env` — not plaintext. Vaultwarden accepts both forms; argon2id is strongly preferred.
 
-1. Optionally generate an argon2-hashed token (preferred — see [Known Issues](../known-issues.md#vaultwarden-plaintext-admin-token)):
+!!! danger "Escape every `$` as `$$` in the env file"
+    Docker Compose performs variable substitution on values loaded via `env_file:`. An argon2id hash contains multiple literal `$` characters (field separators in the PHC string format). Compose v29.4.1 — the version running on sheepsoc — treats each unescaped `$` as the start of a variable reference and silently drops anything it cannot resolve.
 
-```bash
-# Generate an argon2 hash (use the hash value, not the plaintext, in .env)
-pmabry@sheepsoc:~$ docker run --rm vaultwarden/server /vaultwarden hash
+    **Result:** the hash lands in the container truncated and mangled, the admin panel is unreachable, and there is no error message explaining why.
+
+    **Rule:** every `$` in the `ADMIN_TOKEN` value must be written as `$$` in `vaultwarden.env`. This is what the file contains now, and what any future rotation must also do.
+
+    Example — a raw hash looks like:
+
+    ```
+    $argon2id$v=19$m=65540,t=3,p=4$<salt>$<hash>
+    ```
+
+    What must be written to `vaultwarden.env`:
+
+    ```ini
+    ADMIN_TOKEN=$$argon2id$$v=19$$m=65540,t=3,p=4$$<salt>$$<hash>
+    ```
+
+    Docker Compose un-escapes `$$` → `$` when injecting the value into the container, so Vaultwarden receives the correct PHC string.
+
+To rotate the token:
+
+1. Generate a new plaintext token with sufficient entropy (48+ bytes):
+
+```python
+import secrets
+plaintext = secrets.token_urlsafe(48)
+print(plaintext)
 ```
 
-2. Update `ADMIN_TOKEN` in `.env`.
-3. Recreate the container:
+2. Hash it using the argon2id Bitwarden preset and escape the result for the env file:
+
+```python
+from argon2 import PasswordHasher
+
+ph = PasswordHasher(time_cost=3, memory_cost=65540, parallelism=4, hash_len=32, salt_len=16)
+hashed = ph.hash(plaintext)
+escaped = hashed.replace("$", "$$")
+print(escaped)   # this is what goes in vaultwarden.env
+```
+
+Alternatively, use the Vaultwarden built-in hasher (produces the same preset):
+
+```bash
+pmabry@sheepsoc:~$ docker run --rm -it vaultwarden/server /vaultwarden hash --preset bitwarden
+# Enter the plaintext when prompted; copy the output hash
+# Then manually replace every $ with $$ before writing to vaultwarden.env
+```
+
+3. Update `ADMIN_TOKEN` in `vaultwarden.env` (use the `$$`-escaped hash, not the plaintext):
+
+```bash
+pmabry@sheepsoc:~/infrastructure/vaultwarden$ vim vaultwarden.env
+```
+
+4. Recreate the container:
 
 ```bash
 pmabry@sheepsoc:~/infrastructure/vaultwarden$ docker compose up -d --force-recreate
 ```
 
-To view the current token value:
+5. Verify the admin panel loads at `https://sheepsoc-1.tail0f68e4.ts.net:8444/admin` using the **plaintext** token (not the hash — you authenticate with the original secret, Vaultwarden verifies it against the stored hash).
+
+To inspect the current hash value:
 
 ```bash
-pmabry@sheepsoc:~$ grep ADMIN_TOKEN /home/pmabry/infrastructure/vaultwarden/.env
+pmabry@sheepsoc:~$ grep ADMIN_TOKEN /home/pmabry/infrastructure/vaultwarden/vaultwarden.env
 ```
 
 ## Backup
@@ -186,15 +236,19 @@ pmabry@sheepsoc:~/infrastructure/vaultwarden$ docker compose up -d
 
 ## Known Issues / Gotchas
 
-### Plaintext ADMIN_TOKEN
+### Docker Compose `$$` Escaping for argon2 Hashes
 
-The `ADMIN_TOKEN` in `.env` is currently a plaintext string. Vaultwarden logs a startup notice about this. The fix is to replace it with an argon2 hash — see [Rotate the Admin Token](#rotate-the-admin-token) above for the command. This is queued as an open item on the Monday SheepSOC board.
+Docker Compose performs variable substitution on values loaded via `env_file:`. Any literal `$` in a value — such as the field separators in an argon2id PHC hash string — is treated as a variable reference and dropped. This was observed under Docker Compose v29.4.1.
 
-See [Known Issues — Vaultwarden plaintext admin token](../known-issues.md#vaultwarden-plaintext-admin-token) for the site-wide tracking entry.
+The `ADMIN_TOKEN` in `vaultwarden.env` is an argon2id hash with every `$` escaped as `$$`. This is required, not optional. If you rotate the token and forget to escape, the container starts normally but the admin panel will reject all authentication attempts with no helpful error.
+
+See [Rotate the Admin Token](#rotate-the-admin-token) for the full procedure and example. This escaping requirement applies to any `env_file:`-loaded value that contains literal `$` characters — it is not specific to Vaultwarden.
+
+See also [Known Issues — Docker Compose v29 env-file variable substitution](../known-issues.md#docker-compose-v29-env-file-variable-substitution).
 
 ### No SMTP
 
-SMTP is not configured. Consequence: password-reset emails will not be sent. This is intentional for a single-user setup — password reset can be performed via the admin panel at `/admin`. If multi-user operation is ever needed, configure `SMTP_*` variables in `.env`.
+SMTP is not configured. Consequence: password-reset emails will not be sent. This is intentional for a single-user setup — password reset can be performed via the admin panel at `/admin`. If multi-user operation is ever needed, configure `SMTP_*` variables in `vaultwarden.env`.
 
 ### Tailnet-Only Access
 
@@ -204,4 +258,4 @@ Vaultwarden is not reachable from the LAN. A client that is not enrolled in Phil
 
 - [Tailscale](tailscale.md) — the network layer that exposes Vaultwarden
 - [Services](../services.md) — Vaultwarden entry in the service catalog
-- [Known Issues](../known-issues.md) — plaintext admin token tracking entry
+- [Known Issues](../known-issues.md) — Docker Compose env-file variable substitution footgun
