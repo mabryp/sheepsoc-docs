@@ -254,6 +254,10 @@ SMTP is not configured. Consequence: password-reset emails will not be sent. Thi
 
 Vaultwarden is not reachable from the LAN. A client that is not enrolled in Phillip's tailnet (`tail0f68e4`) — including a fresh browser on the sheepsoc LAN — cannot reach the vault UI or API. Enroll the device in Tailscale first.
 
+## Runbooks
+
+- [Vaultwarden Bootstrap](../runbooks/vaultwarden-bootstrap.md) — push catalog-defined credentials into Vaultwarden using the Python bootstrap tool
+
 ## See Also
 
 - [Tailscale](tailscale.md) — the network layer that exposes Vaultwarden

@@ -67,6 +67,7 @@ nav:
       - OpenWebUI KB Bulk Ingest: infrastructure/runbooks/openwebui-kb-bulk-ingest.md
       - Nightly Backups: infrastructure/runbooks/nightly-backups.md
       - Tailscale Operations: infrastructure/runbooks/tailscale-ops.md
+      - Vaultwarden Bootstrap: infrastructure/runbooks/vaultwarden-bootstrap.md
     - Backup & Recovery:
       - Config Backup & Encryption: infrastructure/backup-and-recovery/config-backup.md
       - GitHub & RAG Sync: infrastructure/backup-and-recovery/github-rag-sync.md

@@ -168,6 +168,23 @@ pmabry@sheepsoc:~$ conda activate sheepsoc
 pmabry@sheepsoc:~$ source ~/infrastructure/miniconda3/etc/profile.d/conda.sh
 ```
 
+## 8. Push New Credentials into Vaultwarden
+
+When a new service is added to sheepsoc and introduces credentials, those credentials should be imported into Vaultwarden using the bootstrap tool.
+
+!!! note "Dedicated Runbook"
+    Full step-by-step procedure, catalog conventions, the item-type mapping table, and instructions for growing `catalog.py` live on the dedicated runbook: **[Vaultwarden Bootstrap](../infrastructure/runbooks/vaultwarden-bootstrap.md)**
+
+Quick reference:
+
+```bash
+pmabry@sheepsoc:~$ cd /home/pmabry/infrastructure/vaultwarden/bootstrap
+pmabry@sheepsoc:~/infrastructure/vaultwarden/bootstrap$ export BW_SESSION=$(bw unlock --raw)
+pmabry@sheepsoc:~/infrastructure/vaultwarden/bootstrap$ ./bootstrap.py --dry-run          # verify
+pmabry@sheepsoc:~/infrastructure/vaultwarden/bootstrap$ ./bootstrap.py --category <name>  # push
+pmabry@sheepsoc:~/infrastructure/vaultwarden/bootstrap$ bw lock && unset BW_SESSION
+```
+
 ## 9. Remote Access via Tailscale
 
 Tailscale provides encrypted remote access to all sheepsoc services from any enrolled device. There are two ways to reach services off the LAN.

@@ -54,6 +54,7 @@ Every page in `docs/`, with its path relative to `docs/` and its one-line purpos
 | Shutdown & Startup | `infrastructure/runbooks/shutdown-startup.md` | Safe shutdown and startup sequence for all services |
 | OpenWebUI KB Bulk Ingest | `infrastructure/runbooks/openwebui-kb-bulk-ingest.md` | Bulk-loading documents into OpenWebUI Knowledge Base collections |
 | Nightly Backups | `infrastructure/runbooks/nightly-backups.md` | RAG KB sync and nightly backup procedures |
+| Vaultwarden Bootstrap | `infrastructure/runbooks/vaultwarden-bootstrap.md` | Push catalog-defined credentials into Vaultwarden using the Python bootstrap tool |
 
 ### Infrastructure — Backup & Recovery
 
