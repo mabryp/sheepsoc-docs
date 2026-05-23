@@ -24,6 +24,7 @@ Every service running on sheepsoc, its systemd unit name, port, and current oper
 | **MicroK8s** | `snap.microk8s.*` | — | Kubernetes — *stopped*, needs rebuild | **hold** |
 | **Matrix Bot** | `matrix-bot.service` | — | E2EE Matrix bot (`@sheepsoc-bot:matrix.pmabry.com`) · bridges Element rooms to OpenWebUI RAG + Ollama · runs in `matrixbot` conda env — see [Matrix Bot](platforms/matrix-bot.md) | up |
 | **Vaultwarden** | `docker compose` (`/home/pmabry/infrastructure/vaultwarden/`) | 8222 (loopback) | Self-hosted Bitwarden-compatible password and secrets manager · replacing LastPass · bound to `127.0.0.1:8222` only · exposed to tailnet at `https://sheepsoc-1.tail0f68e4.ts.net:8444/` via Tailscale Serve · no LAN UFW rule — see [Vaultwarden](platforms/vaultwarden.md) | up |
+| **RomM / EmulatorJS** | `docker compose` (`/mnt/ssd_working/emulatorjs/`) | 3080 | Self-hosted ROM library manager with integrated in-browser retro emulator (EmulatorJS) · two containers: `romm` (rommapp/romm:latest, 4.8.1) + `romm-db` (MariaDB) · LAN-only via UFW · no metadata API keys configured yet — see [RomM / EmulatorJS](platforms/romm-emulatorjs.md) | up |
 
 ## Health Checks
 
@@ -119,6 +120,7 @@ All web interfaces are restricted to `192.168.50.0/24` via UFW on the LAN interf
 | Elasticsearch | `http://192.168.50.100:9200` | n/a (API endpoint) | REST API, not a browser UI |
 | Ollama | `http://192.168.50.100:11434` | n/a (API endpoint) | LLM inference REST API, not a browser UI |
 | Vikunja | `http://192.168.50.100:3000` | — | **To be decommissioned** — see Monday board |
+| RomM / EmulatorJS | `http://192.168.50.100:3080` | — | ROM library + in-browser emulator · LAN only |
 | ASUS router | `http://192.168.50.1` | — | Gateway admin |
 | OPNsense | `https://192.168.50.253` | — | Self-signed cert |
 

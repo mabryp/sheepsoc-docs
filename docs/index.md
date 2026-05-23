@@ -5,7 +5,7 @@
 - **Host:** 192.168.50.100 · `sheepsoc.mabry.lan`
 - **OS:** Ubuntu 24.04 LTS · Linux 6.8 · x86\_64
 - **Hardware:** Dual Xeon E5-2680v4 · 251 GB RAM · RTX 5060 Ti 16 GB
-- **Updated:** 2026-05-18
+- **Updated:** 2026-05-23
 
 ---
 
@@ -30,6 +30,7 @@ The table below lists all browseable services with both their LAN URL (on `192.1
 | **Kibana** | [http://192.168.50.100:5601](http://192.168.50.100:5601) | [https://sheepsoc-1.tail0f68e4.ts.net:10002/](https://sheepsoc-1.tail0f68e4.ts.net:10002/) | Log & metrics dashboards |
 | **Uptime Kuma** | [http://192.168.50.100:3001](http://192.168.50.100:3001) | [https://sheepsoc-1.tail0f68e4.ts.net:10003/](https://sheepsoc-1.tail0f68e4.ts.net:10003/) | Live service status |
 | **Vaultwarden** | — (tailnet only by design) | [https://sheepsoc-1.tail0f68e4.ts.net:8444/](https://sheepsoc-1.tail0f68e4.ts.net:8444/) | Password manager · Bitwarden-compatible |
+| **RomM / EmulatorJS** | [http://192.168.50.100:3080](http://192.168.50.100:3080) | — | ROM library + in-browser retro emulator · LAN only |
 | Elasticsearch | [http://192.168.50.100:9200](http://192.168.50.100:9200) | n/a (API endpoint) | REST API — not a browser UI |
 | Ollama | [http://192.168.50.100:11434](http://192.168.50.100:11434) | n/a (API endpoint) | LLM inference REST API |
 | ASUS Router | [http://192.168.50.1](http://192.168.50.1) | — | Home gateway admin |
@@ -49,6 +50,7 @@ LAN URLs are restricted to `192.168.50.0/24` via UFW. Tailnet URLs require enrol
 - [Elasticsearch & ELSER](infrastructure/platforms/elasticsearch-elser.md) — ELSER sparse-vector search setup and pipeline details
 - [Knowledge Bases](infrastructure/platforms/knowledge-bases.md) — catalog of all OpenWebUI RAG Knowledge Base collections
 - [Matrix Bot](infrastructure/platforms/matrix-bot.md) — E2EE Matrix bot bridging Element rooms to OpenWebUI RAG
+- [RomM / EmulatorJS](infrastructure/platforms/romm-emulatorjs.md) — self-hosted ROM library manager with integrated in-browser retro emulator
 - [Conda Guide](infrastructure/platforms/conda.md) — Python environment management from first principles
 - [Shutdown & Startup Runbook](infrastructure/runbooks/shutdown-startup.md) — safe ordered shutdown and post-boot verification
 - [OpenWebUI KB Bulk Ingest](infrastructure/runbooks/openwebui-kb-bulk-ingest.md) — SOP for ingesting text collections into OpenWebUI Knowledge Bases

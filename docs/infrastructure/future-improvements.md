@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Scope | Items here are researched and design-ready but not yet implemented |
-| Updated | 2026-04-24 |
+| Updated | 2026-05-23 |
 
 Planned enhancements and improvements to the sheepsoc system. Each entry documents the rationale, cost, implementation steps, and current status so work can be picked up without re-doing the research phase.
 
@@ -144,3 +144,35 @@ Then connect normally: `ssh pmabry@sheepsoc.yourdomain.com`. Cloudflare Access w
 | **Tailscale** | Was installed and removed after two months of failure. Worth retrying now that DNS and gateway are fixed (2026-04-18). Simpler client setup than Cloudflare Tunnel for SSH in particular. |
 | **WireGuard + VPS relay** | Works but adds ~$5/month VPS cost and requires maintaining a relay node. More operational overhead for the same capability. |
 | **ngrok** | Similar architecture to Cloudflare Tunnel but the free tier is more restrictive (connection limits, no custom domains, sessions expire). Cloudflare is strictly better at this use case. |
+
+## RomM Metadata API Keys
+
+| Key | Value |
+|---|---|
+| Status | Pending — not configured at install (2026-05-23) |
+| Effort | Low — account registration + key entry in RomM settings UI |
+| Cost | Free tiers available for all four providers |
+| Service | [RomM / EmulatorJS](platforms/romm-emulatorjs.md) |
+
+### What It Is
+
+RomM can pull rich metadata (cover art, descriptions, release dates, genre, ratings) from four external providers. None were configured at initial deployment.
+
+| Provider | What It Provides | Registration |
+|---|---|---|
+| **IGDB** | Cover art, descriptions, release dates, genres | Twitch Developer account required; IGDB API is free |
+| **ScreenScraper** | Cover art, video snaps, region-specific metadata | Free account at screenscraper.fr |
+| **RetroAchievements** | Achievement data for supported platforms | Free account at retroachievements.org |
+| **SteamGridDB** | Alternative artwork and banners | Free account at steamgriddb.com |
+
+### Why It Matters
+
+Without metadata keys, RomM displays games using only their filenames. With at least IGDB or ScreenScraper configured, RomM will automatically populate cover art and descriptions when ROMs are scanned in. This does not affect the emulator's ability to run games — it is a library presentation enhancement.
+
+### Implementation Steps
+
+1. Register accounts at whichever providers are desired (IGDB + ScreenScraper recommended as a starting point)
+2. Obtain API credentials from each provider's developer portal
+3. Open RomM at [http://192.168.50.100:3080/](http://192.168.50.100:3080/) and navigate to **Settings → Integrations**
+4. Enter the credentials in the appropriate fields
+5. Run a library scan — RomM will fetch metadata automatically

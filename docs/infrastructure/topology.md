@@ -93,6 +93,8 @@ sheepsoc  (192.168.50.100 · tailscale 100.117.117.43)
 │  ├─ sheepsoc         # Python 3.12 — legacy CLI RAG prototype + Jupyter kernel
 │  ├─ openwebui        # Python 3.11 — OpenWebUI service (elasticsearch pip-installed)
 │  └─ datawrangler     # data work
+├─ docker compose stacks
+│  └─ /mnt/ssd_working/emulatorjs/      # RomM + MariaDB (romm :3080, db internal)
 ├─ applications
 │  ├─ ~/repositories/sheepsoc/          # legacy CLI RAG prototype + bulk-ingest script
 │  ├─ ~/repositories/sheepsoc_refactor/ # refactor in progress
