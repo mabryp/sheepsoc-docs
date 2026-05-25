@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Added | 2026-05-09 |
-| Updated | 2026-05-18 |
+| Updated | 2026-05-25 |
 | Status | Running — `tailscaled.service` |
 | Tailscale IPv4 | `100.117.117.43` |
 | Tailscale IPv6 | `fd7a:115c:a1e0::1834:752b` |
@@ -137,7 +137,7 @@ pmabry@sheepsoc:~$ tailscale ip -4
 
 `tailscale serve` exposes local HTTP services to tailnet peers over HTTPS on the MagicDNS hostname, with Let's Encrypt certificates provisioned and renewed automatically by `tailscaled`. This is **tailnet-only** access — not Tailscale Funnel — so these URLs are only reachable from devices enrolled in Phillip's `tail0f68e4` tailnet.
 
-### Active Serve Configuration (updated 2026-05-18)
+### Active Serve Configuration (updated 2026-05-25)
 
 | HTTPS Port | URL | Backend | Auth |
 |---|---|---|---|
@@ -148,6 +148,7 @@ pmabry@sheepsoc:~$ tailscale ip -4
 | 10001 | `https://sheepsoc-1.tail0f68e4.ts.net:10001/` | `http://localhost:8080` (Open WebUI) | OpenWebUI's own login |
 | 10002 | `https://sheepsoc-1.tail0f68e4.ts.net:10002/` | `http://localhost:5601` (Kibana) | Kibana login |
 | 10003 | `https://sheepsoc-1.tail0f68e4.ts.net:10003/` | `http://localhost:3001` (Uptime Kuma) | Uptime Kuma login |
+| 10004 | `https://sheepsoc-1.tail0f68e4.ts.net:10004/` | `http://localhost:3080` (RomM / EmulatorJS) | RomM account login |
 
 !!! note "Default entry point changed 2026-05-18"
     The bare `https://sheepsoc-1.tail0f68e4.ts.net/` (port 443) previously opened Open WebUI. It now opens the docs landing page. Open WebUI moved to `:10001`. The old `:10000` alias is retained for backwards compatibility.
@@ -184,6 +185,9 @@ pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=10001 http://localhost:8080
 pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=10002 http://localhost:5601  # Kibana
 pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=10003 http://localhost:3001  # Uptime Kuma
 # Port 10000 (docs alias) was already present; retained as-is
+
+# Added 2026-05-25: RomM / EmulatorJS — HTTPS enables SharedArrayBuffer for multi-threaded emulator cores
+pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=10004 http://localhost:3080  # RomM / EmulatorJS
 ```
 
 The `--bg` flag writes serve rules to Tailscale's persistent state at `/var/lib/tailscale/`. Rules survive `tailscaled` restarts and reboots — no separate systemd unit is needed.
@@ -213,6 +217,7 @@ pmabry@sheepsoc:~$ sudo tailscale serve --https=10000 off   # remove docs alias
 pmabry@sheepsoc:~$ sudo tailscale serve --https=10001 off   # remove Open WebUI
 pmabry@sheepsoc:~$ sudo tailscale serve --https=10002 off   # remove Kibana
 pmabry@sheepsoc:~$ sudo tailscale serve --https=10003 off   # remove Uptime Kuma
+pmabry@sheepsoc:~$ sudo tailscale serve --https=10004 off   # remove RomM / EmulatorJS
 
 # Remove all serve config at once
 pmabry@sheepsoc:~$ sudo tailscale serve reset
@@ -228,6 +233,7 @@ pmabry@sheepsoc:~$ sudo tailscale serve reset
 - **Kibana** — requires Kibana login.
 - **Uptime Kuma** — requires Uptime Kuma login.
 - **Vaultwarden** — requires Bitwarden/Vaultwarden account login; admin panel at `/admin` requires the admin token.
+- **RomM / EmulatorJS** — requires RomM account login. The HTTPS tailnet URL also enables `SharedArrayBuffer` (a secure-context requirement), which EmulatorJS uses for multi-threaded emulator cores — see [RomM / EmulatorJS](romm-emulatorjs.md#tailscale-access).
 
 ### View Current Serve Config
 

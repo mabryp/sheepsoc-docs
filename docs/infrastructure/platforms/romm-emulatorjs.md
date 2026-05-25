@@ -51,6 +51,32 @@ Applied via:
 pmabry@sheepsoc:~$ sudo ufw allow from 192.168.50.0/24 to any port 3080 proto tcp comment "RomM/EmulatorJS LAN"
 ```
 
+No additional UFW rule was added for Tailscale access — the existing `ALLOW IN on tailscale0` interface rule already covers all tailnet traffic.
+
+### Tailscale Access
+
+RomM is also reachable over the Tailscale tailnet via `tailscale serve`. This was configured on 2026-05-25.
+
+| Item | Value |
+|---|---|
+| Tailnet URL | `https://sheepsoc-1.tail0f68e4.ts.net:10004/` |
+| Backend | `http://localhost:3080` |
+| Auth | RomM's own account login |
+| Certificate | Let's Encrypt, auto-provisioned by `tailscaled` |
+
+Command used:
+
+```bash
+pmabry@sheepsoc:~$ sudo tailscale serve --bg --https=10004 http://localhost:3080
+```
+
+The `--bg` flag writes the rule to Tailscale's persistent state — it survives reboots without a separate systemd unit.
+
+!!! note "SharedArrayBuffer and multi-threaded emulation over tailnet"
+    The tailnet URL is served over HTTPS, which makes it a [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts). EmulatorJS requires a secure context to enable `SharedArrayBuffer`, which in turn enables multi-threaded emulator cores. The plain-HTTP LAN URL (`http://192.168.50.100:3080`) is **not** a secure context, so demanding cores (e.g. N64, PlayStation) may perform noticeably better when accessed via the tailnet URL. For light cores (e.g. NES, Game Boy) the difference is negligible.
+
+For the port-numbering convention and full Tailscale Serve documentation, see [Tailscale — Tailscale Serve](tailscale.md#tailscale-serve).
+
 ### Volume Layout
 
 | Host path | Container path | Purpose |
@@ -88,7 +114,7 @@ pmabry@sheepsoc:~$ curl -s -o /dev/null -w "%{http_code}" http://localhost:3080/
 # Expect: 200
 ```
 
-Or open [http://192.168.50.100:3080/](http://192.168.50.100:3080/) in a browser on the LAN.
+Or open [http://192.168.50.100:3080/](http://192.168.50.100:3080/) in a browser on the LAN, or [https://sheepsoc-1.tail0f68e4.ts.net:10004/](https://sheepsoc-1.tail0f68e4.ts.net:10004/) from any Tailscale-enrolled device.
 
 ### Check container logs
 
@@ -133,5 +159,6 @@ ROMs must be placed in `./library/roms/<platform>/` using RomM's expected platfo
 ## See Also
 
 - [Services — Service Catalog](../services.md) — port and status reference
+- [Tailscale](tailscale.md) — tailnet access configuration, port-numbering convention, and serve management commands
 - [Known Issues](../known-issues.md) — active system-wide landmines
 - [Future Improvements — RomM metadata API keys](../future-improvements.md#romm-metadata-api-keys)
