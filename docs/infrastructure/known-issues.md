@@ -48,6 +48,12 @@
 
 ## History Log
 
+### 2026-05-30 — tv_control.py Refined: KEY_CLEAR Replaces Backspace Loop
+
+- Phillip refined `infrastructure/scripts/tv_control.py` again: replaced the 15x `KEY_BACKSPACE` clear loop with single `tv.send_key("KEY_CLEAR")` + `sleep(0.5)`, because the TV remote/UI has a dedicated clear button that fully clears the YouTube search bar in one step (confirmed by user). Tested successfully (no errors, cleaner). Token file still present; no pairing.
+- Updated [Samsung TV Network Control runbook](../runbooks/wol-samsung-tv.md) (purpose, How It Works, troubleshooting, usage example), [services.md](#tv-control) (TV section), [schema.md](../schema.md) (registry), and this history entry per schema.md §6 update triggers for code/procedure change to runbook/services. Uses relative links, first-mention labels, **see also**/**runbook** reciprocals per §4 (verified interlinks; reversible via prior commit). Wiki = living record of current tv_control clear procedure.
+- See also prior 2026-05-30 entries below for full context.
+
 ### 2026-05-30 — tv_control.py Updated to Clear YouTube Search Field (Prevents Stale Text)
 
 - Phillip updated `infrastructure/scripts/tv_control.py` (after last wiki sync) to add loop of 15x `KEY_BACKSPACE` (with short 0.1s sleeps) right after focusing the input field and before `send_text(query)`.
