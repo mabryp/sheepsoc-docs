@@ -6,8 +6,9 @@
 |---|---|
 | Interface | OpenWebUI · [192.168.50.100:8080](http://192.168.50.100:8080) |
 | Embedding | `nomic-embed-text:latest` via Ollama · 768 dimensions |
-| Vector store | Elasticsearch · index `open_webui_collections_d768` · HNSW/cosine · dual-use (dense + ELSER sparse, added 2026-04-23) |
-| Updated | 2026-04-23 |
+| Vector store | Elasticsearch Cloud 9.4.0 · `open_webui_collections_d768` (HNSW/cosine dense + ELSER sparse) · ties to research indexes |
+| Research | [RAG Experiments](../research/rag-experiments.md) in `~/jupyter/rag_experiments/` (replaces old Streamlit; provides hybrid benchmarks, golden eval) |
+| Updated | 2026-05-30 |
 
 !!! note "Primary Interface"
     **OpenWebUI** is the only supported RAG interface on sheepsoc. All document ingestion, Knowledge base management, and AI-assisted querying is done through OpenWebUI at `:8080`. A legacy CLI RAG prototype exists at `~/repositories/sheepsoc` but is no longer maintained — see the [Legacy / Deprecated section](#legacy-cli-rag-prototype-deprecated) at the bottom of this page.
@@ -233,8 +234,9 @@ pmabry@sheepsoc:~$ curl -s -u elastic:<password> \
 ## See Also
 
 - [Knowledge Bases](knowledge-bases.md) — catalog of all OpenWebUI Knowledge Base collections with UUIDs
-- [Elasticsearch & ELSER](elasticsearch-elser.md) — ELSER sparse-vector search layered on the same index OpenWebUI uses
-- [Known Issues](../known-issues.md) — active issues that may affect OpenWebUI operation
+- [Elasticsearch & ELSER](elasticsearch-elser.md) — current cloud deployment and ELSER configuration
+- **[RAG Experiments](../research/rag-experiments.md)** — active research validating hybrid retrieval, embeddings, golden datasets, and evaluation pipelines on the same ES cluster; resolves multiple known issues
+- [Known Issues](../known-issues.md) — migration and RAG issues now resolved by the experiments documentation
 
 ## Legacy: CLI RAG Prototype (Deprecated)
 

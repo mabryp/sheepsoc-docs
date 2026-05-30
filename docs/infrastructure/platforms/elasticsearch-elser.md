@@ -1,22 +1,27 @@
-# ELSER & OpenWebUI
+# Elasticsearch, ELSER & RAG Experiments
 
-!!! danger "Outdated — Local ES Decommissioned 2026-05-10"
-    **The local single-node Elasticsearch service this page describes was decommissioned on 2026-05-10.** ES traffic now goes to **Elastic Cloud 9.4.0** (`gateway.es.us-central1.gcp.cloud.es.io`, API-key auth). Everything below — `localhost:9200`, `basic_auth=("elastic","<password>")`, the local `open_webui_collections_d768` index, the `elser-embed-openwebui` ingest pipeline, the backfill numbers, all `curl -u elastic:<password>` examples — describes the **retired** local setup and is preserved as a historical reference.
-
-    See [Known Issues — 2026-05-10](../known-issues.md#2026-05-10-elasticsearch-migrated-to-elastic-cloud-local-es-decommissioned) for the migration record. OpenWebUI is currently still pointed at `localhost:9200` and its RAG will not return results until it is reconfigured for the cloud cluster — that work is pending.
-
-**Purpose:** How ELSER sparse-vector search is layered onto the OpenWebUI RAG pipeline, what it adds, and how to query against it.
+**Purpose:** Current Elastic Cloud 9.4.0 (GCP us-central1) deployment used by both production OpenWebUI RAG and the active RAG research experiments in `~/jupyter/rag_experiments/`. Documents migration, dual-use indexes (dense + sparse ELSER), hybrid RRF retrieval, and ties to golden dataset evaluation.
 
 | Key | Value |
 |---|---|
-| Feature | Dual-use index: dense kNN (`vector`) + ELSER sparse (`text_elser`) |
-| Configured | 2026-04-23 |
-| Index | `open_webui_collections_d768` |
-| ELSER model | `.elser-2-elasticsearch` (built-in, adaptive allocation) |
-| OpenWebUI | Unchanged — continues to use kNN on `vector` field only |
+| Cluster | Elastic Cloud 9.4.0 (GCP us-central1, 3 nodes/2 data, UUID `DaBtVAvNQNmqT0thJwt-7Q`) |
+| Auth | API key (`ELASTICSEARCH_API_KEY` in `~/.env`) |
+| RAG Indexes | `sheepsoc_rag001_v2` / `v3` (~48k docs), `open_webui_collections_d768` (dual dense+ELSER) |
+| Updated | 2026-05-30 (full experiment docs added) |
+| Local decommissioned | 2026-05-10 (resolves NVMe reliability landmine) |
 
-!!! note "What This Page Covers"
-    This page explains the ELSER architecture added to the sheepsoc RAG stack on 2026-04-23. It covers the conceptual difference between dense and sparse embeddings, what was configured, how the dual-use index works, and how to run ELSER and hybrid queries manually. OpenWebUI's behaviour is completely unchanged by this work — the changes are additive and transparent.
+!!! note "Current State"
+    Local ES service and `/mnt/elastic_data` dependency fully retired. All RAG-001 v2/v3 re-ingested to cloud. OpenWebUI reconfiguration to cloud and full Kibana AI Assistant hybrid support are next (tracked in [RAG Experiments](../research/rag-experiments.md)). The research workspace now provides the canonical documentation.
+
+**See [RAG Experiments](../research/rag-experiments.md)** for full pipeline, results (Hybrid 0.6809 nDCG@10), golden dataset, notebooks, and runbooks. This page focuses on the shared ES/ELSER infrastructure.
+
+## Dependencies
+
+- **[RAG Experiments](../research/rag-experiments.md)** **stores data in** — primary consumer of cloud indexes for research (RAG-001/002 pipelines, evaluation).
+- [OpenWebUI & RAG](openwebui-rag.md) **depends on** — production KB collections and nightly sync use the same cluster and ELSER field.
+- Ollama — local embedding for ingest/query vectors (cloud cannot reach localhost:11434).
+
+(Reciprocal links added per schema link rules.)
 
 ## Dependencies
 

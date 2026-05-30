@@ -31,5 +31,6 @@ Use this section when you are checking system health, changing services, recover
 
 ## Operational Reference
 
-- [Known Issues](known-issues.md) — active landmines, watchlist, and history log
+- [Known Issues](known-issues.md) — active landmines, watchlist, and history log (RAG migration and experiments now documented)
 - [Future Improvements](future-improvements.md) — planned enhancements not yet implemented
+- Research integration: see [RAG Experiments](../research/rag-experiments.md) for active pipelines tying into OpenWebUI and Elasticsearch platforms

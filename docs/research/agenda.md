@@ -171,22 +171,30 @@ Your **251 GB of RAM** means you can hold all indices in memory simultaneously. 
 
 ---
 
-## Confidence & Gaps
+## Current Execution Status (Updated 2026-05-30)
 
-**High confidence findings:**
-- Hybrid search (BM25 + dense or sparse) consistently outperforms either method alone by 15–30% on recall, across multiple independent studies
-- ELSER v2 delivers an average 18% improvement in nDCG@10 over BM25 and is the practical best choice for English zero-shot retrieval on Elasticsearch
-- A small model with good retrieval can match or beat a model 3–5× its size without retrieval
-- Hallucination rates are substantially reduced by RAG in small models, particularly for domain-specific knowledge gaps
+**RAG-001 fully executed** using the `~/jupyter/rag_experiments/` workspace on a real StackExchange sysadmin corpus (~48k docs from unix.stackexchange.com, serverfault.com, etc. in v2/v3 indexes). Complete reproducible pipeline, golden dataset (~200 questions, 1k+ graded chunks via 2/3 majority AI voting + human review), notebooks for experiment, results viewing, and diagnostics. Elastic Cloud migration completed; local ES decommissioned 2026-05-10.
 
-**Moderate confidence:**
-- The exact performance advantage of large vs. small corpora is underexplored at SheepSOC's scale range (thousands, not millions of documents). Most studies go very small or very large, skipping the mid-range.
-- Whether out-of-domain dense vector search is consistently worse than BM25 depends heavily on the embedding model and corpus. nomic-embed-text specifically has not been benchmarked on this question in published work against ELSER v2.
+**RAG_001-3 key results** (nDCG@10 on golden set):
+- **Hybrid (dense + ELSER via RRF)**: 0.6809
+- **ELSER**: 0.6753
+- **Dense (nomic-embed-text)**: 0.6503
+- **BM25 baseline**: 0.6255
 
-**Gaps and open questions:**
-- There is surprisingly little published work on the *exact* dose-response relationship between retrieval quality (measured by nDCG) and final answer quality (measured by hallucination rate) *specifically for 7B–13B models* — the range SheepSOC runs. Most papers study either very small (<3B) or very large (>70B) models.
-- The "negative rejection" capability (knowing when retrieved context is bad) in small models is understudied. The RGB benchmark from 2023 raised this issue but it hasn't been systematically quantified across the Ollama model library.
-- ELSER requires an Elastic subscription for full production use. SheepSOC should verify whether the trial/developer license covers the intended research workload — this is an operational gap, not a research gap, but it matters for the experiment plan.
+mxbai-embed-large v3 comparison (v3 index) and RAG-002 (BeIR unix + Arch Wiki from HF, hierarchical indexing, knowledge graph "SEE ALSO") scaffold complete; ingest pending.
+
+All concepts, runbooks (elastic_cloud_migration, rag001_v2_pipeline, rag002_pipeline), sources, evaluation pipelines, and living log are in `~/jupyter/rag_experiments/docs/`. This resolves known issues around RAG-001/RAG-002, Elastic Cloud migration, embedding comparisons, hybrid retrieval, golden datasets, and evaluation. Replaces the old Streamlit rag_experiment_platform.
+
+See the dedicated **[RAG Experiments](rag-experiments.md)** page and `docs/index.md` for complete details (single source of truth).
+
+**Updated Gaps:**
+- Partial notebook updates for cloud (some viewers still need rewiring).
+- OpenWebUI still configured for localhost (pending full cloud integration).
+- Native Kibana AI Assistant hybrid support blocked by local Ollama embedding (Cloudflare Tunnel planned).
+- RAG-002 full execution pending.
+- One corpus gap (q073).
+
+(The original "Confidence & Gaps" section above has been superseded by executed results.)
 
 ## See Also
 

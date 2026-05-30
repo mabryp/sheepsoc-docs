@@ -81,6 +81,7 @@ Every page in `docs/`, with its path relative to `docs/` and its one-line purpos
 | Research Agenda | `research/agenda.md` | Active and planned research tracks |
 | RAG-001 Protocol | `research/rag-001/protocol.md` | RAG evaluation protocol |
 | RAG-001 Precision Audit | `research/rag-001/precision-audit.md` | Precision audit results |
+| RAG Experiments | `research/rag-experiments.md` | Active RAG-001/RAG-002 experiments in `~/jupyter/rag_experiments/`: full reproducible pipeline on StackExchange sysadmin corpus (~48k docs in v2/v3), golden dataset (~200 questions with AI+human judgments), embedding comparisons, dense vs ELSER hybrid (RRF) retrieval, evaluation with nDCG@10. Elastic Cloud 9.4.0 (GCP). Resolves migration, replaces old Streamlit in embedding_testing/. Detailed docs in jupyter/rag_experiments/docs/. |
 
 ---
 

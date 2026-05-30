@@ -48,6 +48,14 @@
 
 ## History Log
 
+### 2026-05-30 — RAG Experiments Wiki Updated (Resolves Multiple Issues)
+
+- Comprehensive documentation added for active RAG workspace at `~/jupyter/rag_experiments/`: RAG-001 (StackExchange sysadmin ~48k doc corpus, full pipeline, golden dataset with AI/human judgments, notebooks), RAG-002 scaffold, Elastic Cloud 9.4.0 integration details, hybrid RRF vs dense/ELSER/BM25 benchmarks (specific nDCG@10 results), embedding comparisons (nomic/mxbai), evaluation pipelines, concepts, runbooks, and sources.
+- New [research/rag-experiments.md](../research/rag-experiments.md) created; research/agenda.md, elasticsearch-elser.md, openwebui-rag.md, schema.md, and index pages updated with links and current status.
+- Marks Elastic Cloud migration as fully documented for research track; OpenWebUI cloud rewiring noted as next step. Resolves known issues around RAG-001/002 gaps, migration, comparisons, golden datasets, and old Streamlit platform (now deprecated).
+- Wiki is now the single source of truth per lab policy. No mkdocs build run. Changes committed and pushed.
+- Reciprocal links verified per schema section 4. Update triggers from schema section 6 followed.
+
 ### 2026-05-18 — Tailscale Serve Map Expanded
 
 - **Docs landing page is now the default tailnet entry point.** `https://sheepsoc-1.tail0f68e4.ts.net/` (port 443) previously proxied to Open WebUI. It now proxies to the docs landing page (`localhost:80`). Open WebUI moved to `:10001`.
