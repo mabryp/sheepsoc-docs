@@ -5,7 +5,7 @@
 - **Host:** 192.168.50.100 · `sheepsoc.mabry.lan`
 - **OS:** Ubuntu 24.04 LTS · Linux 6.8 · x86\_64
 - **Hardware:** Dual Xeon E5-2680v4 · 251 GB RAM · RTX 5060 Ti 16 GB
-- **Updated:** 2026-05-23
+- **Updated:** 2026-05-30
 
 ---
 
@@ -30,7 +30,7 @@ The table below lists all browseable services with both their LAN URL (on `192.1
 | **Kibana** | [http://192.168.50.100:5601](http://192.168.50.100:5601) | [https://sheepsoc-1.tail0f68e4.ts.net:10002/](https://sheepsoc-1.tail0f68e4.ts.net:10002/) | Log & metrics dashboards |
 | **Uptime Kuma** | [http://192.168.50.100:3001](http://192.168.50.100:3001) | [https://sheepsoc-1.tail0f68e4.ts.net:10003/](https://sheepsoc-1.tail0f68e4.ts.net:10003/) | Live service status |
 | **Vaultwarden** | — (tailnet only by design) | [https://sheepsoc-1.tail0f68e4.ts.net:8444/](https://sheepsoc-1.tail0f68e4.ts.net:8444/) | Password manager · Bitwarden-compatible |
-| **RomM / EmulatorJS** | [http://192.168.50.100:3080](http://192.168.50.100:3080) | — | ROM library + in-browser retro emulator · LAN only |
+| **RomM / EmulatorJS** | [http://192.168.50.100:3080](http://192.168.50.100:3080) | [https://sheepsoc-1.tail0f68e4.ts.net:10004/](https://sheepsoc-1.tail0f68e4.ts.net:10004/) | ROM library + in-browser retro emulator · HTTPS tailnet URL enables multi-threaded cores |
 | Elasticsearch | [http://192.168.50.100:9200](http://192.168.50.100:9200) | n/a (API endpoint) | REST API — not a browser UI |
 | Ollama | [http://192.168.50.100:11434](http://192.168.50.100:11434) | n/a (API endpoint) | LLM inference REST API |
 | ASUS Router | [http://192.168.50.1](http://192.168.50.1) | — | Home gateway admin |
