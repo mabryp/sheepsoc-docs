@@ -382,7 +382,7 @@ For full configuration details, room mapping procedures, file locations, and tro
 
 ## TV Control
 
-**Purpose:** Client-side network control for the Samsung TV (192.168.50.175) via `tv_control.py`. Provides volume, power (WoL), keys, and **YouTube search** (now using `KEY_CLEAR`). Not a systemd service — runs on-demand from sheepsoc conda env. See [Samsung TV Network Control runbook](../runbooks/wol-samsung-tv.md) for full procedure (reciprocal).
+**Purpose:** Client-side network control for the Samsung TV (192.168.50.175) via `tv_control.py`. Provides volume, power (WoL), keys, and **YouTube search** (uses 15x `KEY_BACKSPACE` loop to clear; reverted from `KEY_CLEAR` after test feedback). Not a systemd service — runs on-demand from sheepsoc conda env. See [Samsung TV Network Control runbook](../runbooks/wol-samsung-tv.md) for full procedure (reciprocal).
 
 ### Key Facts
 | Key | Value |
@@ -391,13 +391,13 @@ For full configuration details, room mapping procedures, file locations, and tro
 | Conda Env | `sheepsoc` (tested via `conda run -n sheepsoc`) |
 | TV IP/MAC | 192.168.50.175 / `54:3A:D6:5D:B0:EC` (DHCP, wired Ethernet required) |
 | Dependencies | `samsungtvws`, `wakeonlan` (installed in sheepsoc env); token at `~/.config/samsung-tv-token.json` |
-| New Feature | `--youtube-search "QUERY"` — launches YouTube app (ID `111299001912` via `run_app`), navigates to search, clears prior text with single `tv.send_key("KEY_CLEAR")` + `sleep(0.5)` (dedicated TV clear button; cleaner, tested successfully). Prevents stale queries. Tested 2026-05-30 via `conda run -n sheepsoc` (token present, no pairing). |
+| New Feature | `--youtube-search "QUERY"` — launches YouTube app (ID `111299001912` via `run_app`), navigates to search, clears prior text with 15x `KEY_BACKSPACE` loop + `sleep(0.1)` before `send_text()` (reverted from `KEY_CLEAR` after "KEY_CLEAR didn't clear field" feedback; both tested successfully; reliable per original request). Prevents stale queries. Tested 2026-05-30 via `conda run -n sheepsoc` (token present, no pairing; navigation unchanged). |
 
 ### Usage (Updated with YouTube Search)
 ```bash
 pmabry@sheepsoc:~$ conda run -n sheepsoc python infrastructure/scripts/tv_control.py --help
 pmabry@sheepsoc:~$ conda run -n sheepsoc python infrastructure/scripts/tv_control.py --youtube-search "Try not to laugh"
-# Launches YouTube, navigates to search, uses `KEY_CLEAR` + sleep(0.5) to clear bar (dedicated button), types query, submits. Cleaner than prior loop; prevents carry-over. May need minor manual tweak on TV per firmware. (See runbook for current procedure.)
+# Launches YouTube, navigates to search, uses 15x `KEY_BACKSPACE` + sleep(0.1) loop to clear (reverted from `KEY_CLEAR` after feedback it didn't fully clear field; tested both; reliable as original). Then types query, submits. Prevents carry-over. May need minor manual tweak on TV per firmware. (See runbook for current procedure.)
 # Other commands: --volume 40, --power on (WoL + 8s wait), --up/--down/--mute, --key KEY_VOLUP
 ```
 
