@@ -4,7 +4,7 @@
 
 ## Network Topology
 
-Sheepsoc lives on a flat home LAN behind an ASUS router that does DHCP and upstream NAT, with OPNsense acting as the internal DNS resolver for `mabry.lan`. There is no public inbound port-forwarding — LAN services are reached directly on the LAN, and remotely via Tailscale (see [Remote Access — Tailscale](#remote-access-tailscale) below).
+Sheepsoc lives on a flat home LAN behind an ASUS router that does DHCP and upstream NAT, with OPNsense acting as the internal DNS resolver for `mabry.lan`. Other active LAN hosts include the **Samsung TV** (newly documented; see below and [WoL Samsung TV runbook](runbooks/wol-samsung-tv.md)). There is no public inbound port-forwarding — LAN services are reached directly on the LAN, and remotely via Tailscale (see [Remote Access — Tailscale](#remote-access-tailscale) below).
 
 ```
                       ┌─────────────────────────────┐
@@ -27,6 +27,14 @@ Sheepsoc lives on a flat home LAN behind an ASUS router that does DHCP and upstr
 │ *.mabry.lan    │         │ Ubuntu 24.04       │          │                │
 │ syslog → LS    │         │ all services       │          │                │
 └────────────────┘         └──────┬────────────┘          └────────────────┘
+                                     │
+                              ┌──────┴──────┐
+                              │ Samsung TV  │
+                              │ .175 (DHCP) │
+                              │ MAC 54:3A:D6:5D:B0:EC │
+                              │ hostname "Samsung"     │
+                              │ WoL capable (runbook)  │
+                              └────────────────────────┘
                                   │ tailscale0 (WireGuard)
                            100.117.117.43
                                   │ (outbound to Tailscale coordination
@@ -38,6 +46,7 @@ Sheepsoc lives on a flat home LAN behind an ASUS router that does DHCP and upstr
  DNS chain : client → OPNsense (192.168.50.253) → 8.8.8.8 / 1.1.1.1 upstream
  Logs      : ASUS + OPNsense → sheepsoc:5514/udp (Logstash) → Elasticsearch
  Remote    : Tailscale WireGuard overlay · no inbound port-forwarding needed
+ Samsung TV: 192.168.50.175 (DHCP from ASUS); WoL via magic packet (see runbook)
 ```
 
 | Key | Value |
@@ -47,6 +56,7 @@ Sheepsoc lives on a flat home LAN behind an ASUS router that does DHCP and upstr
 | DNS upstream | 8.8.8.8 · 1.1.1.1 (configured in netplan) |
 | sheepsoc | 192.168.50.100 · static on `eno1` · `sheepsoc.mabry.lan` · Tailscale `100.117.117.43` |
 | Printer | 192.168.50.213 · admin console |
+| Samsung TV | 192.168.50.175 (DHCP) · MAC `54:3A:D6:5D:B0:EC` · hostname "Samsung" · [WoL runbook](runbooks/wol-samsung-tv.md) (wired Ethernet + TV settings required; verified 2026-05-30) |
 | Scope | LAN + Tailscale remote access (WireGuard overlay, no inbound WAN port-forwarding) |
 
 ## Remote Access — Tailscale
@@ -70,7 +80,9 @@ To reach any sheepsoc service remotely, substitute `100.117.117.43` for `192.168
 
 ## Host Layout
 
-Everything runs on sheepsoc itself as systemd units — no containers for the primary stack. MicroK8s is installed but stopped pending a rebuild (see [Known Issues](known-issues.md)).
+**LAN Devices (updated 2026-05-30):** In addition to sheepsoc, the flat 192.168.50.0/24 includes OPNsense (.253), Printer (.213), and **Samsung TV** (.175 DHCP, MAC 54:3A:D6:5D:B0:EC, WoL-capable). See updated network diagram above and dedicated [WoL Samsung TV runbook](runbooks/wol-samsung-tv.md).
+
+Everything on sheepsoc itself runs as systemd units — no containers for the primary stack. MicroK8s is installed but stopped pending a rebuild (see [Known Issues](known-issues.md)).
 
 ```
 sheepsoc  (192.168.50.100 · tailscale 100.117.117.43)

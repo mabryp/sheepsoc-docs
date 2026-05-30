@@ -48,6 +48,16 @@
 
 ## History Log
 
+### 2026-05-30 — Samsung TV Documented + WoL Runbook (Resolves Undocumented LAN Device)
+
+- Network-engineer subagent successfully retrieved Samsung TV details from ASUS router DHCP table: IP `192.168.50.175`, MAC `54:3A:D6:5D:B0:EC`, hostname "Samsung", active lease.
+- WoL magic packet sent (`wakeonlan -i 192.168.50.255 54:3a:d6:5d:b0:ec`) — succeeded; TV now powered on and documented for the first time.
+- New runbook [WoL Samsung TV](runbooks/wol-samsung-tv.md) created with full step-by-step (TV settings check: Settings > Network > Expert > Wake on LAN or Power On with Mobile; prerequisites: wired Ethernet; command; troubleshooting; test confirmation).
+- Updated [Topology](topology.md) (added to Network Topology diagram, Host Layout/key table), [index.md](index.md) (Runbooks list), [schema.md](../schema.md) (page registry per section 2), this history entry.
+- **services.md** left unchanged (WoL is a client-side tool, not a running systemd service on sheepsoc; fits better in runbook).
+- All per schema.md update triggers for "new device added to LAN" and "new runbook created" (section 6). Link rules followed exactly (section 4): relative links on first mention, reciprocal links added where relationship is meaningful (runbook ↔ topology, runbook ↔ index/known-issues), backlinks verified. No mkdocs build. This fulfills CLAUDE.md post-infrastructure-change Documentation agent requirement.
+- Wiki is now the single source of truth. Reciprocal links verified.
+
 ### 2026-05-30 — RAG Experiments Wiki Updated (Resolves Multiple Issues)
 
 - Comprehensive documentation added for active RAG workspace at `~/jupyter/rag_experiments/`: RAG-001 (StackExchange sysadmin ~48k doc corpus, full pipeline, golden dataset with AI/human judgments, notebooks), RAG-002 scaffold, Elastic Cloud 9.4.0 integration details, hybrid RRF vs dense/ELSER/BM25 benchmarks (specific nDCG@10 results), embedding comparisons (nomic/mxbai), evaluation pipelines, concepts, runbooks, and sources.
