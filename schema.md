@@ -55,7 +55,7 @@ Every page in `docs/`, with its path relative to `docs/` and its one-line purpos
 | OpenWebUI KB Bulk Ingest | `infrastructure/runbooks/openwebui-kb-bulk-ingest.md` | Bulk-loading documents into OpenWebUI Knowledge Base collections |
 | Nightly Backups | `infrastructure/runbooks/nightly-backups.md` | RAG KB sync and nightly backup procedures |
 | Vaultwarden Bootstrap | `infrastructure/runbooks/vaultwarden-bootstrap.md` | Push catalog-defined credentials into Vaultwarden using the Python bootstrap tool |
-| WoL Samsung TV | `infrastructure/runbooks/wol-samsung-tv.md` | Wake the Samsung TV (hostname "Samsung", IP 192.168.50.175 DHCP, MAC 54:3A:D6:5D:B0:EC) via magic packet from sheepsoc; includes TV settings prerequisites (wired Ethernet, Wake on LAN enabled), exact command, test confirmation (2026-05-30), troubleshooting, and links to topology. |
+| Samsung TV Network Control | `infrastructure/runbooks/wol-samsung-tv.md` | Full network control of Samsung TV (hostname "Samsung", IP 192.168.50.175 DHCP, MAC 54:3A:D6:5D:B0:EC) via new `tv_control.py` script (volume prioritized, WoL power-on, key sending, pairing with token in ~/.config/samsung-tv-token.json); builds on prior DHCP/WoL success (verified 2026-05-30); includes install (sheepsoc conda + samsungtvws/wakeonlan), usage, prerequisites (wired Ethernet, WoL + Network Remote enabled), how it works, troubleshooting, topology links. |
 
 ### Infrastructure — Backup & Recovery
 

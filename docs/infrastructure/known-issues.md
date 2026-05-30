@@ -58,6 +58,14 @@
 - All per schema.md update triggers for "new device added to LAN" and "new runbook created" (section 6). Link rules followed exactly (section 4): relative links on first mention, reciprocal links added where relationship is meaningful (runbook ↔ topology, runbook ↔ index/known-issues), backlinks verified. No mkdocs build. This fulfills CLAUDE.md post-infrastructure-change Documentation agent requirement.
 - Wiki is now the single source of truth. Reciprocal links verified.
 
+### 2026-05-30 — Samsung TV Full Network Control Added (tv_control.py Script)
+
+- New script `infrastructure/scripts/tv_control.py` generated and placed (executable). Prioritizes volume control (`--volume`, `--up`/`--down`, `--mute`), integrates known WoL for `--power on` (MAC/IP from prior test), supports raw keys, one-time pairing (token to `~/.config/samsung-tv-token.json`), comprehensive error handling, CLI argparse help.
+- Runbook `runbooks/wol-samsung-tv.md` expanded (now titled Samsung TV Network Control in registry/index) with installation (sheepsoc conda + `pip install samsungtvws wakeonlan` — confirmed safe per CLAUDE.md, builds on existing websocket-client), full usage examples (volume first), pairing procedure, expanded prerequisites (add Network Remote/Access Notification), "How It Works" section, updated troubleshooting, integration note with 2026-05-30 DHCP/WoL success.
+- Updated [Topology](topology.md) (control notes added to diagram, table, host layout; links updated), [index.md](index.md) (runbook description), [schema.md](../schema.md) (registry purpose + triggers for "new control script added / device control procedure"), this history entry, and all cross-links per section 4 (reciprocal **see also** where meaningful; verified no broken links).
+- No changes to services.md (client-side tool). No mkdocs build. Reversible backups made of edited files. Fulfills CLAUDE.md exactly: explanations before each action, no silent sudo, wiki single source of truth, Documentation agent brief covered all capabilities + prior success.
+- Wiki now fully reflects complete TV network control setup (WoL + websocket commands from sheepsoc).
+
 ### 2026-05-30 — RAG Experiments Wiki Updated (Resolves Multiple Issues)
 
 - Comprehensive documentation added for active RAG workspace at `~/jupyter/rag_experiments/`: RAG-001 (StackExchange sysadmin ~48k doc corpus, full pipeline, golden dataset with AI/human judgments, notebooks), RAG-002 scaffold, Elastic Cloud 9.4.0 integration details, hybrid RRF vs dense/ELSER/BM25 benchmarks (specific nDCG@10 results), embedding comparisons (nomic/mxbai), evaluation pipelines, concepts, runbooks, and sources.

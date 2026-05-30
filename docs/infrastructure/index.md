@@ -23,7 +23,7 @@ Use this section when you are checking system health, changing services, recover
 - [OpenWebUI KB Bulk Ingest](runbooks/openwebui-kb-bulk-ingest.md) — bulk-loading documents into Knowledge Base collections
 - [Nightly Backups](runbooks/nightly-backups.md) — scheduled RAG knowledge base sync via cron
 - [Tailscale Operations](runbooks/tailscale-ops.md) — adding/removing tailnet peers, key rotation, full uninstall
-- [WoL Samsung TV](runbooks/wol-samsung-tv.md) — wake Samsung TV (192.168.50.175, MAC 54:3A:D6:5D:B0:EC) using magic packet; prerequisites and troubleshooting (newly documented LAN device)
+- [Samsung TV Network Control](runbooks/wol-samsung-tv.md) — full control of Samsung TV (192.168.50.175, MAC 54:3A:D6:5D:B0:EC) via tv_control.py (volume prioritized, WoL power-on, pairing, raw keys); expands prior WoL runbook with install, usage, how it works; prerequisites (Network Remote enabled); integrates 2026-05-30 DHCP/WoL success
 
 ## Backup & Recovery
 
