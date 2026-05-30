@@ -48,6 +48,15 @@
 
 ## History Log
 
+### 2026-05-30 — tv_control.py Updated to Clear YouTube Search Field (Prevents Stale Text)
+
+- Phillip updated `infrastructure/scripts/tv_control.py` (after last wiki sync) to add loop of 15x `KEY_BACKSPACE` (with short 0.1s sleeps) right after focusing the input field and before `send_text(query)`.
+- This reliably clears any residual text from prior searches in the YouTube app UI.
+- Tested successfully via `conda run -n sheepsoc --youtube-search 'Try not to laugh'`. Token remains saved in `~/.config/samsung-tv-token.json`; no re-pairing needed.
+- Updated runbook (How It Works, troubleshooting, purpose), services.md (TV section), schema.md (registry), and this history entry per section 6 triggers for "code change to TV control procedure / runbook / services".
+- Links follow section 4 rules exactly (relative from each file, first-mention, **see also**/**runbook**, reciprocals where meaningful, no noise). Interlinks verified. Reversible edits; wiki remains living record. Fulfills CLAUDE.md (explanation before each edit, no silent sudo, Documentation agent task completed).
+- No topology/known-issues/index.md triggered as this was an improvement, not new landmine.
+
 ### 2026-05-30 — Samsung TV Documented + WoL Runbook (Resolves Undocumented LAN Device)
 
 - Network-engineer subagent successfully retrieved Samsung TV details from ASUS router DHCP table: IP `192.168.50.175`, MAC `54:3A:D6:5D:B0:EC`, hostname "Samsung", active lease.

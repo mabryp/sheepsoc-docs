@@ -391,13 +391,13 @@ For full configuration details, room mapping procedures, file locations, and tro
 | Conda Env | `sheepsoc` (tested via `conda run -n sheepsoc`) |
 | TV IP/MAC | 192.168.50.175 / `54:3A:D6:5D:B0:EC` (DHCP, wired Ethernet required) |
 | Dependencies | `samsungtvws`, `wakeonlan` (installed in sheepsoc env); token at `~/.config/samsung-tv-token.json` |
-| New Feature | `--youtube-search "QUERY"` — launches YouTube app (ID `111299001912` via `run_app`), performs navigation (`KEY_UP`/`KEY_RIGHT`/`KEY_ENTER`), `send_text(query)`, final enter. Tested successfully 2026-05-30. |
+| New Feature | `--youtube-search "QUERY"` — launches YouTube app (ID `111299001912` via `run_app`), navigates to search, **clears prior text with 15x `KEY_BACKSPACE` (short sleeps)**, then `send_text(query)` + submit. Prevents stale queries. Tested successfully 2026-05-30 via `conda run -n sheepsoc`. |
 
 ### Usage (Updated with YouTube Search)
 ```bash
 pmabry@sheepsoc:~$ conda run -n sheepsoc python infrastructure/scripts/tv_control.py --help
 pmabry@sheepsoc:~$ conda run -n sheepsoc python infrastructure/scripts/tv_control.py --youtube-search "Try not to laugh"
-# Launches YouTube, navigates to search, types query, submits. May need minor manual tweak on TV per firmware.
+# Launches YouTube, navigates to search field, clears any stale text (15x KEY_BACKSPACE loop w/ sleeps), types query, submits. Prevents carry-over from prior searches. May need minor manual tweak on TV per firmware.
 # Other commands: --volume 40, --power on (WoL + 8s wait), --up/--down/--mute, --key KEY_VOLUP
 ```
 
