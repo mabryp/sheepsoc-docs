@@ -48,6 +48,12 @@
 
 ## History Log
 
+### 2026-05-30 — tv_control.py Text Input Updated to Per-Character KEY_* Loop per send_text Observation
+
+- `tv_control.py` updated: `send_text(query)` replaced with per-character loop (`for char in query.lower(): if isalpha send KEY_{upper}(char) else KEY_SPACE`; 0.25s sleeps) because "send_text is not working. I can see the cursor move" (now types letters directly when search field focused). Clear loop + navigation unchanged. Re-tested with "Try not to laugh". Token saved. Current implementation (cursor move + char keys) is the living wiki record.
+- Updated **only** triggered pages per schema.md §6 (code change to TV control): [Samsung TV Network Control runbook](runbooks/wol-samsung-tv.md) (new input method details in purpose/How It Works/usage/troubleshooting), [services.md](#tv-control) (TV section), [schema.md](../schema.md) (registry entry), and this history. Followed schema strictly: relative links (correct per current file location in `docs/infrastructure/`), exact structure, first-mention per section, **see also**/**runbook** labels, reciprocals where meaningful (no topology/index changes). Interlinks verified — no broken links. Reversible via git. Fulfills CLAUDE.md (explained before each edit; wiki as living record).
+- Commit: "update tv_control text input to per-char KEY_* per send_text observation". No mkdocs build performed. See prior entries for KEY_BACKSPACE/KEY_CLEAR/send_text evolution.
+
 ### 2026-05-30 — tv_control.py Reverted to KEY_BACKSPACE Loop per User Feedback
 
 - After user feedback "KEY_CLEAR didn't clear field", reverted `tv_control.py` from single `KEY_CLEAR` + `sleep(0.5)` to reliable 15x `KEY_BACKSPACE` loop + `sleep(0.1)` before `send_text()` for YouTube search (original implementation per "clear the search before it runs a search" request). Navigation/launch unchanged. Token saved. Tested successfully via `conda run -n sheepsoc`.

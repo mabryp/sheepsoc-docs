@@ -382,7 +382,7 @@ For full configuration details, room mapping procedures, file locations, and tro
 
 ## TV Control
 
-**Purpose:** Client-side network control for the Samsung TV (192.168.50.175) via `tv_control.py`. Provides volume, power (WoL), keys, and **YouTube search** (uses 15x `KEY_BACKSPACE` loop to clear; reverted from `KEY_CLEAR` after test feedback). Not a systemd service — runs on-demand from sheepsoc conda env. See [Samsung TV Network Control runbook](../runbooks/wol-samsung-tv.md) for full procedure (reciprocal).
+**Purpose:** Client-side network control for the Samsung TV (192.168.50.175) via `tv_control.py`. Provides volume, power (WoL), keys, and **YouTube search** (15x `KEY_BACKSPACE` clear + per-char KEY_* loop replacing send_text() per "cursor moves but no text" observation; types via KEY_{UPPER}/KEY_SPACE with 0.25s sleeps when focused). Not a systemd service — on-demand via sheepsoc conda env. See [Samsung TV Network Control runbook](runbooks/wol-samsung-tv.md) for full procedure (reciprocal; current impl documented there).
 
 ### Key Facts
 | Key | Value |
@@ -391,13 +391,13 @@ For full configuration details, room mapping procedures, file locations, and tro
 | Conda Env | `sheepsoc` (tested via `conda run -n sheepsoc`) |
 | TV IP/MAC | 192.168.50.175 / `54:3A:D6:5D:B0:EC` (DHCP, wired Ethernet required) |
 | Dependencies | `samsungtvws`, `wakeonlan` (installed in sheepsoc env); token at `~/.config/samsung-tv-token.json` |
-| New Feature | `--youtube-search "QUERY"` — launches YouTube app (ID `111299001912` via `run_app`), navigates to search, clears prior text with 15x `KEY_BACKSPACE` loop + `sleep(0.1)` before `send_text()` (reverted from `KEY_CLEAR` after "KEY_CLEAR didn't clear field" feedback; both tested successfully; reliable per original request). Prevents stale queries. Tested 2026-05-30 via `conda run -n sheepsoc` (token present, no pairing; navigation unchanged). |
+| New Feature | `--youtube-search "QUERY"` — launches YouTube (ID `111299001912`), navigates to search, clears with 15x `KEY_BACKSPACE`, then per-char loop (`for char in query.lower(): if isalpha: KEY_{upper} else KEY_SPACE`; 0.25s sleeps) replacing `send_text()` ("cursor moves but no text" observed; now types directly). Re-tested "Try not to laugh". Prevents stale text. Current state per wiki. Tested via `conda run -n sheepsoc` (token present; nav/launch unchanged). |
 
 ### Usage (Updated with YouTube Search)
 ```bash
 pmabry@sheepsoc:~$ conda run -n sheepsoc python infrastructure/scripts/tv_control.py --help
 pmabry@sheepsoc:~$ conda run -n sheepsoc python infrastructure/scripts/tv_control.py --youtube-search "Try not to laugh"
-# Launches YouTube, navigates to search, uses 15x `KEY_BACKSPACE` + sleep(0.1) loop to clear (reverted from `KEY_CLEAR` after feedback it didn't fully clear field; tested both; reliable as original). Then types query, submits. Prevents carry-over. May need minor manual tweak on TV per firmware. (See runbook for current procedure.)
+# Launches YouTube, navigates, clears with 15x BACKSPACE, then per-char KEY_* loop (replaces send_text per "cursor moves but no text"; 0.25s sleeps; types letters directly). Re-tested successfully. See runbook for full current impl (wiki living record of char-keys method).
 # Other commands: --volume 40, --power on (WoL + 8s wait), --up/--down/--mute, --key KEY_VOLUP
 ```
 
@@ -409,4 +409,4 @@ pmabry@sheepsoc:~$ conda run -n sheepsoc python infrastructure/scripts/tv_contro
 
 **Runbook:** [Samsung TV Network Control](../runbooks/wol-samsung-tv.md) — **runbook** for install, prerequisites (Network Remote enabled), full troubleshooting, how it works (pairing, token persistence, error handling).
 
-See also: [Topology](../topology.md#network-topology), [Known Issues](../known-issues.md#history-log).
+See also: [Topology](topology.md#network-topology), [Known Issues](known-issues.md#history-log).
