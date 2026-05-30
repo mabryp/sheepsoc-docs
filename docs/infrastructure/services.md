@@ -382,30 +382,32 @@ For full configuration details, room mapping procedures, file locations, and tro
 
 ## TV Control
 
-**Purpose:** Client-side network control for the Samsung TV (192.168.50.175) via `tv_control.py`. Provides volume, power (WoL), keys, and **YouTube search** (15x `KEY_BACKSPACE` clear + per-char KEY_* loop replacing send_text() per "cursor moves but no text" observation; types via KEY_{UPPER}/KEY_SPACE with 0.25s sleeps when focused). Not a systemd service — on-demand via sheepsoc conda env. See [Samsung TV Network Control runbook](runbooks/wol-samsung-tv.md) for full procedure (reciprocal; current impl documented there).
+**Purpose:** Client-side network control for the Samsung TV (192.168.50.175) via `tv_control.py`. Provides volume (prioritized), power (WoL), keys, and **YouTube search** (now via `tv.open_browser()` with quoted search URL — completely bypasses YouTube app, on-screen keyboard, cursor, clear, and char-by-char keys after repeated failures). Much simpler/reliable. Not a systemd service — on-demand via sheepsoc conda env (updated imports, argparse, docstring, logic). See [Samsung TV Network Control runbook](runbooks/wol-samsung-tv.md) — **runbook** for full procedure (reciprocal; current browser-bypass impl documented there as living record).
 
 ### Key Facts
 | Key | Value |
 |---|---|
-| Script | `~/infrastructure/scripts/tv_control.py` (executable, argparse CLI) |
-| Conda Env | `sheepsoc` (tested via `conda run -n sheepsoc`) |
-| TV IP/MAC | 192.168.50.175 / `54:3A:D6:5D:B0:EC` (DHCP, wired Ethernet required) |
-| Dependencies | `samsungtvws`, `wakeonlan` (installed in sheepsoc env); token at `~/.config/samsung-tv-token.json` |
-| New Feature | `--youtube-search "QUERY"` — launches YouTube (ID `111299001912`), navigates to search, clears with 15x `KEY_BACKSPACE`, then per-char loop (`for char in query.lower(): if isalpha: KEY_{upper} else KEY_SPACE`; 0.25s sleeps) replacing `send_text()` ("cursor moves but no text" observed; now types directly). Re-tested "Try not to laugh". Prevents stale text. Current state per wiki. Tested via `conda run -n sheepsoc` (token present; nav/launch unchanged). |
+| Script | `~/infrastructure/scripts/tv_control.py` (executable, argparse CLI with `--youtube-search`) |
+| Conda Env | `sheepsoc` (tested via `conda run -n sheepsoc`; includes samsungtvws, wakeonlan) |
+| TV IP/MAC | 192.168.50.175 / `54:3A:D6:5D:B0:EC` (DHCP from ASUS, wired Ethernet required for WoL/control) |
+| Dependencies | `samsungtvws`, `wakeonlan` (in sheepsoc env); token at `~/.config/samsung-tv-token.json` (one-time pairing) |
+| YouTube Search | `--youtube-search "QUERY"` uses `open_browser("https://www.youtube.com/results?search_query={quote(query)}")` (`urllib.parse.quote`). Bypasses all prior keyboard/cursor/app issues; opens results directly. Token/WoL/volume unchanged. Re-tested successfully. Current state per wiki and [runbook](runbooks/wol-samsung-tv.md). |
 
-### Usage (Updated with YouTube Search)
+### Usage
 ```bash
 pmabry@sheepsoc:~$ conda run -n sheepsoc python infrastructure/scripts/tv_control.py --help
 pmabry@sheepsoc:~$ conda run -n sheepsoc python infrastructure/scripts/tv_control.py --youtube-search "Try not to laugh"
-# Launches YouTube, navigates, clears with 15x BACKSPACE, then per-char KEY_* loop (replaces send_text per "cursor moves but no text"; 0.25s sleeps; types letters directly). Re-tested successfully. See runbook for full current impl (wiki living record of char-keys method).
-# Other commands: --volume 40, --power on (WoL + 8s wait), --up/--down/--mute, --key KEY_VOLUP
+# Opens YouTube search results directly in TV browser (bypasses on-screen keyboard/cursor entirely). Re-tested successfully.
+# Other commands: --volume 40, --power on (WoL + 8s), --up/--down/--mute, --key KEY_VOLUP
 ```
 
 ### Verification
 ```bash
 pmabry@sheepsoc:~$ ping -c 2 192.168.50.175
-pmabry@sheepsoc:~$ conda run -n sheepsoc python infrastructure/scripts/tv_control.py --youtube-search "test"  # observe TV response
+pmabry@sheepsoc:~$ conda run -n sheepsoc python infrastructure/scripts/tv_control.py --youtube-search "test"  # observe TV opens browser to results
 ```
+
+**See Also:** [Samsung TV Network Control runbook](runbooks/wol-samsung-tv.md) (full steps, troubleshooting, How It Works for browser method).
 
 **Runbook:** [Samsung TV Network Control](../runbooks/wol-samsung-tv.md) — **runbook** for install, prerequisites (Network Remote enabled), full troubleshooting, how it works (pairing, token persistence, error handling).
 

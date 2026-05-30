@@ -48,6 +48,12 @@
 
 ## History Log
 
+### 2026-05-30 — tv_control.py Major Refinement to --youtube-search: Browser Bypass via open_browser()
+
+- After repeated keyboard/cursor/send_text failures and user note on onscreen keyboard, major refinement to `infrastructure/scripts/tv_control.py` —youtube-search: now uses `tv.open_browser()` with `https://www.youtube.com/results?search_query={quote(query)}` (`urllib.parse.quote`). Completely bypasses YouTube app, on-screen keyboard, cursor navigation, clear, and char-by-char keys. Much simpler/reliable. Updated imports, argparse help, docstring, and logic. Token/WoL/volume unchanged. Re-tested successfully (opens search results directly).
+- Updated **only** triggered pages per schema.md §6 (major procedure change to TV control): [Samsung TV Network Control runbook](runbooks/wol-samsung-tv.md) (revised *all* YouTube sections: purpose, usage, How It Works, troubleshooting with new browser method + rationale), [services.md](#tv-control) (TV section), [schema.md](../schema.md) (registry), and this history. Strict adherence to link rules (§4: relative paths from each file's location, first-mention, **see also**/**runbook** labels, reciprocals where meaningful, no new files). Interlinks verified. Reversible via git. Fulfills CLAUDE.md (explained before every action; wiki reflects *current* code as living record).
+- Commit: "refine tv_control --youtube-search to browser bypass (open_browser + quote)". Pushed to origin/main. No mkdocs build. See prior entries below for full keyboard/cursor/send_text iteration history.
+
 ### 2026-05-30 — tv_control.py Text Input Updated to Per-Character KEY_* Loop per send_text Observation
 
 - `tv_control.py` updated: `send_text(query)` replaced with per-character loop (`for char in query.lower(): if isalpha send KEY_{upper}(char) else KEY_SPACE`; 0.25s sleeps) because "send_text is not working. I can see the cursor move" (now types letters directly when search field focused). Clear loop + navigation unchanged. Re-tested with "Try not to laugh". Token saved. Current implementation (cursor move + char keys) is the living wiki record.
