@@ -1,6 +1,6 @@
 # Samsung TV Network Control (expands prior WoL runbook)
 
-**Purpose:** Full network control for Samsung TV using the new `tv_control.py` script (volume prioritized per task; integrates prior WoL for power-on). Builds directly on the successful DHCP discovery and WoL test from 2026-05-30 (MAC retrieved from ASUS DHCP table, magic packet powered on TV). Script located at `infrastructure/scripts/tv_control.py` (executable). Uses `samsungtvws` (builds on websocket-client already in sheepsoc conda env) + wakeonlan. One-time pairing saves token to `~/.config/samsung-tv-token.json`. Error handling included. All prior WoL steps preserved below for reversibility.
+**Purpose:** Full network control for Samsung TV using `tv_control.py` (volume prioritized, WoL power-on, keys, **--youtube-search "QUERY"**). Builds on successful DHCP discovery, WoL test, and prior volume/key/pairing work from 2026-05-30 (MAC from ASUS DHCP, TV at 192.168.50.175 responded to `conda run -n sheepsoc`). Script at `infrastructure/scripts/tv_control.py` (executable, tested with no errors). Uses `samsungtvws` (run_app for YouTube ID 111299001912 + navigation/send_text/send_key) + wakeonlan. One-time pairing (PIN on TV) saves token to `~/.config/samsung-tv-token.json`. Comprehensive error handling. All prior WoL/volume content preserved below for reversibility.
 
 | Key | Value |
 |---|---|
@@ -10,10 +10,10 @@
 | Script Path | `~/infrastructure/scripts/tv_control.py` (or relative from root) |
 | Conda Env | `sheepsoc` (Python 3.12; `conda activate sheepsoc`) |
 | Install | `conda activate sheepsoc && pip install samsungtvws wakeonlan` (confirmed safe, no other env changes) |
-| Primary Use | Volume control first (`--volume 40`, `--up`, `--down`, `--mute`), then power (`--power on` uses WoL), raw keys (`--key KEY_VOLUP`) |
+| Primary Use | Volume control first (`--volume 40`, `--up`, `--down`, `--mute`), power (`--power on` uses WoL), raw keys (`--key KEY_VOLUP`), **YouTube search** (`--youtube-search "QUERY"`) |
 | Pairing | One-time on first run (enter PIN from TV); token saved to `~/.config/samsung-tv-token.json` |
 | Prerequisites | Wired Ethernet, WoL enabled, **Network Remote / Device Connect Manager > Access Notification enabled** on TV (Settings > General > Network > Expert Settings) |
-| Verified | 2026-05-30 (DHCP/WoL by network-engineer subagent); script added per "new control script added / device control procedure" update trigger |
+| Verified | 2026-05-30 (DHCP/WoL, volume, pairing, and `--youtube-search "Try not to laugh"` tested via `conda run -n sheepsoc`; TV responded with no errors); updated per new service capability trigger |
 
 ## Installation (One-Time, Reversible)
 
@@ -37,14 +37,14 @@ This adds to the existing `sheepsoc` conda env (Python 3.12; websocket-client al
 
 See [Topology](../topology.md#network-topology) for full LAN diagram, ASUS DHCP details, and Samsung TV entry. The MAC/IP from prior 2026-05-30 DHCP/WoL test. All prior WoL steps below remain valid and unchanged.
 
-## Usage Examples (Volume First, as Prioritized in Script)
+## Usage Examples (Volume First, as Prioritized in Script; YouTube Search Added)
 
-Activate env then run (CLI help via no args or `--help`):
+Activate conda env then run (CLI help via no args or `--help`; `conda run -n sheepsoc` also works for one-offs):
 
 ```bash
 pmabry@sheepsoc:~$ conda activate sheepsoc
 pmabry@sheepsoc:~$ python infrastructure/scripts/tv_control.py --volume 40
-# Sets exact volume level (0-100)
+# Sets exact volume level (0-100; loops KEY_VOLUP from low/mute state)
 
 pmabry@sheepsoc:~$ python infrastructure/scripts/tv_control.py --up
 # Volume up (or --down, --mute)
@@ -54,19 +54,23 @@ pmabry@sheepsoc:~$ python infrastructure/scripts/tv_control.py --power on
 
 pmabry@sheepsoc:~$ python infrastructure/scripts/tv_control.py --key KEY_VOLUP
 # Or KEY_MUTE, KEY_POWEROFF, KEY_HOME, KEY_CHUP, etc. (full Samsung key list supported by library)
+
+pmabry@sheepsoc:~$ python infrastructure/scripts/tv_control.py --youtube-search "Try not to laugh"
+# Launches YouTube app (ID 111299001912 via run_app), navigates to search bar (KEY_UP/RIGHT/ENTER), sends text via send_text(), submits. Sleeps tuned for load time; verify on TV (may need minor manual adjustment per firmware). Tested successfully.
 ```
 
-**Pairing (first run only):** Script auto-detects no token, opens connection, prompts for PIN shown on TV. Saves token automatically. Re-run with `--power on` if TV off.
+**Pairing (first run only):** Script auto-detects no token, opens connection, prompts for PIN shown on TV. Saves token automatically to `~/.config/samsung-tv-token.json`. Re-run with `--power on` if TV off. New YouTube feature requires TV to be on or use `--power on` first.
 
 ## How It Works
 
-- **Power-on:** Uses `wakeonlan` with known MAC (integrates prior successful WoL test exactly; sends to broadcast).
-- **Control:** `SamsungTVWS` library over websocket (port 8002). Loads/saves token for authenticated session. Opens connection, sends volume/set or key commands, closes.
-- **Error Handling:** Catches exceptions, prints troubleshooting (check TV on/wired, re-pair, firewall/port 8002). Uses try/finally for clean close.
+- **Power-on:** Uses `wakeonlan` with known MAC (integrates prior successful WoL test exactly; sends to broadcast; 8s sleep).
+- **Volume/Keys:** `SamsungTVWS` over websocket (port 8002). Loads/saves token for authenticated session. `send_key()` for volume (looped for absolute levels), mute, power off, raw keys.
+- **YouTube Search (`--youtube-search`):** `tv.run_app("111299001912")` to launch YouTube app, followed by navigation keys (`KEY_UP`, `KEY_RIGHT`, `KEY_ENTER` to reach search), `send_text(query)`, final `KEY_ENTER`. Sleeps (6s for app load, 1-2s between actions) tuned for reliability. Note: full typing/navigation is simulated and firmware-dependent; manual adjustment may be needed.
+- **Error Handling:** Catches exceptions, prints troubleshooting (TV on/wired, re-pair by deleting token, port 8002, firewall). Uses try/finally for `tv.close()`.
 - **Token File:** JSON at `~/.config/samsung-tv-token.json` (created on successful pair; contains token + IP). One-time only.
-- Builds on existing sheepsoc env and 2026-05-30 DHCP/WoL success (no new hardware changes).
+- Builds on existing `sheepsoc` conda env (samsungtvws + wakeonlan) and 2026-05-30 DHCP/WoL/volume success (no new hardware changes; tested with `conda run -n sheepsoc`).
 
-(See script docstring and code for full implementation; reversible by commenting lines or restoring .bak.)
+(See script docstring and code for full implementation; reversible by commenting lines or restoring .bak from prior version.)
 
 ## 1. Verify TV State and Settings
 
@@ -99,10 +103,11 @@ pmabry@sheepsoc:~$ sudo etherwake -b -i eth0 54:3A:D6:5D:B0:EC
 ## 3. Troubleshooting (Updated for Full Control)
 
 **For Script (`tv_control.py`):**
-- `ERROR: Missing dependencies...` → Run the install command above (conda activate first).
-- Pairing fails / "PIN" not shown → Ensure **Access Notification** enabled in TV Expert Settings (see Prerequisites). TV must be powered on for pairing.
+- `ERROR: Missing dependencies...` → Run the install command above (`conda activate sheepsoc && pip install samsungtvws wakeonlan`); confirm with Phillip first per CLAUDE.md.
+- Pairing fails / "PIN" not shown → Ensure **Access Notification** (Network Remote) enabled in TV Expert Settings (see Prerequisites). TV must be powered on for pairing.
 - Connection error / timeout → Verify TV is on (use `--power on` first), port 8002 reachable (`nc -z 192.168.50.175 8002`), firewall allows from sheepsoc. Re-pair by deleting token file and re-running.
 - Volume/key commands fail after power-on → Increase sleep in script or wait 10-15s after WoL; TV boot takes time for websocket.
+- **YouTube search fails or lands wrong place** → TV firmware variations in app UI; increase sleeps in script or use manual navigation after launch. Test with short query like "test". App ID `111299001912` is standard for YouTube on many Samsung models (confirm with `tv.app_list()` if needed).
 - Token issues → `rm ~/.config/samsung-tv-token.json` then re-run for fresh pairing (reversible).
 
 **For WoL (preserved from prior):**
@@ -126,10 +131,10 @@ pmabry@sheepsoc:~$ sudo etherwake -b -i eth0 54:3A:D6:5D:B0:EC
 
 ## Runbooks and See Also
 
-- [Topology](../topology.md#network-topology) — **see also** full network diagram and updated Samsung TV control notes (reciprocal link added).
+- [Services](../services.md#tv-control) — **see also** TV Control section documenting the new `--youtube-search` capability (reciprocal link added).
+- [Topology](../topology.md#network-topology) — **see also** full network diagram and updated Samsung TV control notes including YouTube search (reciprocal link added).
 - [Infrastructure Overview](../index.md) — links to all operational procedures including this expanded runbook (reciprocal).
-- [Known Issues](../known-issues.md#history-log) — history of DHCP/WoL test (2026-05-30) + new control script capability (updated entry added per schema triggers).
-- [Services](../services.md) — **see also** for related network tools (wakeonlan, though not a running service).
-- [Conda](platforms/conda.md) — **see also** for sheepsoc env details where script runs.
+- [Known Issues](../known-issues.md#history-log) — history of DHCP/WoL test (2026-05-30) + tv_control.py enhancements (volume, pairing, now YouTube search; updated entry added per schema triggers).
+- [Conda](../platforms/conda.md) — **see also** for sheepsoc env details where script runs (uses `conda run -n sheepsoc`).
 
-This runbook expanded per schema.md section 6 update triggers for "new control script added" / "device control procedure" (also "new runbook" patterns). All prior WoL content preserved (reversible via .bak). Links follow section 4 rules exactly: relative paths from current location in `docs/infrastructure/runbooks/`, first-mention only per section, explicit relationship labels (**see also**, **runbook**), reciprocal links added to affected pages where meaningful (no noise). Backlinks verified. No mkdocs build performed. Wiki remains single source of truth per CLAUDE.md. Brief to Documentation agent included all script capabilities (volume priority, pairing, WoL integration, raw keys, error handling, token persistence) + prior DHCP/WoL success.
+This runbook expanded per schema.md section 6 update triggers for new service capability / runbook changes (also "service reconfigured" patterns). All prior WoL/volume content preserved (reversible via .bak if needed). Links follow section 4 rules exactly: relative paths from current location in `docs/infrastructure/runbooks/`, first-mention only per section, explicit relationship labels (**see also**, **runbook**), reciprocal links added to affected pages (services.md, topology.md, index.md, known-issues.md, schema.md) where meaningful (no noise). Backlinks and interlinks verified — no broken links. No mkdocs build performed. Wiki remains single source of truth per CLAUDE.md. Brief to Documentation agent included all script capabilities (volume priority, WoL integration, raw keys, --youtube-search with run_app/send_text, pairing, error handling, token persistence) + test confirmation.

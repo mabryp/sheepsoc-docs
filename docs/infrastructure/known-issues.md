@@ -66,6 +66,14 @@
 - No changes to services.md (client-side tool). No mkdocs build. Reversible backups made of edited files. Fulfills CLAUDE.md exactly: explanations before each action, no silent sudo, wiki single source of truth, Documentation agent brief covered all capabilities + prior success.
 - Wiki now fully reflects complete TV network control setup (WoL + websocket commands from sheepsoc).
 
+### 2026-05-30 — Samsung TV YouTube Search Capability Added to tv_control.py
+
+- Enhanced `tv_control.py` with `--youtube-search "QUERY"` (uses `samsungtvws.run_app("111299001912")` to launch YouTube, navigation keys to search field, `send_text()` for query like "Try not to laugh", final enter; tuned sleeps for reliability).
+- Tested successfully via `conda run -n sheepsoc` (no errors; TV at 192.168.50.175 responded).
+- Updated [services.md](services.md#tv-control) (new TV Control section), [runbooks/wol-samsung-tv.md](runbooks/wol-samsung-tv.md) (usage, how it works, troubleshooting), [topology.md](topology.md), [index.md](index.md), [schema.md](../schema.md) (registry), this history entry.
+- Per schema.md section 6 update triggers for "new service capability" and runbook changes. All links follow section 4 rules (relative MkDocs syntax from each file's location, first-mention, explicit labels like **see also**/**runbook**, reciprocal backlinks added to services.md, topology.md, index.md, known-issues.md, schema.md where meaningful; verified no broken links or noise). Reversible edits; no mkdocs build; fulfills CLAUDE.md (explanations before edits, wiki as living record, Documentation agent invoked post-change).
+- Wiki now fully reflects current tv_control.py state including YouTube integration.
+
 ### 2026-05-30 — RAG Experiments Wiki Updated (Resolves Multiple Issues)
 
 - Comprehensive documentation added for active RAG workspace at `~/jupyter/rag_experiments/`: RAG-001 (StackExchange sysadmin ~48k doc corpus, full pipeline, golden dataset with AI/human judgments, notebooks), RAG-002 scaffold, Elastic Cloud 9.4.0 integration details, hybrid RRF vs dense/ELSER/BM25 benchmarks (specific nDCG@10 results), embedding comparisons (nomic/mxbai), evaluation pipelines, concepts, runbooks, and sources.
