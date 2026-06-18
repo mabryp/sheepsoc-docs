@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Rule | Read this before making infrastructure changes |
-| Last reviewed | 2026-05-18 |
+| Last reviewed | 2026-06-18 |
 
 ## Active Landmines — Do Not Touch
 
@@ -36,6 +36,8 @@
 
 - **Docker Compose v29 env-file variable substitution** — Docker Compose v29.4.1 performs `$variable` substitution on values loaded via `env_file:`. Any literal `$` in a value is treated as a variable reference. Argon2id hashes (and any PHC-format string) contain multiple `$` field separators that will be silently mangled. **Workaround: escape every `$` as `$$` in the env file.** Compose un-escapes `$$` → `$` when injecting into the container, so the runtime value is correct. This applies to any service using `env_file:` whose config values contain `$` — it is not Vaultwarden-specific. See [Vaultwarden — Docker Compose `$$` Escaping](platforms/vaultwarden.md#docker-compose-escaping-for-argon2-hashes) for the full example. {: #docker-compose-v29-env-file-variable-substitution }
 
+- **Docker healthcheck: `localhost` resolves to `::1` in alpine containers** — Inside alpine-based Docker containers, the hostname `localhost` resolves to the IPv6 loopback address `::1` (not `127.0.0.1`) because of the default musl/glibc name resolution order. A service whose HTTP server binds to IPv4 `0.0.0.0` only (e.g., Vaultwarden's Rocket server) will not listen on `::1`, causing any healthcheck that uses `http://localhost:<port>/` to fail with "connection refused" even when the service is fully functional. **Workaround: always use `http://127.0.0.1:<port>/` in Docker healthchecks for alpine-based containers.** This applies to any service, not just Vaultwarden. Observed 2026-06-18 after diagnosing a healthcheck failure streak of ~56,650 on the Vaultwarden container. See [Vaultwarden — Healthcheck Must Use `127.0.0.1`, Not `localhost`](platforms/vaultwarden.md#healthcheck-must-use-127001-not-localhost). {: #docker-healthcheck-localhost-ipv6 }
+
 - **`vg_elastic` linear LV is exposed to a mechanically unreliable NVMe carrier (strategic decision pending):** `nvme3n1` (Samsung 990 PRO 2TB, S/N S7KHNU0Y529975Z) sits on a mini-PCIe carrier card that does not stay mechanically seated. The drive was reseated 2026-05-14 and held — see [history entry below](#2026-05-14-nvme-reseat-and-new-sata-ssd-added) — but the failure mode will recur. The failure mode is **intermittent disappearance from the bus** (not data corruption): the drive vanishes and reappears after reseating. The structural risk is that `vg_elastic` is a **linear** LV spanning `nvme1n1` + `nvme3n1`. A linear LV cannot tolerate a missing PV — if the loose drive drops, the entire 3.6 TiB `/mnt/elastic_data` goes offline. Three strategic options have been identified; none has been executed yet:
 
     | Option | Summary | Usable capacity | Right when… |
@@ -47,6 +49,16 @@
     **Open question blocking the A vs. B decision:** Is `/mnt/elastic_data` still load-bearing? Local ES was decommissioned 2026-05-10 per the [migration history](#2026-05-10-elasticsearch-migrated-to-elastic-cloud-local-es-decommissioned), but approximately 87 GiB remains in the mount. Before choosing A or B, confirm whether anything (OpenWebUI RAG indexes, backups, staging, etc.) actively reads or writes that path. If nothing does, Option B is the lower-complexity choice.
 
 ## History Log
+
+### 2026-06-18 — Vaultwarden Healthcheck Fixed; Automated Backup Implemented
+
+Two changes to [Vaultwarden](platforms/vaultwarden.md) closed a long-standing known gap and fixed a silent health-reporting fault.
+
+**Healthcheck fix (service reconfigured):**
+The Vaultwarden container had reported `unhealthy` continuously since initial deployment on 2026-05-17 — a failing streak of approximately 56,650 consecutive probes — despite the service being fully functional and serving HTTP 200 throughout. Root cause: the healthcheck in `docker-compose.yml` probed `http://localhost:80/alive`, but inside the alpine container `localhost` resolves to IPv6 `::1` first. Vaultwarden's Rocket HTTP server binds IPv4 `0.0.0.0` only and does not listen on `::1`, so the probe always received "connection refused." Fixed by changing the healthcheck URL to `http://127.0.0.1:80/alive` and running `docker compose up -d --force-recreate`. Container now reports `healthy` (exit 0). A backup of the original compose file is at `docker-compose.yml.bak-20260618`. The general gotcha has been added to the Watchlist above and documented at [Vaultwarden — Healthcheck Must Use `127.0.0.1`, Not `localhost`](platforms/vaultwarden.md#healthcheck-must-use-127001-not-localhost).
+
+**Automated backup implemented (resolves 2026-05-17 gap):**
+The "Backup not yet implemented" gap flagged at initial deployment is resolved. A nightly backup script at `/home/pmabry/infrastructure/vaultwarden/backup/vaultwarden-backup.sh` now runs at 02:30 daily (cron, just after the 02:00 RAG sync). The script takes a consistent online SQLite backup (Python `sqlite3` API, no container stop), runs `PRAGMA integrity_check`, bundles all vault assets (`db.sqlite3`, `attachments/`, `rsa_key.pem`, `config.json`), encrypts with `age` using the SOPS/age recipient, and writes to `/mnt/data_extra/backups/vaultwarden/` (14-copy local rotation on a separate physical disk). Off-site upload to `gdrive:sheepsoc-backups/vaultwarden` via rclone is configured in the script but not yet active — pending rclone install and Google OAuth. A full decrypt + restore round-trip was verified. Restore procedure: `/home/pmabry/infrastructure/vaultwarden/backup/RESTORE.md`. See [Vaultwarden — Backup](platforms/vaultwarden.md#backup) for full details.
 
 ### 2026-05-30 — tv_control.py Major Refinement to --youtube-search: Browser Bypass via open_browser()
 

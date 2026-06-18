@@ -168,7 +168,43 @@ pmabry@sheepsoc:~$ conda activate sheepsoc
 pmabry@sheepsoc:~$ source ~/infrastructure/miniconda3/etc/profile.d/conda.sh
 ```
 
-## 8. Push New Credentials into Vaultwarden
+## 8. Restore Vaultwarden from Backup
+
+!!! danger "High stakes — read RESTORE.md first"
+    Vaultwarden is the authoritative store for all credentials on sheepsoc. A restore operation replaces the live vault database. Do not proceed without reading the full restore procedure at `/home/pmabry/infrastructure/vaultwarden/backup/RESTORE.md`.
+
+The age private key (`~/.config/sops/age/keys.txt`) is required to decrypt backup archives. If restoring to a new machine, ensure the key is available before starting.
+
+Quick reference:
+
+```bash
+# List available local backups
+pmabry@sheepsoc:~$ ls -lth /mnt/data_extra/backups/vaultwarden/
+
+# Decrypt a backup archive (replace <archive> with the filename)
+pmabry@sheepsoc:~$ age --decrypt \
+    -i ~/.config/sops/age/keys.txt \
+    /mnt/data_extra/backups/vaultwarden/<archive>.tar.gz.age \
+    -o /tmp/vw-restore.tar.gz
+
+# Stop the container before replacing vault data
+pmabry@sheepsoc:~$ cd /home/pmabry/infrastructure/vaultwarden
+pmabry@sheepsoc:~/infrastructure/vaultwarden$ docker compose down
+
+# Extract and restore (verify paths match before overwriting)
+pmabry@sheepsoc:~$ tar -xzf /tmp/vw-restore.tar.gz -C /tmp/vw-restore/
+# Then copy the restored files into data/ — see RESTORE.md for exact steps
+
+# Start the container and verify
+pmabry@sheepsoc:~/infrastructure/vaultwarden$ docker compose up -d
+```
+
+For the complete step-by-step procedure including integrity verification, see:
+**`/home/pmabry/infrastructure/vaultwarden/backup/RESTORE.md`**
+
+See also [Vaultwarden — Backup](../infrastructure/platforms/vaultwarden.md#backup) for backup schedule, encryption details, and off-site status.
+
+## 10. Push New Credentials into Vaultwarden
 
 When a new service is added to sheepsoc and introduces credentials, those credentials should be imported into Vaultwarden using the bootstrap tool.
 
@@ -185,7 +221,7 @@ pmabry@sheepsoc:~/infrastructure/vaultwarden/bootstrap$ ./bootstrap.py --categor
 pmabry@sheepsoc:~/infrastructure/vaultwarden/bootstrap$ bw lock && unset BW_SESSION
 ```
 
-## 9. Remote Access via Tailscale
+## 11. Remote Access via Tailscale
 
 Tailscale provides encrypted remote access to all sheepsoc services from any enrolled device. There are two ways to reach services off the LAN.
 
@@ -220,7 +256,7 @@ For procedures covering peer enrollment, peer removal, key rotation, managing se
 
 **[Tailscale Operations](../infrastructure/runbooks/tailscale-ops.md)**
 
-## 10. Planned Shutdown and Startup
+## 12. Planned Shutdown and Startup
 
 For a safe, ordered shutdown and post-boot verification sequence, follow the dedicated runbook:
 
@@ -228,7 +264,7 @@ For a safe, ordered shutdown and post-boot verification sequence, follow the ded
 
 The runbook covers the correct stop order (OpenWebUI → Elasticsearch → Ollama), emergency shutdown, post-boot service verification, and common startup failure troubleshooting.
 
-## 11. What NOT to Do
+## 13. What NOT to Do
 
 !!! danger "Do Not"
     **Do not start MicroK8s.** The previous install's OpenEBS NDM leaked to 247 GB, starved the machine, and drove load average to 100+. The cluster is stopped until a proper rebuild plan exists. See [Known Issues](../infrastructure/known-issues.md).

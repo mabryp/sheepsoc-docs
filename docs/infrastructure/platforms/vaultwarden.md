@@ -76,15 +76,20 @@ For full Tailscale Serve management commands, see [Tailscale Operations — Mana
 ## Health Checks
 
 ```bash
-# Confirm the container is running
+# Confirm the container is running and healthy
 pmabry@sheepsoc:~$ docker compose -f /home/pmabry/infrastructure/vaultwarden/docker-compose.yml ps
 
 # Confirm the port is bound on loopback
 pmabry@sheepsoc:~$ ss -tlnp | grep 8222
 
+# Probe the liveness endpoint directly (the same URL the Docker healthcheck uses)
+pmabry@sheepsoc:~$ curl -sf http://127.0.0.1:8222/alive && echo "ok"
+
 # Confirm the service responds over Tailscale (from any enrolled device)
 # Open https://sheepsoc-1.tail0f68e4.ts.net:8444/ in a browser — the Bitwarden login page should load.
 ```
+
+The container's built-in healthcheck polls `http://127.0.0.1:80/alive` every 30 seconds (3-second timeout, 3 retries). When healthy, `docker compose ps` shows `(healthy)` in the status column. See [Healthcheck must use `127.0.0.1`, not `localhost`](#healthcheck-must-use-127001-not-localhost) for the reason the probe uses an explicit IP address.
 
 ## Day-to-Day Operations
 
@@ -222,19 +227,84 @@ pmabry@sheepsoc:~$ grep ADMIN_TOKEN /home/pmabry/infrastructure/vaultwarden/vaul
 
 ## Backup
 
-!!! warning "Backup not yet implemented"
-    No automated backup of the vault is in place as of 2026-05-17. The planned approach is nightly encrypted exports via the `bw` CLI piped to Google Drive via `rclone`, with a weekly USB copy. This is a known gap — the vault is the only copy of all stored credentials. Do not wait long to implement this.
+Automated nightly backups are in place as of 2026-06-18. The backup script takes a consistent online copy of the vault database (no container stop required), bundles all vault assets, encrypts the result, and writes it to local storage and — once the rclone remote is configured — to Google Drive.
 
-The vault SQLite database is at `/home/pmabry/infrastructure/vaultwarden/data/db.sqlite3`. Attachments are in `/home/pmabry/infrastructure/vaultwarden/data/attachments/`. A manual backup can be done by stopping the container and copying the `data/` directory:
+### What Is Backed Up
+
+| Asset | Path |
+|---|---|
+| Vault database (online copy) | `data/db.sqlite3` — copied via Python's `sqlite3` backup API; WAL-safe, no container shutdown needed |
+| File attachments | `data/attachments/` |
+| RSA signing key | `data/rsa_key.pem` |
+| Container config (if present) | `data/config.json` |
+
+### Backup Script
+
+| Key | Value |
+|---|---|
+| Script | `/home/pmabry/infrastructure/vaultwarden/backup/vaultwarden-backup.sh` |
+| Restore docs | `/home/pmabry/infrastructure/vaultwarden/backup/RESTORE.md` |
+| Local destination | `/mnt/data_extra/backups/vaultwarden/` (separate physical disk from the vault) |
+| Local retention | 14 copies (oldest removed automatically) |
+| Off-site destination | `gdrive:sheepsoc-backups/vaultwarden` via rclone |
+| Off-site retention | 90 days |
+| Encryption | `age` — encrypted to the existing SOPS/age recipient (`~/.config/sops/age/keys.txt`) |
+| Schedule | Daily at 02:30 (`30 2 * * *` user crontab) |
+
+### What the Script Does
+
+1. Creates a consistent online copy of `db.sqlite3` using the Python `sqlite3` backup API. No container stop is required; the API handles any open WAL transaction safely.
+2. Runs `PRAGMA integrity_check` on the copy. If this fails, the script aborts and leaves no archive.
+3. Bundles `db.sqlite3`, `attachments/`, `rsa_key.pem`, and `config.json` (if present) into a single tar.gz archive.
+4. Encrypts the archive with `age` using the SOPS/age recipient public key. The archive is unreadable without the private key.
+5. Writes the encrypted archive to `/mnt/data_extra/backups/vaultwarden/` and removes backups older than 14 copies.
+6. Uploads the encrypted archive to Google Drive via `rclone remote gdrive:sheepsoc-backups/vaultwarden`. The script skips this step gracefully if the `gdrive:` remote does not exist.
+
+### Cron Entry
 
 ```bash
-pmabry@sheepsoc:~/infrastructure/vaultwarden$ docker compose down
-pmabry@sheepsoc:~$ cp -a /home/pmabry/infrastructure/vaultwarden/data/ \
-    /path/to/backup/vaultwarden-data-$(date +%Y%m%d)/
-pmabry@sheepsoc:~/infrastructure/vaultwarden$ docker compose up -d
+# Vaultwarden nightly backup — 02:30 daily (30 minutes after rag_sync)
+30 2 * * * /home/pmabry/infrastructure/vaultwarden/backup/vaultwarden-backup.sh >> /home/pmabry/infrastructure/vaultwarden/backup/backup.log 2>&1
 ```
 
+### Status as of 2026-06-18
+
+| Component | Status |
+|---|---|
+| Local encrypted backup | Working — integrity_check verified; full decrypt + restore round-trip confirmed |
+| Off-site Google Drive upload | Not yet active — pending rclone install and interactive Google OAuth (`rclone config`) |
+
+!!! warning "Off-site upload pending"
+    The Google Drive upload step is configured in the script but currently skipped. Off-site backup is not active until rclone is installed and `rclone config` is completed by Phillip to authorize the `gdrive:` remote.
+
+### Restoring from Backup
+
+See `/home/pmabry/infrastructure/vaultwarden/backup/RESTORE.md` for the full step-by-step restore procedure.
+
+!!! danger "Protect the age private key"
+    The age private key (`~/.config/sops/age/keys.txt`) is required to decrypt these backups. It **must** be stored safely off this machine — for example in a separate password manager export, printed to paper, or on a hardware key. Do **not** store the private key in the same Google Drive folder as the encrypted backups. If sheepsoc is lost and the private key is only on it, the backups are permanently unreadable.
+
 ## Known Issues / Gotchas
+
+### Healthcheck Must Use `127.0.0.1`, Not `localhost`
+
+The Docker healthcheck polls Vaultwarden's liveness endpoint. The probe **must** use the explicit IPv4 loopback address `127.0.0.1`, not the hostname `localhost`.
+
+**Root cause:** Inside the alpine-based container, `localhost` resolves to the IPv6 loopback `::1` first (standard glibc/musl behaviour). Vaultwarden's Rocket HTTP server binds to `0.0.0.0` (IPv4 only) and does not listen on `::1`. The probe therefore gets "connection refused" even when the service is fully functional, and the container is reported `unhealthy`.
+
+This was the root cause of the container being stuck in `unhealthy` state from initial deployment (2026-05-17) until it was diagnosed and corrected on 2026-06-18, despite the service serving HTTP 200 on `/alive` throughout.
+
+**The fix in `docker-compose.yml`:**
+
+```yaml
+healthcheck:
+  test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/alive"]
+  interval: 30s
+  timeout: 3s
+  retries: 3
+```
+
+If you see the container reporting `unhealthy` after any configuration change or image update, verify the healthcheck URL uses `127.0.0.1`, not `localhost`.
 
 ### Docker Compose `$$` Escaping for argon2 Hashes
 
@@ -262,4 +332,4 @@ Vaultwarden is not reachable from the LAN. A client that is not enrolled in Phil
 
 - [Tailscale](tailscale.md) — the network layer that exposes Vaultwarden
 - [Services](../services.md) — Vaultwarden entry in the service catalog
-- [Known Issues](../known-issues.md) — Docker Compose env-file variable substitution footgun
+- [Known Issues](../known-issues.md) — Docker Compose env-file variable substitution footgun; Docker healthcheck `localhost` resolves to IPv6 in alpine containers
