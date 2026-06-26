@@ -8,6 +8,7 @@ Use this section when you are checking system health, changing services, recover
 
 - [Services](services.md) — full service catalog, ports, health checks, and web endpoints
 - [Topology](topology.md) — network map, host layout, storage, and data-flow diagrams
+- [Ollama](platforms/ollama.md) — local LLM inference server (RTX 5060 Ti) · 0.30.10 · OpenAI, Anthropic Messages, and native APIs
 - [OpenWebUI & RAG](platforms/openwebui-rag.md) — primary AI interface, RAG configuration, and Elasticsearch vector store
 - [Elasticsearch & ELSER](platforms/elasticsearch-elser.md) — ELSER sparse-vector search and dual-use index configuration
 - [Knowledge Bases](platforms/knowledge-bases.md) — catalog of all OpenWebUI RAG Knowledge Base collections

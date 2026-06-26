@@ -17,7 +17,7 @@ Every service running on sheepsoc, its systemd unit name, port, and current oper
 | **Metricbeat** | `metricbeat.service` | — | Ships host metrics (CPU, RAM, disk, net) to Elasticsearch | up |
 | **Open WebUI** | `open-webui.service` | 8080 | **Primary AI interface.** OpenWebUI 0.9.2 · browser-based chat and RAG frontend · connects to Ollama for LLM inference · RAG via Elasticsearch (`nomic-embed-text`, 768d, HNSW/cosine) · runs in `openwebui` conda env (Python 3.11) — see [OpenWebUI & RAG](platforms/openwebui-rag.md) | up |
 | **Jupyter Notebook** | `jupyter.service` | 8888 | Notebook server, notebook dir `~/repositories/sheepsoc` | up |
-| **Ollama** | `ollama.service` | 11434 | Local LLM inference (uses RTX 5060 Ti) | up |
+| **Ollama** | `ollama.service` | 11434 | Local LLM inference (uses RTX 5060 Ti) · **0.30.10** (upgraded 2026-06-26) · exposes Ollama-native API, OpenAI-compatible `/v1`, and Anthropic Messages `/v1/messages` (≥0.14.0) · 14 models at `~/.ollama` · `claude-ollama` wrapper enables Claude Code to use local models — see [Ollama](platforms/ollama.md) | up |
 | **SSH** | `ssh.service` | 22 | Remote shell · key auth only | up |
 | **Tailscale** | `tailscaled.service` | — (WireGuard overlay) | Mesh VPN for remote access · tailnet `tail0f68e4` · IP `100.117.117.43` · MagicDNS `sheepsoc-1.tail0f68e4.ts.net` · no subnet routing, no exit node — see [Tailscale](platforms/tailscale.md) | up |
 | **cron** | `cron.service` | — | Scheduled tasks | up |

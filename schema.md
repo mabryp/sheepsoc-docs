@@ -41,6 +41,7 @@ Every page in `docs/`, with its path relative to `docs/` and its one-line purpos
 
 | Page | Path | Purpose |
 |---|---|---|
+| Ollama | `infrastructure/platforms/ollama.md` | Ollama LLM inference server — version, systemd config, API endpoints, Claude Code integration, upgrade procedure |
 | OpenWebUI & RAG | `infrastructure/platforms/openwebui-rag.md` | OpenWebUI chat UI, RAG configuration, ES vector store, ELSER setup |
 | Elasticsearch & ELSER | `infrastructure/platforms/elasticsearch-elser.md` | ES cluster config, auth, index mappings, ELSER model |
 | Knowledge Bases | `infrastructure/platforms/knowledge-bases.md` | Catalog of all OpenWebUI RAG Knowledge Base collections |

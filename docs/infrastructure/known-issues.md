@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Rule | Read this before making infrastructure changes |
-| Last reviewed | 2026-06-18 |
+| Last reviewed | 2026-06-26 |
 
 ## Active Landmines — Do Not Touch
 
@@ -38,6 +38,8 @@
 
 - **Docker healthcheck: `localhost` resolves to `::1` in alpine containers** — Inside alpine-based Docker containers, the hostname `localhost` resolves to the IPv6 loopback address `::1` (not `127.0.0.1`) because of the default musl/glibc name resolution order. A service whose HTTP server binds to IPv4 `0.0.0.0` only (e.g., Vaultwarden's Rocket server) will not listen on `::1`, causing any healthcheck that uses `http://localhost:<port>/` to fail with "connection refused" even when the service is fully functional. **Workaround: always use `http://127.0.0.1:<port>/` in Docker healthchecks for alpine-based containers.** This applies to any service, not just Vaultwarden. Observed 2026-06-18 after diagnosing a healthcheck failure streak of ~56,650 on the Vaultwarden container. See [Vaultwarden — Healthcheck Must Use `127.0.0.1`, Not `localhost`](platforms/vaultwarden.md#healthcheck-must-use-127001-not-localhost). {: #docker-healthcheck-localhost-ipv6 }
 
+- **Ollama install script clobbers custom systemd unit on upgrade:** The official installer (`curl -fsSL https://ollama.com/install.sh | sh`) rewrites `/etc/systemd/system/ollama.service` to its defaults — `User=ollama`, binds `127.0.0.1:11434` only — silently removing the custom user, bind address, model path, and env vars. This breaks [OpenWebUI](platforms/openwebui-rag.md) chat, RAG embeddings, and [Matrix bot](platforms/matrix-bot.md) access until the unit is restored. **After any Ollama upgrade:** restore from `/home/pmabry/ollama-backups/ollama.service.bak`, then `sudo systemctl daemon-reload && sudo systemctl restart ollama`, then re-verify all four health-check endpoints. See [Ollama — Upgrade Procedure](platforms/ollama.md#upgrade-procedure) for the full checklist. {: #ollama-upgrade-clobbers-unit }
+
 - **`vg_elastic` linear LV is exposed to a mechanically unreliable NVMe carrier (strategic decision pending):** `nvme3n1` (Samsung 990 PRO 2TB, S/N S7KHNU0Y529975Z) sits on a mini-PCIe carrier card that does not stay mechanically seated. The drive was reseated 2026-05-14 and held — see [history entry below](#2026-05-14-nvme-reseat-and-new-sata-ssd-added) — but the failure mode will recur. The failure mode is **intermittent disappearance from the bus** (not data corruption): the drive vanishes and reappears after reseating. The structural risk is that `vg_elastic` is a **linear** LV spanning `nvme1n1` + `nvme3n1`. A linear LV cannot tolerate a missing PV — if the loose drive drops, the entire 3.6 TiB `/mnt/elastic_data` goes offline. Three strategic options have been identified; none has been executed yet:
 
     | Option | Summary | Usable capacity | Right when… |
@@ -49,6 +51,16 @@
     **Open question blocking the A vs. B decision:** Is `/mnt/elastic_data` still load-bearing? Local ES was decommissioned 2026-05-10 per the [migration history](#2026-05-10-elasticsearch-migrated-to-elastic-cloud-local-es-decommissioned), but approximately 87 GiB remains in the mount. Before choosing A or B, confirm whether anything (OpenWebUI RAG indexes, backups, staging, etc.) actively reads or writes that path. If nothing does, Option B is the lower-complexity choice.
 
 ## History Log
+
+### 2026-06-26 — Ollama Upgraded 0.9.4 → 0.30.10; Claude Code Local Integration Added
+
+- [Ollama](platforms/ollama.md) upgraded from **0.9.4 to 0.30.10** using the official installer (`curl -fsSL https://ollama.com/install.sh | sh`).
+- **Reason for upgrade:** Ollama ≥ 0.14.0 exposes a native Anthropic Messages API at `/v1/messages`. This allows Claude Code (Anthropic's CLI) to target local Ollama models directly. The endpoint returned 404 on 0.9.4.
+- **Config preserved:** The installer rewrote the systemd unit to its defaults, but the custom configuration was restored immediately from backups — `User=pmabry`, `OLLAMA_HOST=0.0.0.0:11434`, `OLLAMA_MODELS=/home/pmabry/.ollama`, `OLLAMA_MAX_PROMPT_TOKENS=131072`, and the `parallel.conf` drop-in (`OLLAMA_NUM_PARALLEL=5`).
+- **Post-upgrade verification:** Four endpoints confirmed healthy — `/api/version` (0.30.10), `/api/chat` ([OpenWebUI](platforms/openwebui-rag.md) path) 200, `/api/embed` (RAG embeddings path) 200, `/v1/messages` (Claude Code path) returns valid Anthropic-format responses. All 14 existing models intact.
+- **New capability — `claude-ollama` wrapper:** Installed at `/home/pmabry/.local/bin/claude-ollama`. Sets `ANTHROPIC_BASE_URL=http://localhost:11434`, `ANTHROPIC_AUTH_TOKEN=ollama`, and defaults `ANTHROPIC_MODEL=qwen3:14b` (chosen to fit in the 16 GB RTX 5060 Ti; Ollama docs recommend `qwen3-coder` 30B which requires ~24 GB VRAM). The system `claude` command and Anthropic cloud config are untouched.
+- **New landmine documented:** The installer's unit-file overwrite is now a formal Watchlist entry above. Mitigation: backups at `/home/pmabry/ollama-backups/`; after any future Ollama upgrade, restore the unit and drop-in, daemon-reload, restart, and re-verify all four health-check endpoints.
+- New [Ollama](platforms/ollama.md) platform page created. [services.md](services.md), [infrastructure/index.md](index.md), and `schema.md` updated.
 
 ### 2026-06-18 — Vaultwarden Healthcheck Fixed; Automated Backup Implemented
 
