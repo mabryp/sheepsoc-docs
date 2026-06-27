@@ -10,11 +10,12 @@ Every service running on sheepsoc, its systemd unit name, port, and current oper
 |---|---|---|---|---|
 | **sheepsoc-landing** | `sheepsoc-landing.service` | 80 | LAN landing page and these docs (Python http.server) | up |
 | **Vikunja** | `vikunja.service` | 3000 | Self-hosted kanban / task manager — **to be decommissioned** (see Monday board) | up |
-| ~~**Elasticsearch (local)**~~ | ~~`elasticsearch.service`~~ | ~~9200~~ | **DECOMMISSIONED 2026-05-10.** ES migrated to **Elastic Cloud 9.4.0** (GCP us-central1, `gateway.es.us-central1.gcp.cloud.es.io`, API-key auth via `ELASTICSEARCH_API_KEY`). The local single-node cluster on `/mnt/elastic_data` is retired; see [Known Issues — 2026-05-10](known-issues.md) for the migration record. OpenWebUI / Filebeat / Metricbeat / Logstash consumers must be reconfigured to use the cloud endpoint before resuming. | **decommissioned** |
+| **Elasticsearch (local)** | `elasticsearch.service` | 9200 | ES 8.19.14 (local, `/mnt/elastic_data`) — **active as of 2026-06-27 for OTEL telemetry.** Receives data from the [OpenTelemetry Collector](platforms/otelcol-contrib.md) (`logs/metrics/traces-open_webui.otel-*`, `logs/metrics-claude_code.otel-*`). RAG and research workloads run on **Elastic Cloud 9.4.0** (GCP us-central1) — see [Known Issues — 2026-05-10](known-issues.md) for the migration record. **This instance is planned for a clean ES 9 rebuild** — OTEL data streams must be recreated after; see [Known Issues](known-issues.md#otel-data-streams-must-be-recreated-after-es-9-rebuild). | up |
 | **Kibana** | `kibana.service` | 5601 | Log & metrics visualization (Filebeat / Metricbeat / syslog) | up |
 | **Logstash** | `logstash.service` | 5514/udp | Syslog ingestion from ASUS router + OPNsense | up |
 | **Filebeat** | `filebeat.service` | — | Ships local log files to Elasticsearch | up |
 | **Metricbeat** | `metricbeat.service` | — | Ships host metrics (CPU, RAM, disk, net) to Elasticsearch | up |
+| **OpenTelemetry Collector** | `otelcol-contrib.service` | 4317/4318 (OTLP) · 13133 (health) · 8889 (self-metrics) — all `127.0.0.1` only | OTLP telemetry hub · v0.155.0 · receives OTLP from [OpenWebUI](platforms/openwebui-rag.md) and Claude Code · exports to local Elasticsearch · all ports loopback-only, no LAN exposure — see [OpenTelemetry Collector](platforms/otelcol-contrib.md) | up |
 | **Open WebUI** | `open-webui.service` | 8080 | **Primary AI interface.** OpenWebUI 0.9.2 · browser-based chat and RAG frontend · connects to Ollama for LLM inference · RAG via Elasticsearch (`nomic-embed-text`, 768d, HNSW/cosine) · runs in `openwebui` conda env (Python 3.11) — see [OpenWebUI & RAG](platforms/openwebui-rag.md) | up |
 | **Jupyter Notebook** | `jupyter.service` | 8888 | Notebook server, notebook dir `~/repositories/sheepsoc` | up |
 | **Ollama** | `ollama.service` | 11434 | Local LLM inference (uses RTX 5060 Ti) · **0.30.10** (upgraded 2026-06-26) · exposes Ollama-native API, OpenAI-compatible `/v1`, and Anthropic Messages `/v1/messages` (≥0.14.0) · 14 models at `~/.ollama` · `claude-ollama` wrapper enables Claude Code to use local models — see [Ollama](platforms/ollama.md) | up |
@@ -61,6 +62,9 @@ pmabry@sheepsoc:~$ curl -s http://localhost:11434/api/tags | jq
 
 # Kibana status
 pmabry@sheepsoc:~$ curl -s http://localhost:5601/api/status | jq
+
+# OpenTelemetry Collector health (returns HTTP 200 with "Server available" when healthy)
+pmabry@sheepsoc:~$ curl -s http://127.0.0.1:13133
 
 # Vikunja info
 pmabry@sheepsoc:~$ curl -s http://localhost:3000/api/v1/info | jq

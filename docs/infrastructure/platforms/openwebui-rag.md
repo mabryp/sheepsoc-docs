@@ -18,6 +18,7 @@
 - [Elasticsearch & ELSER](elasticsearch-elser.md) — vector store for all Knowledge Base collections; OpenWebUI cannot perform RAG without it
 - [Ollama](../services.md) — provides LLM inference for chat and the `nomic-embed-text` embedding model used for RAG
 - [Conda](conda.md) — the `openwebui` conda environment (Python 3.11) is the runtime for `open-webui.service`
+- [OpenTelemetry Collector](otelcol-contrib.md) — **monitored by** this service; OpenWebUI sends OTLP traces, metrics, and logs when `ENABLE_OTEL=true` is configured
 
 ## RAG Stack Overview
 
@@ -122,6 +123,51 @@ Environment="ELASTICSEARCH_INDEX_PREFIX=open_webui_collections"
 !!! warning "Rebuild Note"
     If the `openwebui` conda env is ever rebuilt, reinstall the Elasticsearch client manually: `pip install elasticsearch==8.19.3` (inside the activated env). It is not bundled with OpenWebUI and is easy to miss. Without it, `open-webui.service` fails to start with an `ImportError`.
 
+### OpenTelemetry Configuration
+
+OpenWebUI's native OTEL export was enabled on 2026-06-27 via a second systemd drop-in at `/etc/systemd/system/open-webui.service.d/otel.conf`. This file is separate from the Elasticsearch RAG drop-in and injects all OTEL-related environment variables at startup.
+
+```ini
+[Service]
+Environment="ENABLE_OTEL=true"
+Environment="ENABLE_OTEL_TRACES=true"
+Environment="ENABLE_OTEL_METRICS=true"
+Environment="ENABLE_OTEL_LOGS=true"
+Environment="OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4317"
+Environment="OTEL_EXPORTER_OTLP_INSECURE=true"
+Environment="OTEL_SERVICE_NAME=open-webui"
+Environment="OTEL_RESOURCE_ATTRIBUTES=data_stream.dataset=open_webui"
+```
+
+OpenWebUI 0.9.2 requires nine additional Python packages in the `openwebui` conda env for OTEL to function. Without them, the service crash-loops immediately on startup — see the warning below.
+
+**Required packages** (installed 2026-06-27, pinned to match existing library versions):
+
+| Package | Version |
+|---|---|
+| `opentelemetry-exporter-otlp-proto-http` | 1.41.0 |
+| `opentelemetry-instrumentation-fastapi` | 0.62b0 |
+| `opentelemetry-instrumentation-sqlalchemy` | 0.62b0 |
+| `opentelemetry-instrumentation-redis` | 0.62b0 |
+| `opentelemetry-instrumentation-requests` | 0.62b0 |
+| `opentelemetry-instrumentation-httpx` | 0.62b0 |
+| `opentelemetry-instrumentation-aiohttp-client` | 0.62b0 |
+| `opentelemetry-instrumentation-logging` | 0.62b0 |
+| `opentelemetry-instrumentation-system-metrics` | 0.62b0 |
+
+A pip freeze snapshot taken before installation is at `/home/pmabry/infrastructure/open-webui/pip-freeze-before-otel-20260627.txt`.
+
+!!! danger "Rebuild Landmine — 2026-06-27"
+    If the `openwebui` conda env is ever rebuilt, these 9 packages **must** be reinstalled. If the OTEL drop-in (`otel.conf`) is present and these packages are absent, `open-webui.service` will **crash-loop immediately** with:
+
+    ```
+    ModuleNotFoundError: No module named 'opentelemetry.exporter.otlp.proto.http'
+    ```
+
+    **Recovery:** activate the `openwebui` env and install all 9 packages at the versions shown above. The service will restart cleanly once the packages are present. See [Known Issues](../known-issues.md#openwebui-crash-loop-with-enable_otel-true-without-packages).
+
+Telemetry from OpenWebUI lands in local Elasticsearch as data streams: `logs-open_webui.otel-*`, `metrics-open_webui.otel-*`, and `traces-open_webui.otel-*`. The [OpenTelemetry Collector](otelcol-contrib.md) handles the export.
+
 ## OpenWebUI KB Bulk Ingest
 
 The script at `~/repositories/sheepsoc/ingest_to_openwebui.py` bulk-ingests pre-extracted `.txt` chunk files into an OpenWebUI Knowledge base. It writes to both Elasticsearch (chunk vectors) and SQLite (`webui.db`, file and knowledge-base link records) simultaneously. After a successful run, ingested files appear natively in the OpenWebUI Knowledge UI and are queryable via `#<KnowledgeBaseName>` in chat.
@@ -218,6 +264,7 @@ pmabry@sheepsoc:~$ curl -s -u elastic:<password> \
 | Symptom | Check |
 |---|---|
 | OpenWebUI won't start | `journalctl -u open-webui.service -n 50` — look for `ImportError` on `elasticsearch`. If the `openwebui` conda env was rebuilt, reinstall: `pip install elasticsearch==8.19.3`. |
+| OpenWebUI crash-loops with `ModuleNotFoundError: No module named 'opentelemetry.exporter.otlp.proto.http'` | `ENABLE_OTEL=true` is set in the OTEL drop-in but the 9 required OpenTelemetry packages are not installed in the `openwebui` conda env. Install all 9 packages listed in [OpenTelemetry Configuration](#opentelemetry-configuration) above. |
 | Uploads fail silently | Confirm Ollama is up (`systemctl status ollama`) and `nomic-embed-text` is present (`ollama list`). |
 | RAG returns nothing | Check ES is up: `curl -u elastic:<password> http://localhost:9200/_cluster/health`. Confirm the Knowledge base was selected in chat (type `#`). |
 | Check how many docs are in the RAG index | `curl -s -u elastic:<password> "http://localhost:9200/open_webui_collections_d768/_count" \| python3 -m json.tool` |

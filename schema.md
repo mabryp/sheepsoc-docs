@@ -44,6 +44,7 @@ Every page in `docs/`, with its path relative to `docs/` and its one-line purpos
 | Ollama | `infrastructure/platforms/ollama.md` | Ollama LLM inference server — version, systemd config, API endpoints, Claude Code integration, upgrade procedure |
 | OpenWebUI & RAG | `infrastructure/platforms/openwebui-rag.md` | OpenWebUI chat UI, RAG configuration, ES vector store, ELSER setup |
 | Elasticsearch & ELSER | `infrastructure/platforms/elasticsearch-elser.md` | ES cluster config, auth, index mappings, ELSER model |
+| OpenTelemetry Collector | `infrastructure/platforms/otelcol-contrib.md` | otelcol-contrib v0.155.0 — OTLP telemetry hub; receives from OpenWebUI and Claude Code; exports to local ES data streams |
 | Knowledge Bases | `infrastructure/platforms/knowledge-bases.md` | Catalog of all OpenWebUI RAG Knowledge Base collections |
 | Matrix Bot | `infrastructure/platforms/matrix-bot.md` | Matrix bot setup, room config, E2EE, OpenWebUI integration |
 | Conda | `infrastructure/platforms/conda.md` | Conda environments, key packages, known gotchas |

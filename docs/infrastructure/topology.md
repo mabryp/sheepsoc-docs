@@ -96,6 +96,7 @@ sheepsoc  (192.168.50.100 · tailscale 100.117.117.43)
 │  ├─ logstash                  → :5514/udp # syslog ingest from ASUS + OPNsense
 │  ├─ filebeat                  → ES      # local logs → ES
 │  ├─ metricbeat                → ES      # local metrics → ES
+│  ├─ otelcol-contrib.service  → :4317/:4318 (loopback)  # OTLP receiver → local ES
 │  ├─ vikunja                   → :3000   # kanban / task mgmt
 │  ├─ matrix-bot.service                 # E2EE Matrix bot
 │  ├─ tailscaled.service        → tailscale0 (100.117.117.43) # WireGuard mesh VPN
@@ -262,3 +263,24 @@ Data streams:
 
 !!! note "Verified"
     The ASUS → Logstash syslog pipeline was re-verified on 2026-04-20 after setting `log_remote=1` in NVRAM and applying the `syslogd -R` flag.
+
+### OpenTelemetry Pipeline (otelcol-contrib)
+
+Added 2026-06-27. OpenWebUI and Claude Code emit OTLP telemetry to the local [OpenTelemetry Collector](platforms/otelcol-contrib.md), which exports to local Elasticsearch 8.19.14 as structured data streams.
+
+```
+OpenWebUI  (:8080)  ──OTLP/gRPC──▶  otelcol-contrib (:4317 loopback)
+Claude Code         ──OTLP/gRPC──▶  otelcol-contrib (:4317 loopback)
+                                              │
+                         [cumulativetodelta (metrics) + batch processors]
+                                              │
+                                              ▼
+                              Elasticsearch (local :9200)
+
+OTEL data streams:
+  logs-open_webui.otel-*      ← OpenWebUI logs      (confirmed flowing 2026-06-27)
+  metrics-open_webui.otel-*   ← OpenWebUI metrics   (confirmed flowing 2026-06-27)
+  traces-open_webui.otel-*    ← OpenWebUI traces    (confirmed flowing 2026-06-27)
+  logs-claude_code.otel-*     ← Claude Code         (appears on next new session)
+  metrics-claude_code.otel-*  ← Claude Code         (appears on next new session)
+```

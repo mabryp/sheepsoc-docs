@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Rule | Read this before making infrastructure changes |
-| Last reviewed | 2026-06-26 |
+| Last reviewed | 2026-06-27 |
 
 ## Active Landmines — Do Not Touch
 
@@ -40,6 +40,12 @@
 
 - **Ollama install script clobbers custom systemd unit on upgrade:** The official installer (`curl -fsSL https://ollama.com/install.sh | sh`) rewrites `/etc/systemd/system/ollama.service` to its defaults — `User=ollama`, binds `127.0.0.1:11434` only — silently removing the custom user, bind address, model path, and env vars. This breaks [OpenWebUI](platforms/openwebui-rag.md) chat, RAG embeddings, and [Matrix bot](platforms/matrix-bot.md) access until the unit is restored. **After any Ollama upgrade:** restore from `/home/pmabry/ollama-backups/ollama.service.bak`, then `sudo systemctl daemon-reload && sudo systemctl restart ollama`, then re-verify all four health-check endpoints. See [Ollama — Upgrade Procedure](platforms/ollama.md#upgrade-procedure) for the full checklist. {: #ollama-upgrade-clobbers-unit }
 
+- **OpenWebUI crash-loops if `ENABLE_OTEL=true` without required packages (2026-06-27):** If the OTEL drop-in (`/etc/systemd/system/open-webui.service.d/otel.conf`) is present and `ENABLE_OTEL=true` is set, but the 9 required OpenTelemetry Python packages are not installed in the `openwebui` conda env, `open-webui.service` will crash-loop immediately with `ModuleNotFoundError: No module named 'opentelemetry.exporter.otlp.proto.http'`. This will happen if the env is rebuilt or the packages are accidentally uninstalled. **Recovery:** activate the `openwebui` conda env and reinstall the 9 packages listed in [OpenWebUI — OpenTelemetry Configuration](platforms/openwebui-rag.md#opentelemetry-configuration). A pip freeze snapshot taken before install lives at `/home/pmabry/infrastructure/open-webui/pip-freeze-before-otel-20260627.txt`. {: #openwebui-crash-loop-with-enable_otel-true-without-packages }
+
+- **OTEL data streams must be recreated after planned ES 9 rebuild (2026-06-27):** The [OpenTelemetry Collector](platforms/otelcol-contrib.md) exports to local Elasticsearch 8.19.14 (`elasticsearch.service`, `/mnt/elastic_data`). This cluster is targeted for a clean ES 9 rebuild. The OTEL data streams (`logs-open_webui.otel-*`, `metrics-open_webui.otel-*`, `traces-open_webui.otel-*`, `logs-claude_code.otel-*`, `metrics-claude_code.otel-*`) and any custom data stream settings will not survive the rebuild automatically. After the rebuild, update the exporter endpoint in `/etc/otelcol-contrib/config.yaml` and allow the collector to recreate the data streams on first write. {: #otel-data-streams-must-be-recreated-after-es-9-rebuild }
+
+- **OTEL metrics volume is high — watch `/mnt/elastic_data` (2026-06-27):** OpenWebUI system-metrics instrumentation generates approximately 100,000 metric documents per 30 minutes of light use (driven by `opentelemetry-instrumentation-system-metrics` at a 10-second export interval). On the `vg_elastic` LVM volume (see the loose NVMe carrier item below), rapid growth is a risk. If storage pressure increases, consider raising `OTEL_METRICS_EXPORT_INTERVAL_MILLIS` in the OpenWebUI OTEL drop-in or removing the `opentelemetry-instrumentation-system-metrics` package from the `openwebui` conda env. See [OpenTelemetry Collector](platforms/otelcol-contrib.md). {: #otel-metrics-volume-high-watch-item }
+
 - **`vg_elastic` linear LV is exposed to a mechanically unreliable NVMe carrier (strategic decision pending):** `nvme3n1` (Samsung 990 PRO 2TB, S/N S7KHNU0Y529975Z) sits on a mini-PCIe carrier card that does not stay mechanically seated. The drive was reseated 2026-05-14 and held — see [history entry below](#2026-05-14-nvme-reseat-and-new-sata-ssd-added) — but the failure mode will recur. The failure mode is **intermittent disappearance from the bus** (not data corruption): the drive vanishes and reappears after reseating. The structural risk is that `vg_elastic` is a **linear** LV spanning `nvme1n1` + `nvme3n1`. A linear LV cannot tolerate a missing PV — if the loose drive drops, the entire 3.6 TiB `/mnt/elastic_data` goes offline. Three strategic options have been identified; none has been executed yet:
 
     | Option | Summary | Usable capacity | Right when… |
@@ -51,6 +57,33 @@
     **Open question blocking the A vs. B decision:** Is `/mnt/elastic_data` still load-bearing? Local ES was decommissioned 2026-05-10 per the [migration history](#2026-05-10-elasticsearch-migrated-to-elastic-cloud-local-es-decommissioned), but approximately 87 GiB remains in the mount. Before choosing A or B, confirm whether anything (OpenWebUI RAG indexes, backups, staging, etc.) actively reads or writes that path. If nothing does, Option B is the lower-complexity choice.
 
 ## History Log
+
+### 2026-06-27 — OpenTelemetry Pipeline Implemented (otelcol-contrib v0.155.0)
+
+A complete OTLP telemetry pipeline was added to sheepsoc, following the Elastic Security Labs article "Claude Code/Cowork monitoring at scale with Otel & Elastic". Grok Code was investigated but has no user-configurable OTLP-to-self-hosted path and was not pursued.
+
+**New service — [OpenTelemetry Collector](platforms/otelcol-contrib.md) (`otelcol-contrib.service`):**
+- Installed from the official OpenTelemetry GitHub release `.deb` package (v0.155.0, checksum-verified, `sudo dpkg -i`).
+- Systemd unit enabled and active, running as system user `otelcol-contrib`.
+- Pipeline: `otlp` receiver → `cumulativetodelta` (metrics only) + `batch` processors → `elasticsearch` exporter (`http://127.0.0.1:9200`, user `elastic`, mapping mode `otel`). The `cumulativetodelta` processor is required because the ES exporter rejects cumulative-temporality histograms.
+- All ports bound to `127.0.0.1` only — no LAN exposure, no UFW change: OTLP/gRPC `:4317`, OTLP/HTTP `:4318`, health `:13133`, self-metrics `:8889` (not default `:8888` — Jupyter occupies that port).
+- Config at `/etc/otelcol-contrib/config.yaml`; original backed up as `config.yaml.orig-20260627`.
+
+**Reconfigured — [OpenWebUI](platforms/openwebui-rag.md) (`open-webui.service`):**
+- Native OTEL export enabled via new systemd drop-in `/etc/systemd/system/open-webui.service.d/otel.conf`. Env vars: `ENABLE_OTEL=true`, traces/metrics/logs all enabled, `OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4317`, `OTEL_SERVICE_NAME=open-webui`, `data_stream.dataset=open_webui`.
+- 9 OpenTelemetry Python packages installed into the `openwebui` conda env at pinned versions (1.41.0 / 0.62b0) to match existing library requirements: `opentelemetry-exporter-otlp-proto-http` and 8 instrumentation packages (`fastapi`, `sqlalchemy`, `redis`, `requests`, `httpx`, `aiohttp-client`, `logging`, `system-metrics`). Without these packages, `open-webui.service` crash-loops on startup.
+- Pre-install pip freeze snapshot: `/home/pmabry/infrastructure/open-webui/pip-freeze-before-otel-20260627.txt`.
+- **New landmine added to Watchlist:** missing packages + OTEL drop-in = crash-loop. See [Watchlist above](#openwebui-crash-loop-with-enable_otel-true-without-packages).
+
+**Reconfigured — Claude Code:**
+- Telemetry env block added to `~/.claude/settings.json` (backup: `settings.json.bak-*`): `CLAUDE_CODE_ENABLE_TELEMETRY=1`, OTLP metrics and logs exporters set to gRPC at `http://127.0.0.1:4317`, `data_stream.dataset=claude_code`. Full prompt and tool-argument content is logged (`OTEL_LOG_USER_PROMPTS=1`, `OTEL_LOG_TOOL_DETAILS=1`). Applies to new Claude Code sessions only.
+
+**Data confirmed flowing (2026-06-27):**
+`logs-open_webui.otel-*`, `metrics-open_webui.otel-*`, `traces-open_webui.otel-*` — all confirmed. Claude Code streams (`logs/metrics-claude_code.otel-*`) will appear on the next new session.
+
+**Local Elasticsearch 8.19.14 reactivated for OTEL:** The local `elasticsearch.service` (marked decommissioned 2026-05-10 for RAG/research workloads, which moved to Elastic Cloud) is the current OTEL export target. The service is up and data flows are confirmed. The instance remains planned for a clean ES 9 rebuild. Two new watchlist items added: [OTEL data streams rebuild](#otel-data-streams-must-be-recreated-after-es-9-rebuild) and [metrics volume](#otel-metrics-volume-high-watch-item).
+
+Pages updated: [services.md](services.md), [topology.md](topology.md), [infrastructure/index.md](index.md), [openwebui-rag.md](platforms/openwebui-rag.md), [elasticsearch-elser.md](platforms/elasticsearch-elser.md), [schema.md](../../schema.md). New platform page: [otelcol-contrib.md](platforms/otelcol-contrib.md).
 
 ### 2026-06-26 — Ollama Upgraded 0.9.4 → 0.30.10; Claude Code Local Integration Added
 
