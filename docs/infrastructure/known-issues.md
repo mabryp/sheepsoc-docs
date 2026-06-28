@@ -57,6 +57,22 @@
 
 ## History Log
 
+### 2026-06-28 — Claude Code Token & Cost Dashboard Built in Elastic Cloud Kibana
+
+A Kibana dashboard named **"Claude Code — Token & Cost Tracking"** was built in Elastic Cloud Kibana (GCP us-central1) on 2026-06-28, using the `metrics-claude_code.otel-default` data stream produced by the [OpenTelemetry Collector](platforms/otelcol-contrib.md) pipeline.
+
+**Key design decisions recorded during this work:**
+
+- **Data view scoped to `metrics-claude_code.otel-default`**, not the wildcard `metrics-*.otel-*`. The wildcard triggers the [`attributes.type` field-type conflict](#otel-attributes-type-field-conflict) (keyword vs. long across Claude Code vs. OpenWebUI streams), which hides the field from Lens aggregations. The scoped per-source data view avoids the conflict entirely.
+- **All token and cost aggregations use `Sum`** (not avg, last, or median). The `cumulativetodelta` processor in the OTEL pipeline converts cumulative counters to per-interval deltas at export time; summing the deltas yields the correct total for any time window.
+- **`cost.usage` is the authoritative spend signal**, not raw `token.usage`. Claude Code's four token types (`input`, `output`, `cacheCreation`, `cacheRead`) carry very different per-token prices; `cost.usage` applies the correct multiplier for each. Observed cache efficiency was ~93% `cacheRead` share — the cost-efficient operating state.
+
+**Dashboard panels:** tokens over time (by type), tokens by model, cost over time (by model), total cost ($), cache efficiency (%), top sessions by token volume, session/lines-of-code/active-time activity metrics.
+
+For the full metric field reference, aggregation rules, panel specifications, and token type pricing table, see [OpenTelemetry Collector — Claude Code Token & Cost Dashboard](platforms/otelcol-contrib.md#claude-code-token--cost-dashboard).
+
+Pages updated: [otelcol-contrib.md](platforms/otelcol-contrib.md), this page.
+
 ### 2026-06-28 — SAN01 NFS Server Restored; Boot-Safe fstab Entry
 
 SAN01 (Synology DiskStation NAS) was offline from approximately April 2026. As of 2026-06-28 it is back online and the NFS mount on sheepsoc has been restored.
