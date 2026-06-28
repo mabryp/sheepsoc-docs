@@ -266,7 +266,7 @@ Data streams:
 
 ### OpenTelemetry Pipeline (otelcol-contrib)
 
-Added 2026-06-27. OpenWebUI and Claude Code emit OTLP telemetry to the local [OpenTelemetry Collector](platforms/otelcol-contrib.md), which exports to local Elasticsearch 8.19.14 as structured data streams.
+Added 2026-06-27; exporter updated to Elastic Cloud 2026-06-28. OpenWebUI and Claude Code emit OTLP telemetry to the local [OpenTelemetry Collector](platforms/otelcol-contrib.md), which exports to Elastic Cloud 9.4.0 (GCP us-central1) as structured data streams.
 
 ```
 OpenWebUI  (:8080)  ──OTLP/gRPC──▶  otelcol-contrib (:4317 loopback)
@@ -274,13 +274,17 @@ Claude Code         ──OTLP/gRPC──▶  otelcol-contrib (:4317 loopback)
                                               │
                          [cumulativetodelta (metrics) + batch processors]
                                               │
-                                              ▼
-                              Elasticsearch (local :9200)
+                                              ▼ (HTTPS, API key auth)
+                     Elastic Cloud 9.4.0 (GCP us-central1)
+                     gateway.es.us-central1.gcp.cloud.es.io:443
 
-OTEL data streams:
+OTEL data streams (in Elastic Cloud):
   logs-open_webui.otel-*      ← OpenWebUI logs      (confirmed flowing 2026-06-27)
   metrics-open_webui.otel-*   ← OpenWebUI metrics   (confirmed flowing 2026-06-27)
   traces-open_webui.otel-*    ← OpenWebUI traces    (confirmed flowing 2026-06-27)
   logs-claude_code.otel-*     ← Claude Code         (appears on next new session)
   metrics-claude_code.otel-*  ← Claude Code         (appears on next new session)
 ```
+
+!!! warning "Privacy"
+    Claude Code is configured to log full prompt and tool-argument content (`OTEL_LOG_USER_PROMPTS=1`, `OTEL_LOG_TOOL_DETAILS=1`). This data egresses to Elastic Cloud GCP. See [Known Issues](known-issues.md#claude-code-prompts-egress-to-elastic-cloud).

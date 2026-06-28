@@ -1,27 +1,27 @@
 # Elasticsearch, ELSER & RAG Experiments
 
-**Purpose:** Current Elastic Cloud 9.4.0 (GCP us-central1) deployment used by both production OpenWebUI RAG and the active RAG research experiments in `~/jupyter/rag_experiments/`. Documents migration, dual-use indexes (dense + sparse ELSER), hybrid RRF retrieval, and ties to golden dataset evaluation.
+**Purpose:** Elasticsearch deployments on sheepsoc — both Elastic Cloud 9.4.0 (GCP us-central1, used for research experiments and OTEL telemetry) and local Elasticsearch 8.19.14 (used for OpenWebUI RAG vectors). Documents cluster configs, auth, index mappings, ELSER, and the current split between deployments.
 
 | Key | Value |
 |---|---|
-| Cluster | Elastic Cloud 9.4.0 (GCP us-central1, 3 nodes/2 data, UUID `DaBtVAvNQNmqT0thJwt-7Q`) |
-| Auth | API key (`ELASTICSEARCH_API_KEY` in `~/.env`) |
-| RAG Indexes | `sheepsoc_rag001_v2` / `v3` (~48k docs), `open_webui_collections_d768` (dual dense+ELSER) |
-| Updated | 2026-05-30 (full experiment docs added) |
-| Local decommissioned | 2026-05-10 (resolves NVMe reliability landmine) |
+| Elastic Cloud cluster | Elastic Cloud 9.4.0 (GCP us-central1, 3 nodes/2 data, UUID `DaBtVAvNQNmqT0thJwt-7Q`) |
+| Elastic Cloud auth | API key (`ELASTICSEARCH_API_KEY` in `~/.env`) |
+| Cloud indexes | `sheepsoc_rag001_v2` / `v3` (~48k docs) — research; OTEL data streams (added 2026-06-27) |
+| Local ES | Elasticsearch 8.19.14 (`elasticsearch.service`, `/mnt/elastic_data`, `127.0.0.1:9200`) |
+| Local indexes | `open_webui_collections_d768` (dual dense kNN + ELSER sparse, ~1.9 GB) — **current OpenWebUI RAG backend** |
+| Updated | 2026-06-28 |
 
-!!! note "Current State"
-    **Elastic Cloud 9.4.0** handles all RAG and research workloads. All RAG-001 v2/v3 re-ingested to cloud. **Local ES 8.19.14 is also active** as of 2026-06-27, serving as the export target for the [OpenTelemetry Collector](otelcol-contrib.md) (`logs/metrics/traces-open_webui.otel-*`, `logs/metrics-claude_code.otel-*`). The local instance is planned for a clean ES 9 rebuild — OTEL data streams will need to be recreated after. See [Known Issues](../known-issues.md#otel-data-streams-must-be-recreated-after-es-9-rebuild).
+!!! note "Current State (as of 2026-06-28)"
+    **Two active ES deployments.** Local ES 8.19.14 (`127.0.0.1:9200`) serves [OpenWebUI](openwebui-rag.md) RAG vectors — `open_webui_collections_d768` (~1.9 GB, HNSW/cosine + ELSER) is still on local storage. **Elastic Cloud 9.4.0** serves research indexes (RAG-001 v2/v3) and [OTEL data streams](otelcol-contrib.md) (confirmed flowing 2026-06-27). Migration of OpenWebUI RAG to Elastic Cloud is planned but has **not** been done yet. The 2026-05-10 history entry "local ES decommissioned — all traffic on cloud" referred to research/ingest workloads; the OpenWebUI RAG index was never moved. Local ES is targeted for an ES 9 rebuild once the RAG migration completes.
 
 **See [RAG Experiments](../research/rag-experiments.md)** for full pipeline, results (Hybrid 0.6809 nDCG@10), golden dataset, notebooks, and runbooks. This page focuses on the shared ES/ELSER infrastructure.
 
 ## Dependencies
 
-- **[RAG Experiments](../research/rag-experiments.md)** **stores data in** — primary consumer of cloud indexes for research (RAG-001/002 pipelines, evaluation).
-- [OpenWebUI & RAG](openwebui-rag.md) **depends on** — production KB collections and nightly sync use the same cluster and ELSER field.
+- **[RAG Experiments](../research/rag-experiments.md)** **stores data in** Elastic Cloud — primary consumer of cloud indexes for research (RAG-001/002 pipelines, evaluation).
+- [OpenWebUI & RAG](openwebui-rag.md) **depends on** local ES 8.19.14 — OpenWebUI RAG vectors (`open_webui_collections_d768`) live on local ES; migration to cloud is planned.
+- [OpenTelemetry Collector](otelcol-contrib.md) **stores data in** Elastic Cloud — OTEL data streams (logs/metrics/traces) export directly to the cloud cluster.
 - Ollama — local embedding for ingest/query vectors (cloud cannot reach localhost:11434).
-
-(Reciprocal links added per schema link rules.)
 
 ## Dependencies
 
@@ -38,32 +38,24 @@
 - [Knowledge Bases](knowledge-bases.md) — the collections stored in this index, with UUIDs
 - [Services](../services.md) — Elasticsearch service entry, port, auth details, and cluster health commands
 - [Known Issues](../known-issues.md) — history of the xpack.security enablement and beats_writer configuration
-- [OpenTelemetry Collector](otelcol-contrib.md) — **stores data in** local ES 8.19.14; OTEL data streams land here
+- [OpenTelemetry Collector](otelcol-contrib.md) — **stores data in** Elastic Cloud 9.4.0; OTEL data streams land in the cloud cluster
 
-## Local ES 8.19.14 — OTEL Data Streams (Active, 2026-06-27)
+## Elastic Cloud — OTEL Data Streams (Active, 2026-06-27)
 
-Local Elasticsearch 8.19.14 (the instance that previously served RAG before the Elastic Cloud migration) is the current export target for the [OpenTelemetry Collector](otelcol-contrib.md). OTEL data uses Elastic's ECS-compatible data stream naming.
+The [OpenTelemetry Collector](otelcol-contrib.md) exports OTEL data directly to Elastic Cloud 9.4.0 via HTTPS. OTEL data uses Elastic's ECS-compatible data stream naming convention.
 
 | Data Stream Pattern | Source | Status |
 |---|---|---|
-| `logs-open_webui.otel-*` | OpenWebUI traces | Confirmed flowing |
-| `metrics-open_webui.otel-*` | OpenWebUI metrics | Confirmed flowing |
-| `traces-open_webui.otel-*` | OpenWebUI traces | Confirmed flowing |
+| `logs-open_webui.otel-*` | OpenWebUI | Confirmed flowing |
+| `metrics-open_webui.otel-*` | OpenWebUI | Confirmed flowing |
+| `traces-open_webui.otel-*` | OpenWebUI | Confirmed flowing |
 | `logs-claude_code.otel-*` | Claude Code | Appears on next new Claude Code session |
 | `metrics-claude_code.otel-*` | Claude Code | Appears on next new Claude Code session |
 
-```bash
-# List all OTEL data streams
-pmabry@sheepsoc:~$ curl -s -u elastic:<password> \
-    "http://localhost:9200/_data_stream/*otel*" | python3 -m json.tool
+Verify via Kibana (Stack Management → Index Management → Data Streams, filter "otel") or via the Elastic Cloud REST API using the `ELASTICSEARCH_API_KEY`.
 
-# Check document counts per stream
-pmabry@sheepsoc:~$ curl -s -u elastic:<password> \
-    "http://localhost:9200/logs-open_webui.otel-*/_count" | python3 -m json.tool
-```
-
-!!! warning "Rebuild Note"
-    Local ES 8.19.14 is planned for a clean ES 9 rebuild. These OTEL data streams are not automatically migrated. See [Known Issues](../known-issues.md#otel-data-streams-must-be-recreated-after-es-9-rebuild).
+!!! note "Local ES Not Involved in OTEL"
+    OTEL data does **not** pass through local ES 8.19.14. The collector exports directly to the cloud endpoint. Local ES 8.19.14 only serves [OpenWebUI](openwebui-rag.md) RAG vectors (`open_webui_collections_d768`).
 
 ## Background: Dense vs. Sparse Embeddings
 

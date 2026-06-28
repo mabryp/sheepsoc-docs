@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Rule | Read this before making infrastructure changes |
-| Last reviewed | 2026-06-27 |
+| Last reviewed | 2026-06-28 |
 
 ## Active Landmines — Do Not Touch
 
@@ -42,9 +42,9 @@
 
 - **OpenWebUI crash-loops if `ENABLE_OTEL=true` without required packages (2026-06-27):** If the OTEL drop-in (`/etc/systemd/system/open-webui.service.d/otel.conf`) is present and `ENABLE_OTEL=true` is set, but the 9 required OpenTelemetry Python packages are not installed in the `openwebui` conda env, `open-webui.service` will crash-loop immediately with `ModuleNotFoundError: No module named 'opentelemetry.exporter.otlp.proto.http'`. This will happen if the env is rebuilt or the packages are accidentally uninstalled. **Recovery:** activate the `openwebui` conda env and reinstall the 9 packages listed in [OpenWebUI — OpenTelemetry Configuration](platforms/openwebui-rag.md#opentelemetry-configuration). A pip freeze snapshot taken before install lives at `/home/pmabry/infrastructure/open-webui/pip-freeze-before-otel-20260627.txt`. {: #openwebui-crash-loop-with-enable_otel-true-without-packages }
 
-- **OTEL data streams must be recreated after planned ES 9 rebuild (2026-06-27):** The [OpenTelemetry Collector](platforms/otelcol-contrib.md) exports to local Elasticsearch 8.19.14 (`elasticsearch.service`, `/mnt/elastic_data`). This cluster is targeted for a clean ES 9 rebuild. The OTEL data streams (`logs-open_webui.otel-*`, `metrics-open_webui.otel-*`, `traces-open_webui.otel-*`, `logs-claude_code.otel-*`, `metrics-claude_code.otel-*`) and any custom data stream settings will not survive the rebuild automatically. After the rebuild, update the exporter endpoint in `/etc/otelcol-contrib/config.yaml` and allow the collector to recreate the data streams on first write. {: #otel-data-streams-must-be-recreated-after-es-9-rebuild }
+- **Claude Code prompt and tool content egresses to Elastic Cloud GCP (2026-06-27):** Claude Code telemetry is configured with `OTEL_LOG_USER_PROMPTS=1` and `OTEL_LOG_TOOL_DETAILS=1` in `~/.claude/settings.json`. **Full prompt text and tool-argument content is logged and exported by the [OpenTelemetry Collector](platforms/otelcol-contrib.md) to Elastic Cloud 9.4.0 (GCP us-central1, cluster UUID `dab081df574b45cf894e33645053dfb3`).** This data leaves sheepsoc and is stored on a third-party cloud. To disable content logging while keeping metrics: set `OTEL_LOG_USER_PROMPTS=0` and `OTEL_LOG_TOOL_DETAILS=0` in the `env` block of `~/.claude/settings.json`. To disable telemetry entirely: set `CLAUDE_CODE_ENABLE_TELEMETRY=0`. {: #claude-code-prompts-egress-to-elastic-cloud }
 
-- **OTEL metrics volume is high — watch `/mnt/elastic_data` (2026-06-27):** OpenWebUI system-metrics instrumentation generates approximately 100,000 metric documents per 30 minutes of light use (driven by `opentelemetry-instrumentation-system-metrics` at a 10-second export interval). On the `vg_elastic` LVM volume (see the loose NVMe carrier item below), rapid growth is a risk. If storage pressure increases, consider raising `OTEL_METRICS_EXPORT_INTERVAL_MILLIS` in the OpenWebUI OTEL drop-in or removing the `opentelemetry-instrumentation-system-metrics` package from the `openwebui` conda env. See [OpenTelemetry Collector](platforms/otelcol-contrib.md). {: #otel-metrics-volume-high-watch-item }
+- **OTEL metrics volume is high — watch Elastic Cloud storage (2026-06-28):** OpenWebUI system-metrics instrumentation generates approximately 100,000 metric documents per 30 minutes of light use (driven by `opentelemetry-instrumentation-system-metrics` at a 10-second export interval). OTEL data lands in Elastic Cloud — no local disk impact, but cloud storage consumption may be significant at scale. If this becomes a concern, consider raising `OTEL_METRICS_EXPORT_INTERVAL_MILLIS` in the OpenWebUI OTEL drop-in or removing the `opentelemetry-instrumentation-system-metrics` package from the `openwebui` conda env. See [OpenTelemetry Collector](platforms/otelcol-contrib.md). {: #otel-metrics-volume-high-watch-item }
 
 - **`vg_elastic` linear LV is exposed to a mechanically unreliable NVMe carrier (strategic decision pending):** `nvme3n1` (Samsung 990 PRO 2TB, S/N S7KHNU0Y529975Z) sits on a mini-PCIe carrier card that does not stay mechanically seated. The drive was reseated 2026-05-14 and held — see [history entry below](#2026-05-14-nvme-reseat-and-new-sata-ssd-added) — but the failure mode will recur. The failure mode is **intermittent disappearance from the bus** (not data corruption): the drive vanishes and reappears after reseating. The structural risk is that `vg_elastic` is a **linear** LV spanning `nvme1n1` + `nvme3n1`. A linear LV cannot tolerate a missing PV — if the loose drive drops, the entire 3.6 TiB `/mnt/elastic_data` goes offline. Three strategic options have been identified; none has been executed yet:
 
@@ -54,9 +54,26 @@
     | **B — Demote `nvme3n1` out of `vg_elastic`** | Shrink `vg_elastic` to a single-PV VG on reliable `nvme1n1`; repurpose `nvme3n1` for scratch/archive where intermittent disappearance is tolerable | 1.8 TiB | `/mnt/elastic_data` is no longer load-bearing (e.g., leftover from the 2026-05-10 Elastic Cloud migration) |
     | **C — Root-cause hardware fix** | Replace the mini-PCIe carrier with a proper PCIe→M.2 adapter (full-height, screw-secured), or move the drive to an unused motherboard M.2 slot if one exists | No change | Always — A and B are workarounds; C is the actual fix and should run in parallel |
 
-    **Open question blocking the A vs. B decision:** Is `/mnt/elastic_data` still load-bearing? Local ES was decommissioned 2026-05-10 per the [migration history](#2026-05-10-elasticsearch-migrated-to-elastic-cloud-local-es-decommissioned), but approximately 87 GiB remains in the mount. Before choosing A or B, confirm whether anything (OpenWebUI RAG indexes, backups, staging, etc.) actively reads or writes that path. If nothing does, Option B is the lower-complexity choice.
+    **A vs. B decision: `/mnt/elastic_data` IS load-bearing (confirmed 2026-06-28).** Local ES 8.19.14 actively serves [OpenWebUI](platforms/openwebui-rag.md) RAG vectors — the `open_webui_collections_d768` index (~1.9 GB) is on `/mnt/elastic_data` and queried on every RAG interaction. Option B (demote to scratch) would take OpenWebUI RAG offline and is **not viable** until RAG is migrated to Elastic Cloud. Option A (mirror) or Option C (hardware fix) are the appropriate paths. Option C remains recommended regardless.
 
 ## History Log
+
+### 2026-06-28 — OTEL Exporter Corrected to Elastic Cloud; OpenWebUI RAG Accuracy Fixed
+
+Two corrections to the 2026-06-27 OTEL documentation:
+
+**1. otelcol-contrib exporter destination changed to Elastic Cloud 9.4.0:**
+The initial documentation incorrectly stated that the [OpenTelemetry Collector](platforms/otelcol-contrib.md) exported to local Elasticsearch 8.19.14. The actual destination is **Elastic Cloud 9.4.0** (GCP us-central1, `gateway.es.us-central1.gcp.cloud.es.io:443`, cluster UUID `dab081df574b45cf894e33645053dfb3`). Auth uses an API key stored in `/etc/otelcol-contrib/otelcol-contrib.conf` (chmod 600, root-only), referenced in `config.yaml` as `${env:ELASTICSEARCH_API_KEY}`. No username/password in the config file. OTEL data streams (`logs/metrics/traces-open_webui.otel-*`) confirmed flowing in the cloud cluster. Claude Code streams will appear on the next new session.
+
+**2. OpenWebUI RAG vector store corrected to local ES:**
+Several pages incorrectly stated that OpenWebUI RAG uses Elastic Cloud 9.4.0. **OpenWebUI RAG still uses local Elasticsearch 8.19.14.** `ELASTICSEARCH_URL=http://127.0.0.1:9200` is set in the OpenWebUI systemd drop-in; the `open_webui_collections_d768` index (~1.9 GB) is on `/mnt/elastic_data`. Migration of OpenWebUI RAG to Elastic Cloud is planned but has not been done. The 2026-05-10 "local ES decommissioned" history entry referred to research/ingest workloads (RAG-001 v2/v3) moving to cloud — OpenWebUI's RAG index was never migrated.
+
+**Side effects of this correction:**
+- The vg_elastic strategic decision (A vs. B) is now unblocked: `/mnt/elastic_data` is confirmed load-bearing (OpenWebUI RAG). Option B (demote to scratch) is off the table until RAG migration completes. See [Watchlist — vg_elastic](#vg_elastic-linear-lv-is-exposed-to-a-mechanically-unreliable-nvme-carrier-strategic-decision-pending).
+- The "OTEL data streams rebuild after ES 9" watchlist item from 2026-06-27 has been removed — OTEL is on cloud, so local ES rebuild does not affect it.
+- New watchlist item added: [Claude Code prompt content egresses to Elastic Cloud](#claude-code-prompts-egress-to-elastic-cloud).
+
+Pages updated: [otelcol-contrib.md](platforms/otelcol-contrib.md), [services.md](services.md), [topology.md](topology.md), [elasticsearch-elser.md](platforms/elasticsearch-elser.md), [openwebui-rag.md](platforms/openwebui-rag.md), [schema.md](../../schema.md).
 
 ### 2026-06-27 — OpenTelemetry Pipeline Implemented (otelcol-contrib v0.155.0)
 
@@ -65,7 +82,7 @@ A complete OTLP telemetry pipeline was added to sheepsoc, following the Elastic 
 **New service — [OpenTelemetry Collector](platforms/otelcol-contrib.md) (`otelcol-contrib.service`):**
 - Installed from the official OpenTelemetry GitHub release `.deb` package (v0.155.0, checksum-verified, `sudo dpkg -i`).
 - Systemd unit enabled and active, running as system user `otelcol-contrib`.
-- Pipeline: `otlp` receiver → `cumulativetodelta` (metrics only) + `batch` processors → `elasticsearch` exporter (`http://127.0.0.1:9200`, user `elastic`, mapping mode `otel`). The `cumulativetodelta` processor is required because the ES exporter rejects cumulative-temporality histograms.
+- Pipeline: `otlp` receiver → `cumulativetodelta` (metrics only) + `batch` processors → `elasticsearch` exporter (Elastic Cloud 9.4.0 via HTTPS, API key auth, mapping mode `otel`). The `cumulativetodelta` processor is required because the ES exporter rejects cumulative-temporality histograms. *(Initial docs stated local ES as target; corrected 2026-06-28 — see history entry above.)*
 - All ports bound to `127.0.0.1` only — no LAN exposure, no UFW change: OTLP/gRPC `:4317`, OTLP/HTTP `:4318`, health `:13133`, self-metrics `:8889` (not default `:8888` — Jupyter occupies that port).
 - Config at `/etc/otelcol-contrib/config.yaml`; original backed up as `config.yaml.orig-20260627`.
 
@@ -81,7 +98,7 @@ A complete OTLP telemetry pipeline was added to sheepsoc, following the Elastic 
 **Data confirmed flowing (2026-06-27):**
 `logs-open_webui.otel-*`, `metrics-open_webui.otel-*`, `traces-open_webui.otel-*` — all confirmed. Claude Code streams (`logs/metrics-claude_code.otel-*`) will appear on the next new session.
 
-**Local Elasticsearch 8.19.14 reactivated for OTEL:** The local `elasticsearch.service` (marked decommissioned 2026-05-10 for RAG/research workloads, which moved to Elastic Cloud) is the current OTEL export target. The service is up and data flows are confirmed. The instance remains planned for a clean ES 9 rebuild. Two new watchlist items added: [OTEL data streams rebuild](#otel-data-streams-must-be-recreated-after-es-9-rebuild) and [metrics volume](#otel-metrics-volume-high-watch-item).
+**Note:** Initial docs stated local ES 8.19.14 as the OTEL export target. This was incorrect — the actual target is Elastic Cloud 9.4.0. Corrected 2026-06-28; see the history entry above. Local ES 8.19.14 serves OpenWebUI RAG vectors and is confirmed active. OTEL data streams land in the cloud cluster.
 
 Pages updated: [services.md](services.md), [topology.md](topology.md), [infrastructure/index.md](index.md), [openwebui-rag.md](platforms/openwebui-rag.md), [elasticsearch-elser.md](platforms/elasticsearch-elser.md), [schema.md](../../schema.md). New platform page: [otelcol-contrib.md](platforms/otelcol-contrib.md).
 

@@ -1,6 +1,6 @@
 # OpenTelemetry Collector
 
-**Purpose:** Central OTLP telemetry hub — receives traces, metrics, and logs from OpenWebUI and Claude Code and exports them to local Elasticsearch as structured data streams.
+**Purpose:** Central OTLP telemetry hub — receives traces, metrics, and logs from OpenWebUI and Claude Code and exports them to Elastic Cloud 9.4.0 as structured data streams.
 
 ## Overview
 
@@ -12,16 +12,16 @@ The collector implements a single pipeline:
 receivers [otlp] → processors [cumulativetodelta (metrics only), batch] → exporter [elasticsearch]
 ```
 
-Data lands in local [Elasticsearch 8.19.14](../services.md) as OTel-format data streams. As of 2026-06-27, traces, metrics, and logs from [OpenWebUI](openwebui-rag.md) are confirmed flowing. Claude Code telemetry will appear in new data streams once a new Claude Code session starts.
+Data lands in [Elastic Cloud 9.4.0](elasticsearch-elser.md) (GCP us-central1) as OTel-format data streams. As of 2026-06-27, traces, metrics, and logs from [OpenWebUI](openwebui-rag.md) are confirmed flowing. Claude Code telemetry will appear in new data streams once a new Claude Code session starts.
 
-!!! warning "Temporary Target — ES 9 Rebuild Pending"
-    This pipeline currently writes to the **local** Elasticsearch 8.19.14 cluster. This instance is planned for a clean ES 9 rebuild. All OTEL data streams and custom mappings will need to be recreated after that rebuild. See [Known Issues](../known-issues.md#otel-data-streams-must-be-recreated-after-es-9-rebuild).
+!!! warning "Privacy — Claude Code Content Egresses to Elastic Cloud"
+    Claude Code telemetry is configured with `OTEL_LOG_USER_PROMPTS=1` and `OTEL_LOG_TOOL_DETAILS=1`. **Full prompt text and tool-argument content is logged and exported to Elastic Cloud (GCP us-central1, cluster UUID `dab081df574b45cf894e33645053dfb3`).** This data leaves sheepsoc and is stored in a third-party cloud. See [Known Issues](../known-issues.md#claude-code-prompts-egress-to-elastic-cloud).
 
 This implementation follows the approach from the Elastic Security Labs article "Claude Code/Cowork monitoring at scale with Otel & Elastic". Grok Code was investigated but has no user-configurable OTLP-to-self-hosted path and was not pursued.
 
 ## Dependencies
 
-- [Elasticsearch (local, 127.0.0.1:9200)](../services.md) — **stores data in** — the only export target; the collector will fail to export if local ES is unavailable
+- [Elastic Cloud 9.4.0](elasticsearch-elser.md) (GCP us-central1, `gateway.es.us-central1.gcp.cloud.es.io:443`) — **stores data in** — the only export target; the collector will fail to export if the cloud cluster is unreachable
 - [OpenWebUI & RAG](openwebui-rag.md) — **monitored by** this collector via OTLP/gRPC; OpenWebUI sends traces, metrics, and logs when `ENABLE_OTEL=true` is configured
 - Claude Code — **monitored by** this collector via OTLP/gRPC when `CLAUDE_CODE_ENABLE_TELEMETRY=1` is set in `~/.claude/settings.json`
 
@@ -43,7 +43,7 @@ All ports are bound to `127.0.0.1` only. No LAN exposure. No UFW changes were ma
 | Path | Purpose |
 |---|---|
 | `/etc/otelcol-contrib/config.yaml` | Primary pipeline configuration (original backed up as `config.yaml.orig-20260627`) |
-| `/etc/otelcol-contrib/otelcol-contrib.conf` | Environment file injected into the systemd unit |
+| `/etc/otelcol-contrib/otelcol-contrib.conf` | Environment file injected into the systemd unit — **chmod 600, root-only** — contains the `ELASTICSEARCH_API_KEY` secret |
 
 ### Pipeline Summary
 
@@ -64,9 +64,8 @@ processors:
 
 exporters:
   elasticsearch:
-    endpoint: http://127.0.0.1:9200
-    user: elastic
-    password: <elastic-password>
+    endpoints: [https://gateway.es.us-central1.gcp.cloud.es.io:443]
+    api_key: ${env:ELASTICSEARCH_API_KEY}   # resolved from /etc/otelcol-contrib/otelcol-contrib.conf (chmod 600, root-only)
     mapping:
       mode: otel
 
@@ -113,14 +112,14 @@ pmabry@sheepsoc:~$ ss -tlnp | grep 431
 # Collector logs — most recent 50 lines
 pmabry@sheepsoc:~$ journalctl -u otelcol-contrib.service -n 50 --no-pager
 
-# Verify OTEL data streams exist in Elasticsearch
-pmabry@sheepsoc:~$ curl -s -u elastic:<password> \
-    "http://localhost:9200/_data_stream/logs-open_webui.otel-*" | python3 -m json.tool
+# Verify OTEL data streams exist — check in Kibana or via the Elastic Cloud REST API
+# (Data streams land in Elastic Cloud, not on local ES; no localhost:9200 path for this)
+# In Kibana: Stack Management → Index Management → Data Streams → filter "otel"
 ```
 
-## Data Streams in Elasticsearch
+## Data Streams in Elastic Cloud
 
-OTEL data lands in Elasticsearch using the OTel mapping mode. Index patterns follow Elastic's data stream naming convention, using the `data_stream.dataset` resource attribute set on each source.
+OTEL data lands in Elastic Cloud 9.4.0 (GCP us-central1) using the OTel mapping mode. Index patterns follow Elastic's data stream naming convention, using the `data_stream.dataset` resource attribute set on each source.
 
 | Data Stream Pattern | Source | `data_stream.dataset` | Status as of 2026-06-27 |
 |---|---|---|---|
@@ -131,17 +130,17 @@ OTEL data lands in Elasticsearch using the OTel mapping mode. Index patterns fol
 | `metrics-claude_code.otel-*` | Claude Code | `claude_code` | Appears on next new Claude Code session |
 
 !!! warning "Metrics Volume"
-    OpenWebUI system-metrics instrumentation generates approximately 100,000 metric documents per 30 minutes of light use, driven by the `opentelemetry-instrumentation-system-metrics` package at a 10-second export interval. On the constrained `vg_elastic` LVM volume, this growth rate warrants monitoring. If storage pressure increases, consider raising `OTEL_METRICS_EXPORT_INTERVAL_MILLIS` in the OpenWebUI drop-in or removing the system-metrics instrumentation package. See [Known Issues — OTEL Metrics Volume](../known-issues.md#otel-metrics-volume-high-watch-item).
+    OpenWebUI system-metrics instrumentation generates approximately 100,000 metric documents per 30 minutes of light use, driven by the `opentelemetry-instrumentation-system-metrics` package at a 10-second export interval. This data lands in Elastic Cloud — while there is no local disk pressure, high ingestion volume may affect cloud storage consumption. If the rate becomes a concern, consider raising `OTEL_METRICS_EXPORT_INTERVAL_MILLIS` in the OpenWebUI drop-in or removing the `opentelemetry-instrumentation-system-metrics` package from the `openwebui` conda env. See [Known Issues — OTEL Metrics Volume](../known-issues.md#otel-metrics-volume-high-watch-item).
 
 ## Known Issues / Gotchas
 
-- **Temporary Elasticsearch target:** Data currently flows to local ES 8.19.14, which is planned for a full ES 9 rebuild. OTEL data streams will not survive the rebuild automatically. See [Known Issues](../known-issues.md#otel-data-streams-must-be-recreated-after-es-9-rebuild).
+- **Claude Code prompt content egresses to Elastic Cloud:** With `OTEL_LOG_USER_PROMPTS=1` and `OTEL_LOG_TOOL_DETAILS=1` set, full prompt and tool-argument text is logged and sent to Elastic Cloud GCP us-central1. This data leaves sheepsoc. See [Known Issues](../known-issues.md#claude-code-prompts-egress-to-elastic-cloud).
 - **OpenWebUI crash-loop if packages are missing:** Enabling `ENABLE_OTEL=true` in the OpenWebUI drop-in without the 9 required OpenTelemetry Python packages installed in the `openwebui` conda env causes an immediate crash-loop. See [Known Issues](../known-issues.md#openwebui-crash-loop-with-enable_otel-true-without-packages) and [OpenWebUI — OpenTelemetry Configuration](openwebui-rag.md#opentelemetry-configuration) for the package list.
 - **Port 8889, not 8888:** The collector self-metrics port was moved from the default `8888` to `8889` because Jupyter already uses `8888`. Any tooling expecting Prometheus metrics at `:8888` must target `:8889` instead.
 
 ## See Also
 
 - [OpenWebUI & RAG](openwebui-rag.md) — **monitored by** this collector; OTEL configuration lives in a systemd drop-in on the OpenWebUI service
-- [Elasticsearch & ELSER](elasticsearch-elser.md) — **stores data in** — export target for all OTEL data streams
+- [Elasticsearch & ELSER](elasticsearch-elser.md) — **stores data in** — Elastic Cloud 9.4.0 is the export target for all OTEL data streams
 - [Services](../services.md) — service catalog entry, port reference, and health check commands
 - [Known Issues](../known-issues.md) — active watchlist items for this pipeline

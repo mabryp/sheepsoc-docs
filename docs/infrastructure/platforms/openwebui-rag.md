@@ -6,9 +6,9 @@
 |---|---|
 | Interface | OpenWebUI · [192.168.50.100:8080](http://192.168.50.100:8080) |
 | Embedding | `nomic-embed-text:latest` via Ollama · 768 dimensions |
-| Vector store | Elasticsearch Cloud 9.4.0 · `open_webui_collections_d768` (HNSW/cosine dense + ELSER sparse) · ties to research indexes |
+| Vector store | **Elasticsearch 8.19.14 (local, `127.0.0.1:9200`)** · `open_webui_collections_d768` (HNSW/cosine dense + ELSER sparse) · migration to Elastic Cloud planned but not yet done |
 | Research | [RAG Experiments](../research/rag-experiments.md) in `~/jupyter/rag_experiments/` (replaces old Streamlit; provides hybrid benchmarks, golden eval) |
-| Updated | 2026-05-30 |
+| Updated | 2026-06-28 |
 
 !!! note "Primary Interface"
     **OpenWebUI** is the only supported RAG interface on sheepsoc. All document ingestion, Knowledge base management, and AI-assisted querying is done through OpenWebUI at `:8080`. A legacy CLI RAG prototype exists at `~/repositories/sheepsoc` but is no longer maintained — see the [Legacy / Deprecated section](#legacy-cli-rag-prototype-deprecated) at the bottom of this page.
