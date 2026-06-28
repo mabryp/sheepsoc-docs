@@ -70,6 +70,7 @@ nav:
       - Nightly Backups: infrastructure/runbooks/nightly-backups.md
       - Tailscale Operations: infrastructure/runbooks/tailscale-ops.md
       - Vaultwarden Bootstrap: infrastructure/runbooks/vaultwarden-bootstrap.md
+      - LastPass to Vaultwarden Migration: infrastructure/runbooks/lastpass-migration.md
     - Backup & Recovery:
       - Config Backup & Encryption: infrastructure/backup-and-recovery/config-backup.md
       - GitHub & RAG Sync: infrastructure/backup-and-recovery/github-rag-sync.md

@@ -327,6 +327,7 @@ Vaultwarden is not reachable from the LAN. A client that is not enrolled in Phil
 ## Runbooks
 
 - [Vaultwarden Bootstrap](../runbooks/vaultwarden-bootstrap.md) — push catalog-defined credentials into Vaultwarden using the Python bootstrap tool
+- [LastPass to Vaultwarden Migration](../runbooks/lastpass-migration.md) — bulk import of LastPass web logins via `bw import`
 
 ## See Also
 

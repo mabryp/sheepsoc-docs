@@ -204,6 +204,23 @@ For the complete step-by-step procedure including integrity verification, see:
 
 See also [Vaultwarden — Backup](../infrastructure/platforms/vaultwarden.md#backup) for backup schedule, encryption details, and off-site status.
 
+## 9. Migrate LastPass Credentials into Vaultwarden
+
+!!! note "Dedicated Runbook"
+    Full step-by-step procedure, security warnings (plaintext CSV handling, master password pre-flight, shredding), and post-migration pruning guidance live on the dedicated runbook: **[LastPass to Vaultwarden Migration](../infrastructure/runbooks/lastpass-migration.md)**
+
+Quick sequence:
+
+1. Pre-flight — run `bw unlock` and confirm the master password works **before** exporting from LastPass. If it is forgotten, reset the account now while the vault is empty (see the runbook for the reset path via the admin panel).
+2. Export from LastPass: **LastPass web vault → Advanced Options → Export**.
+3. Move the CSV to `/tmp/vw-import/` (mode 600). Do not write it under `~/infrastructure/` or `/mnt/data_extra/` — both are backed up, including off-site to Google Drive.
+4. Unlock for a non-interactive session: `export BW_SESSION=$(bw unlock --raw)`
+5. Import: `bw import lastpasscsv /tmp/vw-import/lastpass_export.csv` (confirm format identifier with `bw import --formats` first)
+6. Verify item count and spot-check entries in the vault UI at `https://sheepsoc-1.tail0f68e4.ts.net:8444/`
+7. Shred immediately: `shred -u /tmp/vw-import/lastpass_export.csv && rmdir /tmp/vw-import`
+8. Lock and clear: `bw lock && unset BW_SESSION`
+9. Prune stale/dead entries from the vault UI at your own pace.
+
 ## 10. Push New Credentials into Vaultwarden
 
 When a new service is added to sheepsoc and introduces credentials, those credentials should be imported into Vaultwarden using the bootstrap tool.
