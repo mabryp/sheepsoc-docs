@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Rule | Read this before making infrastructure changes |
-| Last reviewed | 2026-06-28 |
+| Last reviewed | 2026-06-28 (SAN01 restored) |
 
 ## Active Landmines — Do Not Touch
 
@@ -17,9 +17,6 @@
     - Disable or memory-limit NDM before deploying any workload.
     - Decide a PV strategy up front — the `k8s_*` mounts are reserved for this.
     - Re-plan previous workloads (Elasticsearch in-cluster, pfSense, etc.) — some may stay on the host instead.
-
-!!! danger "Do Not"
-    **NFS mount to `san01.mabry.lan`: keep fstab line commented.** The NFS server is offline. Uncommenting the mount will hang boot while the kernel retries. Only restore after the NFS server is back *and* reachable from sheepsoc.
 
 !!! danger "Do Not"
     **NVIDIA driver: do not update without checking.** Current combination is driver **570.169** / CUDA **12.8** on the RTX 5060 Ti, and [Ollama](services.md) is stable on it. The 5060 Ti needs a modern driver — rolling forward incautiously can leave the GPU in a broken state and take Ollama inference offline. Plan the upgrade, have a rollback, and announce before running `apt upgrade` on the NVIDIA packages.
@@ -57,6 +54,33 @@
     **A vs. B decision: `/mnt/elastic_data` IS load-bearing (confirmed 2026-06-28).** Local ES 8.19.14 actively serves [OpenWebUI](platforms/openwebui-rag.md) RAG vectors — the `open_webui_collections_d768` index (~1.9 GB) is on `/mnt/elastic_data` and queried on every RAG interaction. Option B (demote to scratch) would take OpenWebUI RAG offline and is **not viable** until RAG is migrated to Elastic Cloud. Option A (mirror) or Option C (hardware fix) are the appropriate paths. Option C remains recommended regardless.
 
 ## History Log
+
+### 2026-06-28 — SAN01 NFS Server Restored; Boot-Safe fstab Entry
+
+SAN01 (Synology DiskStation NAS) was offline from approximately April 2026. As of 2026-06-28 it is back online and the NFS mount on sheepsoc has been restored.
+
+**SAN01 network details:**
+
+- IP: `192.168.50.165` (static DHCP reservation on ASUS RT-AX5400, MAC `00:11:32:88:3b:5b`)
+- Hostnames: `san01.mabry.lan` / `san01`
+- Exports: `/volume1/NFS_Share` to sheepsoc (`192.168.50.100`) only, via NFSv3
+- Volume capacity: ~11 TB total · 2.1 TB used · 8.8 TB free
+- DSM web UI: `http://192.168.50.165:5000` (HTTP) · `https://192.168.50.165:5001` (HTTPS)
+- SSH and SMB/NFS services confirmed up
+
+**DNS fix on sheepsoc:** `/etc/hosts` had a stale entry mapping `san01.mabry.lan` to the old dead address `192.168.50.117`. Corrected to `192.168.50.165`. Backup: `/etc/hosts.bak-2026-06-28`. Neither the ASUS router nor OPNsense (`.253`) has a DNS record for `san01` — resolution relies on `/etc/hosts` on sheepsoc only.
+
+**fstab entry restored with boot-safe options:** The previous fstab line was commented out because the NFS server was offline — an uncommented NFS mount without `nofail` will hang boot while the kernel retries the network mount. The entry has been restored with options that eliminate this risk:
+
+```
+san01.mabry.lan:/volume1/NFS_Share /mnt/nfs nfs _netdev,nfsvers=3,nofail,x-systemd.automount,x-systemd.mount-timeout=30 0 0
+```
+
+Key flags: `nofail` causes a missing NAS to be silently skipped at boot; `x-systemd.automount` defers the actual mount until first access (the path exists but nothing is contacted until a process accesses `/mnt/nfs`); `x-systemd.mount-timeout=30` bounds the hang on first access if the server is unreachable. The mount is read-write and was verified working. Backup: `/etc/fstab.bak-2026-06-28`.
+
+**Resolved known issue:** The "NFS mount to `san01.mabry.lan`: keep fstab line commented" Active Landmine has been removed. See `Pre-2026-04-18 — NFS Server Outage` in the history below.
+
+Pages updated: [topology.md](topology.md), [services.md](services.md), [lab-operations/sops.md](../lab-operations/sops.md), [runbooks/shutdown-startup.md](runbooks/shutdown-startup.md), this page.
 
 ### 2026-06-28 — OTEL Exporter Corrected to Elastic Cloud; OpenWebUI RAG Accuracy Fixed
 
@@ -341,4 +365,4 @@ OpenEBS NDM memory leak ballooned to 247 GB of RAM. The machine became unrespons
 
 ### Pre-2026-04-18 — NFS Server Outage
 
-`san01.mabry.lan` went down. Its entry in `/etc/fstab` was commented to keep boot from hanging. Still offline as of last review.
+`san01.mabry.lan` went down. Its entry in `/etc/fstab` was commented to keep boot from hanging — an uncommented NFS mount without `nofail` retries at boot and can stall the boot sequence for minutes. **Resolved 2026-06-28:** SAN01 came back online. The fstab entry was restored with `nofail,x-systemd.automount,x-systemd.mount-timeout=30` so a future outage will not cause a boot hang. See the [2026-06-28 history entry above](#2026-06-28-san01-nfs-server-restored-boot-safe-fstab-entry) for full details.

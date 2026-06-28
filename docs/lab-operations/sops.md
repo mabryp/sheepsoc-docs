@@ -269,8 +269,8 @@ The runbook covers the correct stop order (OpenWebUI → Elasticsearch → Ollam
 !!! danger "Do Not"
     **Do not start MicroK8s.** The previous install's OpenEBS NDM leaked to 247 GB, starved the machine, and drove load average to 100+. The cluster is stopped until a proper rebuild plan exists. See [Known Issues](../infrastructure/known-issues.md).
 
-!!! danger "Do Not"
-    **Do not uncomment the NFS entry in `/etc/fstab`.** `san01.mabry.lan` is offline — uncommenting it will hang boot. Only restore after the NFS server is back and reachable.
+!!! note "NFS Mount — Restored and Boot-Safe (2026-06-28)"
+    The `/etc/fstab` entry for `san01.mabry.lan:/volume1/NFS_Share → /mnt/nfs` is **active** as of 2026-06-28. This entry was previously commented out because the NAS was offline — an uncommented NFS mount without `nofail` will hang boot while the kernel retries the network mount. It is now restored with boot-safe options: `_netdev,nfsvers=3,nofail,x-systemd.automount,x-systemd.mount-timeout=30`. The `nofail` flag means a dead NAS will not block boot; `x-systemd.automount` means the kernel does not contact the NAS until a process first accesses `/mnt/nfs`. If SAN01 goes offline again, the mount will fail silently on access — it will not hang the machine. See [Known Issues — history](../infrastructure/known-issues.md#2026-06-28-san01-nfs-server-restored-boot-safe-fstab-entry) for the full record.
 
 !!! danger "Do Not"
     **Do not update the NVIDIA driver without checking first.** The RTX 5060 Ti currently runs 570.169 / CUDA 12.8 and Ollama is stable on this combo. Unplanned updates can take GPU inference offline.

@@ -47,6 +47,7 @@ Sheepsoc lives on a flat home LAN behind an ASUS router that does DHCP and upstr
  Logs      : ASUS + OPNsense → sheepsoc:5514/udp (Logstash) → Elasticsearch
  Remote    : Tailscale WireGuard overlay · no inbound port-forwarding needed
  Samsung TV: 192.168.50.175 (DHCP from ASUS); full network control via tv_control.py script (WoL for power-on + websocket volume/keys/pairing/--youtube-search using YouTube app ID 111299001912; see expanded runbook)
+ SAN01 (NAS): 192.168.50.165 (static DHCP from ASUS, MAC 00:11:32:88:3b:5b) · san01.mabry.lan / san01 · Synology DiskStation · NFSv3 /volume1/NFS_Share → /mnt/nfs on sheepsoc (systemd automount, nofail) · DSM web UI http://192.168.50.165:5000 · DNS via /etc/hosts on sheepsoc only (no router DNS record)
 ```
 
 | Key | Value |
@@ -57,6 +58,7 @@ Sheepsoc lives on a flat home LAN behind an ASUS router that does DHCP and upstr
 | sheepsoc | 192.168.50.100 · static on `eno1` · `sheepsoc.mabry.lan` · Tailscale `100.117.117.43` |
 | Printer | 192.168.50.213 · admin console |
 | Samsung TV | 192.168.50.175 (DHCP) · MAC `54:3A:D6:5D:B0:EC` · hostname "Samsung" · [Samsung TV Network Control runbook](runbooks/wol-samsung-tv.md) (wired Ethernet, WoL + Network Remote enabled, tv_control.py for volume-first control, pairing, --youtube-search; integrates 2026-05-30 tests; verified) |
+| SAN01 (NAS) | 192.168.50.165 · static DHCP (MAC `00:11:32:88:3b:5b`, ASUS RT-AX5400) · `san01.mabry.lan` / `san01` · Synology DiskStation · NFSv3 `/volume1/NFS_Share` → `/mnt/nfs` on sheepsoc · DSM at `http://192.168.50.165:5000` · DNS via `/etc/hosts` on sheepsoc only (restored 2026-06-28; was offline ~April 2026) |
 | Scope | LAN + Tailscale remote access (WireGuard overlay, no inbound WAN port-forwarding) |
 
 ## Remote Access — Tailscale
@@ -80,7 +82,7 @@ To reach any sheepsoc service remotely, substitute `100.117.117.43` for `192.168
 
 ## Host Layout
 
-**LAN Devices (updated 2026-05-30):** In addition to sheepsoc, the flat 192.168.50.0/24 includes OPNsense (.253), Printer (.213), and **Samsung TV** (.175 DHCP, MAC 54:3A:D6:5D:B0:EC, WoL + full websocket control capable via tv_control.py including new --youtube-search). See updated network diagram above and expanded [Samsung TV Network Control runbook](runbooks/wol-samsung-tv.md) (includes tv_control.py usage for volume, keys, YouTube search via run_app+send_text, pairing, integration with prior WoL test).
+**LAN Devices (updated 2026-06-28):** In addition to sheepsoc, the flat 192.168.50.0/24 includes OPNsense (.253), Printer (.213), **Samsung TV** (.175 DHCP, MAC 54:3A:D6:5D:B0:EC, WoL + full websocket control capable via tv_control.py including --youtube-search; see [Samsung TV Network Control runbook](runbooks/wol-samsung-tv.md)), and **SAN01** (.165 static DHCP, Synology NAS, NFS share `/volume1/NFS_Share` mounted at `/mnt/nfs` on sheepsoc via NFSv3 systemd automount). See the network diagram and key table above for IP and MAC details. SAN01 was offline from ~April 2026; restored 2026-06-28.
 
 Everything on sheepsoc itself runs as systemd units — no containers for the primary stack. MicroK8s is installed but stopped pending a rebuild (see [Known Issues](known-issues.md)).
 
@@ -108,14 +110,15 @@ sheepsoc  (192.168.50.100 · tailscale 100.117.117.43)
 │  └─ datawrangler     # data work
 ├─ docker compose stacks
 │  └─ /mnt/ssd_working/emulatorjs/      # RomM + MariaDB (romm :3080, db internal)
+├─ network mounts (NFS)
+│  └─ /mnt/nfs → san01.mabry.lan:/volume1/NFS_Share  (NFSv3, systemd automount, nofail; restored 2026-06-28)
 ├─ applications
 │  ├─ ~/repositories/sheepsoc/          # legacy CLI RAG prototype + bulk-ingest script
 │  ├─ ~/repositories/sheepsoc_refactor/ # refactor in progress
 │  ├─ ~/repositories/embedding_testing/ # embedding experiments
 │  └─ ~/repositories/pytorch/           # PyTorch experiments
 └─ stopped / dormant
-   ├─ snap.microk8s.*  [stopped, do not start — see Known Issues]
-   └─ NFS mount to san01.mabry.lan [fstab commented, server down]
+   └─ snap.microk8s.*  [stopped, do not start — see Known Issues]
 ```
 
 ## Hardware
@@ -131,7 +134,7 @@ The dual-socket CPU means two NUMA nodes. For most of what this box does (Ollama
 
 ## Storage Map
 
-*Last updated: 2026-05-14 (evening) — PNY 4TB SSD repartitioned to single partition; P3-1TB formatted and mounted. See [Known Issues — history](known-issues.md#2026-05-14-evening-storage-reshuffle-pny-4tb-repartitioned-and-p3-1tb-commissioned) for details.*
+*Last updated: 2026-06-28 — SAN01 NFS share restored and added to mounts. See [Known Issues — history](known-issues.md#2026-06-28-san01-nfs-server-restored-boot-safe-fstab-entry). Prior update 2026-05-14 (evening) — PNY 4TB SSD repartitioned to single partition; P3-1TB formatted and mounted.*
 
 ### Physical Drives
 
@@ -161,6 +164,7 @@ The dual-socket CPU means two NUMA nodes. For most of what this box does (Ollama
 | `/mnt/elastic_data` | LV `lv_elastic_data` in `vg_elastic` | ext4 | 3.6 TiB | 3% (87 GiB) | Elasticsearch data — see note below |
 | `/mnt/ssd_working` | `sda1` (single partition spanning full disk) | ext4 | 3.6 TiB | 2% (48 GiB) | General working storage — label `ssd_working`, UUID `a08d2cf0-5d95-4616-9dbe-54b1595df98d` |
 | `/mnt/data_extra` | `sdb1` | ext4 | ~938 GiB | ~0% (empty) | Bulk additional data storage — label `data_extra`, UUID `207e03a8-dbe0-4025-9f1e-6c9d4bd13e5c` |
+| `/mnt/nfs` | `san01.mabry.lan:/volume1/NFS_Share` | NFS (NFSv3) | ~11 TB (8.8 TB free as of 2026-06-28) | ~19% | Synology DiskStation NAS · systemd automount (`nofail`, `x-systemd.automount`) — does not appear in `df -h` until first accessed · exports to sheepsoc only |
 
 **LVM volume groups:**
 

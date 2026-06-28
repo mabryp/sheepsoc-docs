@@ -23,6 +23,7 @@ Every service running on sheepsoc, its systemd unit name, port, and current oper
 | **Tailscale** | `tailscaled.service` | — (WireGuard overlay) | Mesh VPN for remote access · tailnet `tail0f68e4` · IP `100.117.117.43` · MagicDNS `sheepsoc-1.tail0f68e4.ts.net` · no subnet routing, no exit node — see [Tailscale](platforms/tailscale.md) | up |
 | **cron** | `cron.service` | — | Scheduled tasks | up |
 | **MicroK8s** | `snap.microk8s.*` | — | Kubernetes — *stopped*, needs rebuild | **hold** |
+| **SAN01 NFS share** | `/etc/fstab` · `san01.mabry.lan:/volume1/NFS_Share → /mnt/nfs` | 2049/tcp (NFS) | Synology DiskStation NAS · NFSv3 · ~11 TB volume (8.8 TB free as of 2026-06-28) · systemd automount (`_netdev,nofail,x-systemd.automount,x-systemd.mount-timeout=30`) · exports to sheepsoc (`192.168.50.100`) only · DNS via `/etc/hosts` (no router DNS record) — see [Topology — Storage Map](topology.md#storage-map) | up |
 | **Matrix Bot** | `matrix-bot.service` | — | E2EE Matrix bot (`@sheepsoc-bot:matrix.pmabry.com`) · bridges Element rooms to OpenWebUI RAG + Ollama · runs in `matrixbot` conda env — see [Matrix Bot](platforms/matrix-bot.md) | up |
 | **Vaultwarden** | `docker compose` (`/home/pmabry/infrastructure/vaultwarden/`) | 8222 (loopback) | Self-hosted Bitwarden-compatible password and secrets manager · replacing LastPass · bound to `127.0.0.1:8222` only · exposed to tailnet at `https://sheepsoc-1.tail0f68e4.ts.net:8444/` via Tailscale Serve · no LAN UFW rule — see [Vaultwarden](platforms/vaultwarden.md) | up |
 | **RomM / EmulatorJS** | `docker compose` (`/mnt/ssd_working/emulatorjs/`) | 3080 | Self-hosted ROM library manager with integrated in-browser retro emulator (EmulatorJS) · two containers: `romm` (rommapp/romm:latest, 4.8.1) + `romm-db` (MariaDB) · LAN UFW rule + tailnet via `tailscale serve` :10004 · no metadata API keys configured yet — see [RomM / EmulatorJS](platforms/romm-emulatorjs.md) | up |
@@ -127,6 +128,7 @@ All web interfaces are restricted to `192.168.50.0/24` via UFW on the LAN interf
 | RomM / EmulatorJS | `http://192.168.50.100:3080` | `https://sheepsoc-1.tail0f68e4.ts.net:10004/` | ROM library + in-browser emulator · tailnet URL is HTTPS (secure context) — enables SharedArrayBuffer / multi-threaded cores in EmulatorJS |
 | ASUS router | `http://192.168.50.1` | — | Gateway admin |
 | OPNsense | `https://192.168.50.253` | — | Self-signed cert |
+| SAN01 DSM | `http://192.168.50.165:5000` (HTTP) · `https://192.168.50.165:5001` (HTTPS) | — | Synology DiskStation Manager admin UI · not UFW-gated (NAS is on LAN only) |
 
 Tailnet URLs use auto-provisioned Let's Encrypt certs. For configuration details, the port-numbering convention, and management commands, see [Tailscale — Tailscale Serve](platforms/tailscale.md#tailscale-serve).
 

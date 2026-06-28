@@ -149,8 +149,8 @@ After booting, confirm all services are up and healthy before relying on the sys
     | `/mnt/k8s_ssd_1` | ~1.8 TB |
     | `/mnt/k8s_nvme_1` (and `_2`, `_3`) | ~900 GB each |
 
-    !!! warning "NFS"
-        The `san01.mabry.lan` NFS share is **not mounted**. Its fstab entry is commented out because the NFS server is currently down. Do not uncomment it until the NFS server is restored.
+    !!! note "NFS automount — /mnt/nfs (restored 2026-06-28)"
+        The `san01.mabry.lan` NFS share mounts at `/mnt/nfs` via systemd automount and **will not appear in `df -h` until first accessed**. This is expected and normal. To verify the mount is reachable: `ls /mnt/nfs` (this triggers the automount). The fstab entry was previously commented out because the NAS was offline — an uncommented NFS mount without `nofail` hangs boot. As of 2026-06-28, SAN01 is restored and the entry uses `nofail,x-systemd.automount,x-systemd.mount-timeout=30`, so a missing NAS does not block boot or startup. See [Known Issues — history](../known-issues.md#2026-06-28-san01-nfs-server-restored-boot-safe-fstab-entry).
 
 7. **Check for DKMS or PCIe errors.**
 
