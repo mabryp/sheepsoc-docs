@@ -129,6 +129,9 @@ OTEL data lands in Elastic Cloud 9.4.0 (GCP us-central1) using the OTel mapping 
 | `logs-claude_code.otel-*` | Claude Code | `claude_code` | Appears on next new Claude Code session |
 | `metrics-claude_code.otel-*` | Claude Code | `claude_code` | Appears on next new Claude Code session |
 
+!!! note "Ollama Logs Use a Different Path — Not This Collector"
+    Ollama service logs do **not** travel through this collector. They are shipped by [Filebeat](log-shipping.md) to the `logs-ollama-otel` ingest pipeline on Elastic Cloud, which reshapes them into the OTel log schema and stores them in `logs-ollama.otel-default`. The result is schema-compatible with the data streams in the table above, but the ingestion path is Filebeat → cloud ingest pipeline, not OTLP → this collector. See [Log Shipping — Filebeat & Logstash](log-shipping.md) for full details.
+
 !!! warning "Metrics Volume"
     OpenWebUI system-metrics instrumentation generates approximately 100,000 metric documents per 30 minutes of light use, driven by the `opentelemetry-instrumentation-system-metrics` package at a 10-second export interval. This data lands in Elastic Cloud — while there is no local disk pressure, high ingestion volume may affect cloud storage consumption. If the rate becomes a concern, consider raising `OTEL_METRICS_EXPORT_INTERVAL_MILLIS` in the OpenWebUI drop-in or removing the `opentelemetry-instrumentation-system-metrics` package from the `openwebui` conda env. See [Known Issues — OTEL Metrics Volume](../known-issues.md#otel-metrics-volume-high-watch-item).
 
@@ -213,10 +216,12 @@ A `cacheRead` share of ~93% (as observed) represents the cost-efficient operatin
 - **OpenWebUI crash-loop if packages are missing:** Enabling `ENABLE_OTEL=true` in the OpenWebUI drop-in without the 9 required OpenTelemetry Python packages installed in the `openwebui` conda env causes an immediate crash-loop. See [Known Issues](../known-issues.md#openwebui-crash-loop-with-enable_otel-true-without-packages) and [OpenWebUI — OpenTelemetry Configuration](openwebui-rag.md#opentelemetry-configuration) for the package list.
 - **Port 8889, not 8888:** The collector self-metrics port was moved from the default `8888` to `8889` because Jupyter already uses `8888`. Any tooling expecting Prometheus metrics at `:8888` must target `:8889` instead.
 - **`attributes.type` field-type conflict across metrics data streams (2026-06-28):** `metrics-claude_code.otel-default` maps `attributes.type` as `keyword`; `metrics-open_webui.otel-default` maps it as `long`. A Kibana data view spanning both streams (`metrics-*.otel-*`) sees the field as conflicted and hides it from Lens aggregations and breakdowns, blocking unified cross-source dashboards that break down by token or event type. **Workaround:** use per-source data views. **Possible fix:** add an `attributes` or `transform` processor to the collector pipeline to normalize the field before export, or remap the field type in one data stream's index template. See [Known Issues — OTEL `attributes.type` field conflict](../known-issues.md#otel-attributes-type-field-conflict).
+- **Shared API key with Filebeat and Logstash (2026-06-29):** The `ELASTICSEARCH_API_KEY` used by this collector is the same key configured in [Filebeat and Logstash](log-shipping.md). Revoking or rotating the key will simultaneously break this collector and both log shippers. A scoped/derived key could not be minted — the parent key forbids derived keys with elevated privileges. See [Known Issues — Shared Cloud API Key](../known-issues.md#shared-elastic-cloud-api-key-couples-filebeat-logstash-and-otelcol-contrib).
 
 ## See Also
 
 - [OpenWebUI & RAG](openwebui-rag.md) — **monitored by** this collector; OTEL configuration lives in a systemd drop-in on the OpenWebUI service
 - [Elasticsearch & ELSER](elasticsearch-elser.md) — **stores data in** — Elastic Cloud 9.4.0 is the export target for all OTEL data streams
+- [Log Shipping — Filebeat & Logstash](log-shipping.md) — **see also** — ships Ollama journald and network device syslog to cloud via a separate Beats/Logstash path; shares the cloud API key with this collector
 - [Services](../services.md) — service catalog entry, port reference, and health check commands
 - [Known Issues](../known-issues.md) — active watchlist items for this pipeline

@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Rule | Read this before making infrastructure changes |
-| Last reviewed | 2026-06-28 (SAN01 restored) |
+| Last reviewed | 2026-06-29 (Filebeat/Logstash migrated to cloud) |
 
 ## Active Landmines — Do Not Touch
 
@@ -55,7 +55,41 @@
 
 - **OTEL `attributes.type` field-type conflict across metrics data streams (2026-06-28):** The `attributes.type` field is mapped inconsistently between the two OTEL metrics data streams in Elastic Cloud 9.4.0 (`gateway.es.us-central1.gcp.cloud.es.io`): `metrics-claude_code.otel-default` maps it as `keyword` (string values: `input`, `output`, `cacheRead`, `cacheCreation`, `cli`, `user`, `added`, `removed`), while `metrics-open_webui.otel-default` maps it as `long` (numeric). A Kibana data view spanning both streams (`metrics-*.otel-*`) sees `attributes.type` as a conflicted field and hides it from Lens aggregations and breakdowns. **Impact:** unified cross-source dashboards that break down by `attributes.type` cannot be built using the wildcard data view. **Severity: medium** — ingest is unaffected; the conflict impacts only Kibana analysis. **Workaround:** use per-source data views (e.g. `metrics-claude_code.otel-default`) where the field type is unambiguous; the Claude Code token/cost dashboards use this approach. **Possible fixes (not yet decided):** normalize or rename the field for one source at the [OpenTelemetry Collector](platforms/otelcol-contrib.md) using an `attributes` or `transform` processor, or remap the field type in one data stream's index template; to be evaluated as part of a broader OTEL index-mapping review. {: #otel-attributes-type-field-conflict }
 
+- **System and firewall log egress to Elastic Cloud GCP (2026-06-29):** Filebeat now ships the full **system journal** (including auth events, sudo commands, and SSH activity) to the `filebeat-8.18.3` data stream in Elastic Cloud 9.4.0 (GCP us-central1). Logstash ships **OPNsense firewall syslog** (confirmed) and **ASUS RT-AX5400 syslog** (pending) to `logs-syslog.*-default` data streams in the same cluster. This security-relevant data leaves sheepsoc and is stored on a third-party cloud. Phillip explicitly authorized this on 2026-06-29. To stop egress: disable the relevant inputs in `/home/pmabry/infrastructure/filebeat/filebeat-8.18.3-linux-x86_64/filebeat.yml` and restart Filebeat. See [Log Shipping](platforms/log-shipping.md). {: #system-and-firewall-log-egress-to-elastic-cloud }
+
+- **ASUS syslog not arriving after Logstash migration to cloud (2026-06-29):** Logstash is configured to route ASUS RT-AX5400 syslog (source `192.168.50.1`, port 5514) to the `logs-syslog.asus-default` data stream in Elastic Cloud. As of 2026-06-29 no documents are arriving. The Logstash output block is correctly configured; the issue is likely on the ASUS router side (syslog destination IP/port in NVRAM settings). The 2026-04-20 history entry documents the original ASUS syslog setup that was working with local ES. **Watch item:** verify ASUS NVRAM `log_remote`, `log_ipaddr`, and `log_port` settings and confirm UDP/TCP 5514 connectivity from `192.168.50.1` to sheepsoc. See [Log Shipping](platforms/log-shipping.md). {: #asus-syslog-not-arriving-after-logstash-migration-to-cloud }
+
+- **Shared Elastic Cloud API key couples Filebeat, Logstash, and otelcol-contrib (2026-06-29):** All three services — [Filebeat](platforms/log-shipping.md), [Logstash](platforms/log-shipping.md), and the [OpenTelemetry Collector](platforms/otelcol-contrib.md) — authenticate to Elastic Cloud 9.4.0 using the same API key. The key is stored inline in `filebeat.yml` (root:root 600) and `99-elasticsearch-output.conf` (root:logstash 640), and as `ELASTICSEARCH_API_KEY` in `/etc/otelcol-contrib/otelcol-contrib.conf` (root-only 600). A scoped/derived key could not be minted — the parent key forbids creating derived keys with elevated privileges. **Impact:** revoking or rotating the key requires updating all three config files simultaneously and restarting all three services. Plan any key rotation as a coordinated operation. {: #shared-elastic-cloud-api-key-couples-filebeat-logstash-and-otelcol-contrib }
+
 ## History Log
+
+### 2026-06-29 — Filebeat and Logstash Repointed from Local ES to Elastic Cloud
+
+Filebeat 8.18.3 and Logstash were reconfigured to ship directly to **Elastic Cloud 9.4.0** (`gateway.es.us-central1.gcp.cloud.es.io:443`) using the shared cloud API key. Both were previously shipping to local Elasticsearch 8.19.14 (`127.0.0.1:9200`) as the `beats_writer` custom user. This is part of the local-ES decommission / migration-to-cloud effort.
+
+**Filebeat changes:**
+- Output switched from local ES (HTTP, `beats_writer`) to Elastic Cloud (HTTPS, API key).
+- Three inputs: journald `ollama.service` (with `pipeline: logs-ollama-otel`), journald system journal, filestream `~/repositories/sheepsoc/logs/*.log`.
+- `filebeat setup --index-management` run against cloud to provision the `filebeat-8.18.3` template and ILM policy (cloud had no prior Filebeat templates).
+- Config: `/home/pmabry/infrastructure/filebeat/filebeat-8.18.3-linux-x86_64/filebeat.yml` (root:root 600). Backup: `filebeat.yml.bak-20260629`.
+
+**Cloud ingest pipeline `logs-ollama-otel` created:**
+- Reshapes Ollama journald events into the OTel log schema; lands in `logs-ollama.otel-default`.
+- Parses structured `time=…level=…source=…msg=…` lines and GIN HTTP access logs; drops llama.cpp runner noise lines.
+- **Key gotcha:** routing uses `set _index = logs-ollama.otel-default`, NOT the `reroute` processor. `reroute` silently drops every doc because `filebeat-8.18.3` is not a valid `type-dataset-namespace` data stream name — `reroute` validates the source name before routing and throws `invalid data stream name` on non-conforming names. See [Log Shipping — Ingest Pipeline Gotcha](platforms/log-shipping.md#ingest-pipeline----logs-ollama-otel).
+
+**Logstash changes:**
+- All three ES output blocks in `/etc/logstash/conf.d/99-elasticsearch-output.conf` switched from HTTP + `beats_writer`/password to HTTPS + API key (`ssl_enabled => true`).
+- Data streams: `logs-syslog.opnsense-default` (confirmed ~400+ docs), `logs-syslog.asus-default` (not arriving — watch item), `logs-syslog.other-default`.
+- Config permissions tightened from `644` world-readable (had `beats_writer` password in plaintext) to `640 root:logstash`. Backup: `99-elasticsearch-output.conf.bak-20260629`.
+
+**Auth note:** Filebeat, Logstash, and the [OpenTelemetry Collector](platforms/otelcol-contrib.md) all share one Elastic Cloud API key. Revoking the key breaks all three simultaneously. A scoped/derived key could not be minted.
+
+**Privacy:** System journal (auth, sudo, SSH events), Ollama logs, and OPNsense/ASUS firewall syslog now egress to Elastic Cloud GCP us-central1. Phillip explicitly authorized this.
+
+**New watchlist items added:** system/firewall log egress to cloud; ASUS syslog not arriving; shared API key coupling.
+
+Pages updated: [platforms/log-shipping.md](platforms/log-shipping.md) (new page), [services.md](services.md), [platforms/elasticsearch-elser.md](platforms/elasticsearch-elser.md), [platforms/otelcol-contrib.md](platforms/otelcol-contrib.md), [platforms/ollama.md](platforms/ollama.md), [infrastructure/index.md](index.md), [schema.md](../../schema.md), this page.
 
 ### 2026-06-28 — Claude Code Token & Cost Dashboard Built in Elastic Cloud Kibana
 

@@ -12,8 +12,8 @@ Every service running on sheepsoc, its systemd unit name, port, and current oper
 | **Vikunja** | `vikunja.service` | 3000 | Self-hosted kanban / task manager — **to be decommissioned** (see Monday board) | up |
 | **Elasticsearch (local)** | `elasticsearch.service` | 9200 | ES 8.19.14 (local, `/mnt/elastic_data`) — **active; serves [OpenWebUI](platforms/openwebui-rag.md) RAG vectors** (`open_webui_collections_d768`, HNSW/cosine + ELSER, ~1.9 GB). Research workloads and OTEL data streams use **Elastic Cloud 9.4.0** (GCP us-central1). Migration of OpenWebUI RAG to Elastic Cloud is planned but not yet done. This instance is targeted for a clean ES 9 rebuild after RAG migration completes. | up |
 | **Kibana** | `kibana.service` | 5601 | Log & metrics visualization (Filebeat / Metricbeat / syslog) | up |
-| **Logstash** | `logstash.service` | 5514/udp | Syslog ingestion from ASUS router + OPNsense | up |
-| **Filebeat** | `filebeat.service` | — | Ships local log files to Elasticsearch | up |
+| **Logstash** | `logstash.service` | 5514/udp | Syslog receiver from ASUS router + OPNsense · ships to **Elastic Cloud 9.4.0** (migrated 2026-06-29) · data streams: `logs-syslog.opnsense-default` (active), `logs-syslog.asus-default` (not yet arriving — watch item), `logs-syslog.other-default` · see [Log Shipping](platforms/log-shipping.md) | up |
+| **Filebeat** | `filebeat.service` | — | Ships Ollama journal, system journal, and sheepsoc app logs to **Elastic Cloud 9.4.0** (migrated 2026-06-29) · Ollama logs reshaped via `logs-ollama-otel` ingest pipeline into `logs-ollama.otel-default` · system journal lands in `filebeat-8.18.3` data stream · see [Log Shipping](platforms/log-shipping.md) | up |
 | **Metricbeat** | `metricbeat.service` | — | Ships host metrics (CPU, RAM, disk, net) to Elasticsearch | up |
 | **OpenTelemetry Collector** | `otelcol-contrib.service` | 4317/4318 (OTLP) · 13133 (health) · 8889 (self-metrics) — all `127.0.0.1` only | OTLP telemetry hub · v0.155.0 · receives OTLP from [OpenWebUI](platforms/openwebui-rag.md) and Claude Code · exports to **Elastic Cloud 9.4.0** (GCP) · all OTLP/receiver ports loopback-only, no LAN exposure — see [OpenTelemetry Collector](platforms/otelcol-contrib.md) | up |
 | **Open WebUI** | `open-webui.service` | 8080 | **Primary AI interface.** OpenWebUI 0.9.2 · browser-based chat and RAG frontend · connects to Ollama for LLM inference · RAG via Elasticsearch (`nomic-embed-text`, 768d, HNSW/cosine) · runs in `openwebui` conda env (Python 3.11) — see [OpenWebUI & RAG](platforms/openwebui-rag.md) | up |
@@ -152,7 +152,7 @@ Environment="ELASTICSEARCH_INDEX_PREFIX=open_webui_collections"
 ```
 
 !!! note "Auth Note"
-    `xpack.security` was enabled on 2026-04-21. The drop-in now includes `ELASTICSEARCH_USERNAME` and `ELASTICSEARCH_PASSWORD`. Kibana connects as `kibana_system`. Filebeat, Metricbeat, and Logstash connect as the custom `beats_writer` user — see [Elasticsearch Auth for Data Shippers](#elasticsearch-authentication-for-data-shippers) for why `beats_system` must *not* be used.
+    `xpack.security` was enabled on 2026-04-21. The drop-in now includes `ELASTICSEARCH_USERNAME` and `ELASTICSEARCH_PASSWORD`. Kibana connects as `kibana_system`. **Metricbeat** connects to local ES as the `beats_writer` custom user — see [Elasticsearch Auth for Data Shippers](#elasticsearch-authentication-for-data-shippers) for why `beats_system` must *not* be used. **Filebeat** and **Logstash** were migrated to Elastic Cloud on 2026-06-29 and now authenticate with an API key; they no longer use `beats_writer` for local ES. See [Log Shipping](platforms/log-shipping.md).
 
 ### ES Index
 
@@ -303,17 +303,17 @@ Elasticsearch ships with a small set of reserved built-in users. Each is scoped 
 | `logstash-*` · `.ds-logstash-*` | (same) |
 | `logs-*` · `.ds-logs-*` | (same) |
 
-### Services Currently Using beats_writer
+### Services Currently Using beats_writer (Local ES Only)
+
+As of 2026-06-29, Filebeat and Logstash were migrated to Elastic Cloud and no longer use `beats_writer`. Metricbeat is the only remaining local-ES data shipper.
 
 | Service | Config File | Field |
 |---|---|---|
-| Filebeat | `/home/pmabry/infrastructure/filebeat/filebeat-8.18.3-linux-x86_64/filebeat.yml` | `output.elasticsearch.username` |
 | Metricbeat | `/home/pmabry/infrastructure/metricbeat/metricbeat-8.18.2-linux-x86_64/metricbeat.yml` | `output.elasticsearch.username` |
-| Logstash | `/etc/logstash/conf.d/99-elasticsearch-output.conf` | `user` field in each `elasticsearch` output block |
 
 ### Rule for Adding New Data Shippers
 
-Any new Filebeat, Metricbeat, Logstash, or other Elastic shipper added to sheepsoc must use `beats_writer` credentials in its Elasticsearch output block. If the new shipper writes to index patterns not yet covered by the role, update the role first before starting the shipper.
+Any new Elastic data shipper connecting to **local Elasticsearch** must use `beats_writer` credentials in its output block. Shippers connecting directly to Elastic Cloud should use the shared cloud API key (see [Log Shipping](platforms/log-shipping.md) for the coupling risk). If a new local shipper writes to index patterns not yet covered by the `beats_writer` role, update the role first before starting the shipper.
 
 ```bash
 # Update the beats_writer role to add new index patterns

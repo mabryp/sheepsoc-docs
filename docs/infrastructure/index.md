@@ -11,7 +11,8 @@ Use this section when you are checking system health, changing services, recover
 - [Ollama](platforms/ollama.md) — local LLM inference server (RTX 5060 Ti) · 0.30.10 · OpenAI, Anthropic Messages, and native APIs
 - [OpenWebUI & RAG](platforms/openwebui-rag.md) — primary AI interface, RAG configuration, and Elasticsearch vector store
 - [Elasticsearch & ELSER](platforms/elasticsearch-elser.md) — ELSER sparse-vector search and dual-use index configuration
-- [OpenTelemetry Collector](platforms/otelcol-contrib.md) — OTLP telemetry hub · v0.155.0 · receives from OpenWebUI and Claude Code · exports to local ES as structured data streams
+- [OpenTelemetry Collector](platforms/otelcol-contrib.md) — OTLP telemetry hub · v0.155.0 · receives from OpenWebUI and Claude Code · exports to Elastic Cloud 9.4.0 as structured data streams
+- [Log Shipping — Filebeat & Logstash](platforms/log-shipping.md) — Filebeat and Logstash configured to ship to Elastic Cloud 9.4.0 · Ollama journal, system journal, and network device syslog (migrated 2026-06-29)
 - [Knowledge Bases](platforms/knowledge-bases.md) — catalog of all OpenWebUI RAG Knowledge Base collections
 - [Matrix Bot](platforms/matrix-bot.md) — E2EE Matrix bot bridging Element rooms to OpenWebUI RAG
 - [Tailscale](platforms/tailscale.md) — WireGuard mesh VPN for remote access to sheepsoc services

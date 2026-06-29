@@ -6,7 +6,7 @@
 |---|---|
 | Elastic Cloud cluster | Elastic Cloud 9.4.0 (GCP us-central1, 3 nodes/2 data, UUID `DaBtVAvNQNmqT0thJwt-7Q`) |
 | Elastic Cloud auth | API key (`ELASTICSEARCH_API_KEY` in `~/.env`) |
-| Cloud indexes | `sheepsoc_rag001_v2` / `v3` (~48k docs) — research; OTEL data streams (added 2026-06-27) |
+| Cloud indexes | `sheepsoc_rag001_v2` / `v3` (~48k docs) — research; OTEL data streams (added 2026-06-27); Beats/Logstash data streams (added 2026-06-29) |
 | Local ES | Elasticsearch 8.19.14 (`elasticsearch.service`, `/mnt/elastic_data`, `127.0.0.1:9200`) |
 | Local indexes | `open_webui_collections_d768` (dual dense kNN + ELSER sparse, ~1.9 GB) — **current OpenWebUI RAG backend** |
 | Updated | 2026-06-28 |
@@ -21,6 +21,7 @@
 - **[RAG Experiments](../research/rag-experiments.md)** **stores data in** Elastic Cloud — primary consumer of cloud indexes for research (RAG-001/002 pipelines, evaluation).
 - [OpenWebUI & RAG](openwebui-rag.md) **depends on** local ES 8.19.14 — OpenWebUI RAG vectors (`open_webui_collections_d768`) live on local ES; migration to cloud is planned.
 - [OpenTelemetry Collector](otelcol-contrib.md) **stores data in** Elastic Cloud — OTEL data streams (logs/metrics/traces) export directly to the cloud cluster.
+- [Log Shipping — Filebeat & Logstash](log-shipping.md) **stores data in** Elastic Cloud — Filebeat ships Ollama journald and system journal; Logstash ships OPNsense/ASUS syslog; all land as cloud data streams.
 - Ollama — local embedding for ingest/query vectors (cloud cannot reach localhost:11434).
 
 ## Dependencies
@@ -39,6 +40,7 @@
 - [Services](../services.md) — Elasticsearch service entry, port, auth details, and cluster health commands
 - [Known Issues](../known-issues.md) — history of the xpack.security enablement and beats_writer configuration
 - [OpenTelemetry Collector](otelcol-contrib.md) — **stores data in** Elastic Cloud 9.4.0; OTEL data streams land in the cloud cluster
+- [Log Shipping — Filebeat & Logstash](log-shipping.md) — **stores data in** Elastic Cloud 9.4.0; Filebeat and Logstash data streams (Ollama logs, system journal, syslog) land in the cloud cluster
 
 ## Elastic Cloud — OTEL Data Streams (Active, 2026-06-27)
 
@@ -56,6 +58,20 @@ Verify via Kibana (Stack Management → Index Management → Data Streams, filte
 
 !!! note "Local ES Not Involved in OTEL"
     OTEL data does **not** pass through local ES 8.19.14. The collector exports directly to the cloud endpoint. Local ES 8.19.14 only serves [OpenWebUI](openwebui-rag.md) RAG vectors (`open_webui_collections_d768`).
+
+## Elastic Cloud — Beats & Logstash Data Streams (Added 2026-06-29)
+
+[Filebeat](log-shipping.md) and [Logstash](log-shipping.md) were reconfigured on 2026-06-29 to ship directly to Elastic Cloud 9.4.0. These data streams use the generic `logs-*-*` index template on the cloud cluster.
+
+| Data Stream | Source | Shipper | Status |
+|---|---|---|---|
+| `logs-ollama.otel-default` | Ollama journald → `logs-ollama-otel` ingest pipeline | Filebeat | Active |
+| `filebeat-8.18.3` | System journal + sheepsoc app logs | Filebeat | Active (app log input currently idle) |
+| `logs-syslog.opnsense-default` | OPNsense firewall syslog on port 5514 | Logstash | Confirmed flowing |
+| `logs-syslog.asus-default` | ASUS RT-AX5400 syslog on port 5514 | Logstash | Not yet arriving — watch item |
+| `logs-syslog.other-default` | Any other syslog on port 5514 | Logstash | Active |
+
+For the full configuration, ingest pipeline details, and known issues (ASUS syslog not arriving, shared API key, `reroute` vs. `set _index` gotcha), see [Log Shipping — Filebeat & Logstash](log-shipping.md).
 
 ## Background: Dense vs. Sparse Embeddings
 
