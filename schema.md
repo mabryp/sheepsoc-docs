@@ -48,6 +48,7 @@ Every page in `docs/`, with its path relative to `docs/` and its one-line purpos
 | Knowledge Bases | `infrastructure/platforms/knowledge-bases.md` | Catalog of all OpenWebUI RAG Knowledge Base collections |
 | Matrix Bot | `infrastructure/platforms/matrix-bot.md` | Matrix bot setup, room config, E2EE, OpenWebUI integration |
 | Log Shipping — Filebeat & Logstash | `infrastructure/platforms/log-shipping.md` | Filebeat 8.18.3 and Logstash shipping to Elastic Cloud 9.4.0 · `logs-ollama-otel` ingest pipeline · syslog data streams · shared API key gotcha · reroute vs. set_index gotcha |
+| Lab Hub | `infrastructure/platforms/lab-hub.md` | Sheepsoc Lab Hub — Phase 1: service health tiles and documentation-drift detection · reads Service Catalog as expected-state source of truth · FastAPI web UI on :8800 · 3-min collector timer |
 | Conda | `infrastructure/platforms/conda.md` | Conda environments, key packages, known gotchas |
 
 ### Infrastructure — Runbooks

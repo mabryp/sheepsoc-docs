@@ -65,6 +65,7 @@ nav:
       - Tailscale: infrastructure/platforms/tailscale.md
       - Vaultwarden: infrastructure/platforms/vaultwarden.md
       - RomM / EmulatorJS: infrastructure/platforms/romm-emulatorjs.md
+      - Lab Hub: infrastructure/platforms/lab-hub.md
       - Conda: infrastructure/platforms/conda.md
     - Runbooks:
       - Shutdown & Startup: infrastructure/runbooks/shutdown-startup.md

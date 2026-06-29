@@ -7,7 +7,7 @@
 | Interface | OpenWebUI · [192.168.50.100:8080](http://192.168.50.100:8080) |
 | Embedding | `nomic-embed-text:latest` via Ollama · 768 dimensions |
 | Vector store | **Elasticsearch 8.19.14 (local, `127.0.0.1:9200`)** · `open_webui_collections_d768` (HNSW/cosine dense + ELSER sparse) · migration to Elastic Cloud planned but not yet done |
-| Research | [RAG Experiments](../research/rag-experiments.md) in `~/jupyter/rag_experiments/` (replaces old Streamlit; provides hybrid benchmarks, golden eval) |
+| Research | [RAG Experiments](../../research/rag-experiments.md) in `~/jupyter/rag_experiments/` (replaces old Streamlit; provides hybrid benchmarks, golden eval) |
 | Updated | 2026-06-28 |
 
 !!! note "Primary Interface"
@@ -282,7 +282,7 @@ pmabry@sheepsoc:~$ curl -s -u elastic:<password> \
 
 - [Knowledge Bases](knowledge-bases.md) — catalog of all OpenWebUI Knowledge Base collections with UUIDs
 - [Elasticsearch & ELSER](elasticsearch-elser.md) — current cloud deployment and ELSER configuration
-- **[RAG Experiments](../research/rag-experiments.md)** — active research validating hybrid retrieval, embeddings, golden datasets, and evaluation pipelines on the same ES cluster; resolves multiple known issues
+- **[RAG Experiments](../../research/rag-experiments.md)** — active research validating hybrid retrieval, embeddings, golden datasets, and evaluation pipelines on the same ES cluster; resolves multiple known issues
 - [Known Issues](../known-issues.md) — migration and RAG issues now resolved by the experiments documentation
 
 ## Legacy: CLI RAG Prototype (Deprecated)

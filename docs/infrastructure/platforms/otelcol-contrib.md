@@ -156,7 +156,7 @@ On 2026-06-29, the `logs-claude_code.otel-*` data stream was reconfigured to sup
 | `prompt_semantic` | `semantic_text` (ELSER v2) | `attributes.prompt` | `user_prompt` |
 | `response_semantic` | `semantic_text` (ELSER v2) | `attributes.response` | `assistant_response` |
 
-ELSER inference uses `.elser-2-elasticsearch`, which was already deployed in the cloud cluster for OpenWebUI RAG. This is its second use case on the cluster. See [Elasticsearch & ELSER — Claude Code Full-Text & Semantic Search](elasticsearch-elser.md#elastic-cloud--claude-code-full-text--semantic-search-2026-06-29).
+ELSER inference uses `.elser-2-elasticsearch`, which was already deployed in the cloud cluster for OpenWebUI RAG. This is its second use case on the cluster. See [Elasticsearch & ELSER — Claude Code Full-Text & Semantic Search](elasticsearch-elser.md#elastic-cloud-claude-code-full-text-semantic-search-2026-06-29).
 
 #### Query Patterns
 

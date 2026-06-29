@@ -5,13 +5,14 @@
 | Key | Value |
 |---|---|
 | Install | Miniconda at `~/infrastructure/miniconda3/` |
-| Environments | `openwebui` (Python 3.11), `sheepsoc` (Python 3.12), `datawrangler`, `base` |
+| Environments | `openwebui` (Python 3.11), `sheepsoc` (Python 3.12), `datawrangler`, `labhub` (Python 3.12), `base` |
 
 ## See Also
 
 - [OpenWebUI & RAG](openwebui-rag.md) — runs in the `openwebui` conda environment (Python 3.11); the `elasticsearch==8.19.3` package must be pip-installed into this env manually
 - [Matrix Bot](matrix-bot.md) — runs in the `matrixbot` conda environment (Python 3.11)
 - [Nightly Backups](../runbooks/nightly-backups.md) — the `rag_sync` cron job runs in the `sheepsoc` conda environment; cron requires special initialization for conda to work
+- [Lab Hub](lab-hub.md) — runs in the `labhub` conda environment (Python 3.12)
 - [Services](../services.md) — lists which conda environment each service uses
 
 ## What Conda Is (Plain English)
@@ -35,6 +36,7 @@ Think of it like this:
 |---|---|---|---|
 | `openwebui` | 3.11 | **Primary production env.** Runs the `open-webui.service` systemd unit — the main AI interface on sheepsoc. | `elasticsearch==8.19.3` pip-installed manually — not bundled; must reinstall if env is rebuilt. |
 | `sheepsoc` | 3.12 | **Legacy / prototype.** Was used for the CLI RAG prototype; now used only as the Jupyter kernel and for ad-hoc embedding experiments. | The CLI RAG app (`~/repositories/sheepsoc`) in this env is no longer maintained. Do not use it for production RAG queries. |
+| `labhub` | 3.12 | **Lab Hub.** Runs the `labhub-web.service` systemd unit — the State of the Lab dashboard. The collector (`labhub-collect.service`) is stdlib-only but shares this env. | Runtime deps pip-installed: `fastapi`, `uvicorn`, `jinja2`, `httpx`. See [Lab Hub](lab-hub.md). |
 | `datawrangler` | — | Separate environment for data wrangling. | — |
 | `base` | — | Miniconda's own base — *don't* install project stuff here. | — |
 
@@ -47,6 +49,7 @@ pmabry@sheepsoc:~$ conda env list
 base                     /home/pmabry/infrastructure/miniconda3
 sheepsoc                 /home/pmabry/infrastructure/miniconda3/envs/sheepsoc
 openwebui                /home/pmabry/infrastructure/miniconda3/envs/openwebui
+labhub                   /home/pmabry/infrastructure/miniconda3/envs/labhub
 datawrangler             /home/pmabry/infrastructure/miniconda3/envs/datawrangler
 ```
 

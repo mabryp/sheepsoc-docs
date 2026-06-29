@@ -18,6 +18,7 @@ Use this section when you are checking system health, changing services, recover
 - [Tailscale](platforms/tailscale.md) — WireGuard mesh VPN for remote access to sheepsoc services
 - [Vaultwarden](platforms/vaultwarden.md) — self-hosted password and secrets manager (LastPass replacement)
 - [RomM / EmulatorJS](platforms/romm-emulatorjs.md) — self-hosted ROM library manager with integrated in-browser retro emulator
+- [Sheepsoc Lab Hub](platforms/lab-hub.md) — read-only "State of the Lab" health dashboard and drift detector
 - [Conda Guide](platforms/conda.md) — Python environment management
 
 ## Runbooks

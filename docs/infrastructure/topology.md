@@ -44,7 +44,7 @@ Sheepsoc lives on a flat home LAN behind an ASUS router that does DHCP and upstr
                     phillips-macbook-pro-3  100.88.90.20
 
  DNS chain : client → OPNsense (192.168.50.253) → 8.8.8.8 / 1.1.1.1 upstream
- Logs      : ASUS + OPNsense → sheepsoc:5514/udp (Logstash) → Elasticsearch
+ Logs      : ASUS + OPNsense + SAN01 → sheepsoc:5514/udp (Logstash) → Elastic Cloud 9.4.0
  Remote    : Tailscale WireGuard overlay · no inbound port-forwarding needed
  Samsung TV: 192.168.50.175 (DHCP from ASUS); full network control via tv_control.py script (WoL for power-on + websocket volume/keys/pairing/--youtube-search using YouTube app ID 111299001912; see expanded runbook)
  SAN01 (NAS): 192.168.50.165 (static DHCP from ASUS, MAC 00:11:32:88:3b:5b) · san01.mabry.lan / san01 · Synology DSM 7.x · NFSv3 /volume1/NFS_Share → /mnt/nfs on sheepsoc (systemd automount, nofail) · syslog → sheepsoc:5514/udp (DSM Log Center → Log Sending, BSD/RFC3164) → logs-syslog.synology-default · DSM web UI http://192.168.50.165:5000 · DNS via /etc/hosts on sheepsoc only (no router DNS record)
@@ -93,20 +93,23 @@ sheepsoc  (192.168.50.100 · tailscale 100.117.117.43)
 │  ├─ ollama.service            → :11434  # LLM inference, uses GPU
 │  ├─ open-webui                → :8080   # chat UI + RAG (conda: openwebui, Py 3.11)
 │  ├─ jupyter.service           → :8888   # notebook dir ~/repositories/sheepsoc
-│  ├─ elasticsearch             → :9200   # DECOMMISSIONED 2026-05-10 — moved to Elastic Cloud (GCP us-central1, 9.4.0)
-│  ├─ kibana                    → :5601   # log/metrics UI
-│  ├─ logstash                  → :5514/udp # syslog ingest from ASUS + OPNsense
-│  ├─ filebeat                  → ES      # local logs → ES
-│  ├─ metricbeat                → ES      # local metrics → ES
-│  ├─ otelcol-contrib.service  → :4317/:4318 (loopback)  # OTLP receiver → local ES
+│  ├─ elasticsearch             → :9200   # LOCAL · serves OpenWebUI RAG vectors only (open_webui_collections_d768); research/OTEL/beats data streams are on Elastic Cloud 9.4.0
+│  ├─ kibana                    → :5601   # log/metrics UI (connected to local ES)
+│  ├─ logstash                  → :5514/udp # syslog from ASUS + OPNsense + SAN01 → Elastic Cloud 9.4.0
+│  ├─ filebeat                  → Elastic Cloud 9.4.0  # Ollama journal + system journal → cloud data streams
+│  ├─ metricbeat                → ES      # local metrics → local ES :9200
+│  ├─ otelcol-contrib.service  → :4317/:4318 (loopback)  # OTLP receiver → Elastic Cloud 9.4.0
 │  ├─ vikunja                   → :3000   # kanban / task mgmt
 │  ├─ matrix-bot.service                 # E2EE Matrix bot
+│  ├─ labhub-web.service        → :8800  # State of the Lab dashboard, LAN-only (conda: labhub, Py 3.12)
+│  ├─ labhub-collect.timer               # collector oneshot, fires every 3 min
 │  ├─ tailscaled.service        → tailscale0 (100.117.117.43) # WireGuard mesh VPN
 │  ├─ ssh.service               → :22    # key auth only
 │  └─ cron.service                       # scheduled tasks
 ├─ conda environments  (~/infrastructure/miniconda3/)
 │  ├─ sheepsoc         # Python 3.12 — legacy CLI RAG prototype + Jupyter kernel
 │  ├─ openwebui        # Python 3.11 — OpenWebUI service (elasticsearch pip-installed)
+│  ├─ labhub           # Python 3.12 — Lab Hub web UI + collector
 │  └─ datawrangler     # data work
 ├─ docker compose stacks
 │  └─ /mnt/ssd_working/emulatorjs/      # RomM + MariaDB (romm :3080, db internal)
@@ -250,22 +253,27 @@ The dual-socket CPU means two NUMA nodes. For most of what this box does (Ollama
 ### Observability Flow
 
 ```
-ASUS RT-AX5400  ──syslog udp──▶  sheepsoc:5514  ──▶  Logstash
-OPNsense        ──syslog udp──▶  sheepsoc:5514  ──▶  Logstash
-SAN01 NAS       ──syslog udp──▶  sheepsoc:5514  ──▶  Logstash
-                                                        │
-                                                        ▼
-sheepsoc logs    ──filebeat──────────────────────▶  Elasticsearch
-sheepsoc metrics ──metricbeat────────────────────▶  (:9200)
-                                                        │
-                                                        ▼
-                                                    Kibana  (:5601)
+ASUS RT-AX5400  ──syslog udp──▶  sheepsoc:5514  ──▶  Logstash ──▶  Elastic Cloud 9.4.0
+OPNsense        ──syslog udp──▶  sheepsoc:5514  ──▶  Logstash      (gateway.es…:443)
+SAN01 NAS       ──syslog udp──▶  sheepsoc:5514  ──▶  Logstash            │
+                                                                           │  data streams:
+sheepsoc Ollama logs  ──filebeat──────────────────────────────────────────┤  logs-ollama.otel-default
+sheepsoc system logs  ──filebeat──────────────────────────────────────────┤  filebeat-8.18.3
+                                                                           │  logs-syslog.*-default
+sheepsoc metrics ──metricbeat───▶  Elasticsearch (local :9200)
+                                           │
+                                           ▼
+                                       Kibana  (:5601)
 
-Data streams (Elastic Cloud):
-  logs-syslog.asus-default       ← ASUS
-  logs-syslog.opnsense-default   ← OPNsense
-  logs-syslog.synology-default   ← SAN01 NAS
+Data streams (Elastic Cloud — all confirmed as of 2026-06-29):
+  logs-syslog.asus-default       ← ASUS (via Logstash)
+  logs-syslog.opnsense-default   ← OPNsense (via Logstash)
+  logs-syslog.synology-default   ← SAN01 NAS (via Logstash)
+  logs-ollama.otel-default       ← Ollama journal (via Filebeat + logs-ollama-otel pipeline)
+  filebeat-8.18.3                ← System journal + sheepsoc app logs (via Filebeat)
 ```
+
+See [Log Shipping — Filebeat & Logstash](platforms/log-shipping.md) for full configuration.
 
 !!! note "Verified"
     The ASUS → Logstash syslog pipeline was re-verified on 2026-04-20 after setting `log_remote=1` in NVRAM and applying the `syslogd -R` flag.

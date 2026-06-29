@@ -14,20 +14,15 @@
 !!! note "Current State (as of 2026-06-28)"
     **Two active ES deployments.** Local ES 8.19.14 (`127.0.0.1:9200`) serves [OpenWebUI](openwebui-rag.md) RAG vectors — `open_webui_collections_d768` (~1.9 GB, HNSW/cosine + ELSER) is still on local storage. **Elastic Cloud 9.4.0** serves research indexes (RAG-001 v2/v3) and [OTEL data streams](otelcol-contrib.md) (confirmed flowing 2026-06-27). Migration of OpenWebUI RAG to Elastic Cloud is planned but has **not** been done yet. The 2026-05-10 history entry "local ES decommissioned — all traffic on cloud" referred to research/ingest workloads; the OpenWebUI RAG index was never moved. Local ES is targeted for an ES 9 rebuild once the RAG migration completes.
 
-**See [RAG Experiments](../research/rag-experiments.md)** for full pipeline, results (Hybrid 0.6809 nDCG@10), golden dataset, notebooks, and runbooks. This page focuses on the shared ES/ELSER infrastructure.
+**See [RAG Experiments](../../research/rag-experiments.md)** for full pipeline, results (Hybrid 0.6809 nDCG@10), golden dataset, notebooks, and runbooks. This page focuses on the shared ES/ELSER infrastructure.
 
 ## Dependencies
 
-- **[RAG Experiments](../research/rag-experiments.md)** **stores data in** Elastic Cloud — primary consumer of cloud indexes for research (RAG-001/002 pipelines, evaluation).
-- [OpenWebUI & RAG](openwebui-rag.md) **depends on** local ES 8.19.14 — OpenWebUI RAG vectors (`open_webui_collections_d768`) live on local ES; migration to cloud is planned.
+- **[RAG Experiments](../../research/rag-experiments.md)** **stores data in** Elastic Cloud — primary consumer of cloud indexes for research (RAG-001/002 pipelines, evaluation).
+- [OpenWebUI & RAG](openwebui-rag.md) **depends on** local ES 8.19.14 — OpenWebUI RAG vectors (`open_webui_collections_d768`) live on local ES; migration to cloud is planned; ELSER is layered on the same index that OpenWebUI writes to.
 - [OpenTelemetry Collector](otelcol-contrib.md) **stores data in** Elastic Cloud — OTEL data streams (logs/metrics/traces) export directly to the cloud cluster.
-- [Log Shipping — Filebeat & Logstash](log-shipping.md) **stores data in** Elastic Cloud — Filebeat ships Ollama journald and system journal; Logstash ships OPNsense/ASUS syslog; all land as cloud data streams.
-- Ollama — local embedding for ingest/query vectors (cloud cannot reach localhost:11434).
-
-## Dependencies
-
-- [OpenWebUI & RAG](openwebui-rag.md) — the primary consumer of the `open_webui_collections_d768` index; ELSER is layered on the same index that OpenWebUI writes to
-- [Ollama](../services.md) — provides the `nomic-embed-text` embedding model used for the dense kNN half of hybrid queries
+- [Log Shipping — Filebeat & Logstash](log-shipping.md) **stores data in** Elastic Cloud — Filebeat ships Ollama journald and system journal; Logstash ships OPNsense/ASUS/SAN01 syslog; all land as cloud data streams.
+- [Ollama](ollama.md) — **depends on** for local embedding at ingest/query time (cloud cannot reach `localhost:11434`); provides `nomic-embed-text` for the dense kNN half of hybrid queries.
 
 ## Runbooks
 
@@ -91,7 +86,7 @@ This is a **forward-only** change. Only events in the new write index (rolled ov
 | OpenWebUI RAG sparse embeddings | `open_webui_collections_d768` | `text_elser` (sparse_vector) | `.elser-2-elasticsearch` | **Local** ES 8.19.14 |
 | Claude Code prompt/response semantic search | `logs-claude_code.otel-*` | `prompt_semantic`, `response_semantic` (semantic_text) | `.elser-2-elasticsearch` | **Elastic Cloud** 9.4.0 |
 
-These are independent deployments of the same model. The cloud cluster's `.elser-2-elasticsearch` was already allocated before this change. For the [OpenTelemetry Collector](otelcol-contrib.md) configuration that produces the `logs-claude_code.otel-*` stream, see [OpenTelemetry Collector — Claude Code Log Stream](otelcol-contrib.md#claude-code-log-stream--full-text--semantic-search-2026-06-29).
+These are independent deployments of the same model. The cloud cluster's `.elser-2-elasticsearch` was already allocated before this change. For the [OpenTelemetry Collector](otelcol-contrib.md) configuration that produces the `logs-claude_code.otel-*` stream, see [OpenTelemetry Collector — Claude Code Log Stream](otelcol-contrib.md#claude-code-log-stream-full-text-semantic-search-2026-06-29).
 
 ## Elastic Cloud — Beats & Logstash Data Streams (Added 2026-06-29)
 
@@ -106,7 +101,7 @@ These are independent deployments of the same model. The cloud cluster's `.elser
 | `logs-syslog.synology-default` | SAN01 Synology NAS syslog on port 5514 | Logstash | Confirmed flowing (2026-06-29) |
 | `logs-syslog.other-default` | Any other syslog on port 5514 | Logstash | Active |
 
-For the full configuration, ingest pipeline details, and known issues (ASUS syslog not arriving, shared API key, `reroute` vs. `set _index` gotcha), see [Log Shipping — Filebeat & Logstash](log-shipping.md).
+For the full configuration, ingest pipeline details, and known issues (shared API key, `reroute` vs. `set _index` gotcha), see [Log Shipping — Filebeat & Logstash](log-shipping.md).
 
 ## Background: Dense vs. Sparse Embeddings
 

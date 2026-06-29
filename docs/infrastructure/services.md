@@ -6,6 +6,8 @@
 
 Every service running on sheepsoc, its systemd unit name, port, and current operational status. Services marked **hold** are installed but intentionally stopped pending a rebuild or external dependency.
 
+This catalog also serves as the expected-state source of truth for the [Sheepsoc Lab Hub](platforms/lab-hub.md) — which computes drift between documented state and actual running processes every 3 minutes.
+
 | Service | Unit / cmd | Port | Purpose | Status |
 |---|---|---|---|---|
 | **sheepsoc-landing** | `sheepsoc-landing.service` | 80 | LAN landing page and these docs (Python http.server) | up |
@@ -27,6 +29,7 @@ Every service running on sheepsoc, its systemd unit name, port, and current oper
 | **Matrix Bot** | `matrix-bot.service` | — | E2EE Matrix bot (`@sheepsoc-bot:matrix.pmabry.com`) · bridges Element rooms to OpenWebUI RAG + Ollama · runs in `matrixbot` conda env — see [Matrix Bot](platforms/matrix-bot.md) | up |
 | **Vaultwarden** | `docker compose` (`/home/pmabry/infrastructure/vaultwarden/`) | 8222 (loopback) | Self-hosted Bitwarden-compatible password and secrets manager · replacing LastPass · bound to `127.0.0.1:8222` only · exposed to tailnet at `https://sheepsoc-1.tail0f68e4.ts.net:8444/` via Tailscale Serve · no LAN UFW rule — see [Vaultwarden](platforms/vaultwarden.md) | up |
 | **RomM / EmulatorJS** | `docker compose` (`/mnt/ssd_working/emulatorjs/`) | 3080 | Self-hosted ROM library manager with integrated in-browser retro emulator (EmulatorJS) · two containers: `romm` (rommapp/romm:latest, 4.8.1) + `romm-db` (MariaDB) · LAN UFW rule + tailnet via `tailscale serve` :10004 · no metadata API keys configured yet — see [RomM / EmulatorJS](platforms/romm-emulatorjs.md) | up |
+| **Sheepsoc Lab Hub** | `labhub-web.service` (web UI) · `labhub-collect.timer` + `labhub-collect.service` (collector, oneshot every 3 min) | 8800 | Read-only "State of the Lab" dashboard — health tiles and documentation-drift detection · **reads this Service Catalog as its expected-state source of truth** · LAN-only (no Tailscale) · runs in `labhub` conda env (Python 3.12) — see [Lab Hub](platforms/lab-hub.md) | up |
 
 ## Health Checks
 
@@ -63,6 +66,9 @@ pmabry@sheepsoc:~$ curl -s http://localhost:11434/api/tags | jq
 
 # Kibana status
 pmabry@sheepsoc:~$ curl -s http://localhost:5601/api/status | jq
+
+# Lab Hub liveness probe (expect {"ok":true})
+pmabry@sheepsoc:~$ curl -s http://192.168.50.100:8800/healthz
 
 # OpenTelemetry Collector health (returns HTTP 200 with "Server available" when healthy)
 pmabry@sheepsoc:~$ curl -s http://127.0.0.1:13133
@@ -119,6 +125,7 @@ All web interfaces are restricted to `192.168.50.0/24` via UFW on the LAN interf
 | Docs (alias) | `http://192.168.50.100/` | `https://sheepsoc-1.tail0f68e4.ts.net:10000/` | Backwards-compatibility alias; same backend as default |
 | Open WebUI | `http://192.168.50.100:8080` | `https://sheepsoc-1.tail0f68e4.ts.net:10001/` | OpenWebUI login required |
 | Jupyter | `http://192.168.50.100:8888` | `https://sheepsoc-1.tail0f68e4.ts.net:8443/` | Jupyter argon2 password required |
+| Sheepsoc Lab Hub | `http://192.168.50.100:8800` | — (LAN only) | Health tiles + drift list · `/api/state` JSON · `/healthz` liveness — see [Lab Hub](platforms/lab-hub.md) |
 | Kibana | `http://192.168.50.100:5601` | `https://sheepsoc-1.tail0f68e4.ts.net:10002/` | Log / metric dashboards |
 | Uptime Kuma | `http://192.168.50.100:3001` | `https://sheepsoc-1.tail0f68e4.ts.net:10003/` | Live service status |
 | Vaultwarden | — (tailnet only by design) | `https://sheepsoc-1.tail0f68e4.ts.net:8444/` | Loopback-only locally; Bitwarden login required · admin at `/admin` — see [Vaultwarden](platforms/vaultwarden.md) |
@@ -415,6 +422,6 @@ pmabry@sheepsoc:~$ conda run -n sheepsoc python infrastructure/scripts/tv_contro
 
 **See Also:** [Samsung TV Network Control runbook](runbooks/wol-samsung-tv.md) (full steps, troubleshooting, How It Works for browser method).
 
-**Runbook:** [Samsung TV Network Control](../runbooks/wol-samsung-tv.md) — **runbook** for install, prerequisites (Network Remote enabled), full troubleshooting, how it works (pairing, token persistence, error handling).
+**Runbook:** [Samsung TV Network Control](runbooks/wol-samsung-tv.md) — **runbook** for install, prerequisites (Network Remote enabled), full troubleshooting, how it works (pairing, token persistence, error handling).
 
 See also: [Topology](topology.md#network-topology), [Known Issues](known-issues.md#history-log).

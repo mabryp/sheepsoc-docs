@@ -251,7 +251,7 @@ pmabry@sheepsoc:~$ ss -tlnp | grep 5514
 ## Known Issues / Gotchas
 
 - **Shared API key** — Filebeat, Logstash, and the [OpenTelemetry Collector](otelcol-contrib.md) all authenticate to Elastic Cloud with the same API key. Revoking or rotating the key affects all three simultaneously. See [Known Issues — Shared Cloud API Key](../known-issues.md#shared-elastic-cloud-api-key-couples-filebeat-logstash-and-otelcol-contrib).
-- **`reroute` processor drops docs — use `set _index`** — documented in detail in the [Ingest Pipeline gotcha above](#ingest-pipeline----logs-ollama-otel). This applies to any future pipeline where the source data stream name is not a valid `type-dataset-namespace` triple.
+- **`reroute` processor drops docs — use `set _index`** — documented in detail in the [Ingest Pipeline gotcha above](#ingest-pipeline-logs-ollama-otel). This applies to any future pipeline where the source data stream name is not a valid `type-dataset-namespace` triple.
 - **Data egress** — system journal (auth, sudo, SSH), Ollama logs, and firewall syslog all leave sheepsoc and are stored on Elastic Cloud GCP us-central1. See [Known Issues — System and Firewall Log Egress to Elastic Cloud](../known-issues.md#system-and-firewall-log-egress-to-elastic-cloud).
 
 ## See Also
