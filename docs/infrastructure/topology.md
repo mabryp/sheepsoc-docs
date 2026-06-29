@@ -47,7 +47,7 @@ Sheepsoc lives on a flat home LAN behind an ASUS router that does DHCP and upstr
  Logs      : ASUS + OPNsense → sheepsoc:5514/udp (Logstash) → Elasticsearch
  Remote    : Tailscale WireGuard overlay · no inbound port-forwarding needed
  Samsung TV: 192.168.50.175 (DHCP from ASUS); full network control via tv_control.py script (WoL for power-on + websocket volume/keys/pairing/--youtube-search using YouTube app ID 111299001912; see expanded runbook)
- SAN01 (NAS): 192.168.50.165 (static DHCP from ASUS, MAC 00:11:32:88:3b:5b) · san01.mabry.lan / san01 · Synology DiskStation · NFSv3 /volume1/NFS_Share → /mnt/nfs on sheepsoc (systemd automount, nofail) · DSM web UI http://192.168.50.165:5000 · DNS via /etc/hosts on sheepsoc only (no router DNS record)
+ SAN01 (NAS): 192.168.50.165 (static DHCP from ASUS, MAC 00:11:32:88:3b:5b) · san01.mabry.lan / san01 · Synology DSM 7.x · NFSv3 /volume1/NFS_Share → /mnt/nfs on sheepsoc (systemd automount, nofail) · syslog → sheepsoc:5514/udp (DSM Log Center → Log Sending, BSD/RFC3164) → logs-syslog.synology-default · DSM web UI http://192.168.50.165:5000 · DNS via /etc/hosts on sheepsoc only (no router DNS record)
 ```
 
 | Key | Value |
@@ -58,7 +58,7 @@ Sheepsoc lives on a flat home LAN behind an ASUS router that does DHCP and upstr
 | sheepsoc | 192.168.50.100 · static on `eno1` · `sheepsoc.mabry.lan` · Tailscale `100.117.117.43` |
 | Printer | 192.168.50.213 · admin console |
 | Samsung TV | 192.168.50.175 (DHCP) · MAC `54:3A:D6:5D:B0:EC` · hostname "Samsung" · [Samsung TV Network Control runbook](runbooks/wol-samsung-tv.md) (wired Ethernet, WoL + Network Remote enabled, tv_control.py for volume-first control, pairing, --youtube-search; integrates 2026-05-30 tests; verified) |
-| SAN01 (NAS) | 192.168.50.165 · static DHCP (MAC `00:11:32:88:3b:5b`, ASUS RT-AX5400) · `san01.mabry.lan` / `san01` · Synology DiskStation · NFSv3 `/volume1/NFS_Share` → `/mnt/nfs` on sheepsoc · DSM at `http://192.168.50.165:5000` · DNS via `/etc/hosts` on sheepsoc only (restored 2026-06-28; was offline ~April 2026) |
+| SAN01 (NAS) | 192.168.50.165 · static DHCP (MAC `00:11:32:88:3b:5b`, ASUS RT-AX5400) · `san01.mabry.lan` / `san01` · Synology DSM 7.x · NFSv3 `/volume1/NFS_Share` → `/mnt/nfs` on sheepsoc · syslog → `sheepsoc:5514/udp` (DSM Log Center → Log Sending, BSD/RFC3164) → `logs-syslog.synology-default` · DSM at `http://192.168.50.165:5000` · DNS via `/etc/hosts` on sheepsoc only (restored 2026-06-28; was offline ~April 2026) |
 | Scope | LAN + Tailscale remote access (WireGuard overlay, no inbound WAN port-forwarding) |
 
 ## Remote Access — Tailscale
@@ -252,6 +252,7 @@ The dual-socket CPU means two NUMA nodes. For most of what this box does (Ollama
 ```
 ASUS RT-AX5400  ──syslog udp──▶  sheepsoc:5514  ──▶  Logstash
 OPNsense        ──syslog udp──▶  sheepsoc:5514  ──▶  Logstash
+SAN01 NAS       ──syslog udp──▶  sheepsoc:5514  ──▶  Logstash
                                                         │
                                                         ▼
 sheepsoc logs    ──filebeat──────────────────────▶  Elasticsearch
@@ -260,9 +261,10 @@ sheepsoc metrics ──metricbeat───────────────�
                                                         ▼
                                                     Kibana  (:5601)
 
-Data streams:
-  logs-syslog.asus-default      ← ASUS
-  logs-syslog.opnsense-default  ← OPNsense
+Data streams (Elastic Cloud):
+  logs-syslog.asus-default       ← ASUS
+  logs-syslog.opnsense-default   ← OPNsense
+  logs-syslog.synology-default   ← SAN01 NAS
 ```
 
 !!! note "Verified"

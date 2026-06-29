@@ -32,6 +32,7 @@ Both Filebeat and Logstash authenticate to Elastic Cloud 9.4.0 using an API key.
 Config backups taken 2026-06-29:
 
 - `filebeat.yml.bak-20260629`
+- `/etc/logstash/conf.d/50-syslog-filter.conf.bak-20260629`
 - `/etc/logstash/conf.d/99-elasticsearch-output.conf.bak-20260629`
 
 ---
@@ -134,12 +135,13 @@ Lines matching llama.cpp runner noise patterns are dropped by the pipeline befor
 !!! note "Security Improvement — 2026-06-29"
     This file was previously `644` world-readable and contained the `beats_writer` password in plaintext. It is now `640 root:logstash`, restricting read access to root and the logstash system user only. The API key that replaced the password is not visible to other users.
 
-Logstash receives syslog on UDP/TCP port **5514** from two network devices:
+Logstash receives syslog on UDP/TCP port **5514** from three network devices:
 
 | Device | IP | Syslog Status |
 |---|---|---|
-| ASUS RT-AX5400 (primary router) | `192.168.50.1` | **Not arriving** — watch item; likely device-side config issue |
+| ASUS RT-AX5400 (primary router) | `192.168.50.1` | Confirmed flowing (~180+ docs as of 2026-06-29) |
 | OPNsense firewall | `192.168.50.253` | Confirmed flowing (~400+ docs as of 2026-06-29) |
+| SAN01 Synology NAS (DSM 7.x) | `192.168.50.165` | Confirmed flowing (2026-06-29 — verified with DSM test log) |
 
 All three Elasticsearch output blocks in the config were switched from HTTP + `beats_writer`/password to HTTPS + API key:
 
@@ -160,11 +162,53 @@ Destination data streams:
 | Data Stream | Content | Status |
 |---|---|---|
 | `logs-syslog.opnsense-default` | OPNsense firewall syslog | Confirmed flowing |
-| `logs-syslog.asus-default` | ASUS RT-AX5400 router syslog | **Not yet arriving** — watch item |
+| `logs-syslog.asus-default` | ASUS RT-AX5400 router syslog | Confirmed flowing (~180+ docs as of 2026-06-29) |
+| `logs-syslog.synology-default` | SAN01 Synology NAS syslog | Confirmed flowing (2026-06-29) |
 | `logs-syslog.other-default` | Syslog from any other device on port 5514 | Active |
 
-!!! warning "Privacy — Firewall Syslog Egresses to Elastic Cloud"
-    OPNsense firewall logs and (once fixed) ASUS router logs contain network flow records, DNS queries, NAT events, and connection history. This data egresses to Elastic Cloud (GCP us-central1). Phillip explicitly authorized this on 2026-06-29. See [Known Issues — System and Firewall Log Egress to Elastic Cloud](../known-issues.md#system-and-firewall-log-egress-to-elastic-cloud).
+#### SAN01 Synology NAS — Log Center Forwarding (Added 2026-06-29)
+
+SAN01 (`192.168.50.165`, Synology DiskStation DSM 7.x) forwards syslog to sheepsoc via DSM's built-in **Log Center → Log Sending** feature (Control Panel → Log Center → Log Sending). Settings applied on the NAS:
+
+| Setting | Value |
+|---|---|
+| Server | `192.168.50.100` |
+| Port | `5514` |
+| Protocol | UDP |
+| Log format | BSD (RFC3164) |
+
+!!! note "No Containers on SAN01 — Syslog Is the Ceiling"
+    SAN01's CPU architecture does **not** support Container Manager (Docker). Filebeat and Elastic Agent containers cannot run on this NAS. DSM Log Center syslog forwarding is the only viable method for shipping logs off SAN01. Do not propose a container-based shipper for this device.
+
+A new device-tag branch in `/etc/logstash/conf.d/50-syslog-filter.conf` identifies SAN01 events by source IP:
+
+```ruby
+if [host] == "192.168.50.165" {
+  mutate {
+    add_field => { "device_type" => "synology" }
+    add_field => { "device_name" => "san01" }
+  }
+}
+```
+
+A dedicated output block in `/etc/logstash/conf.d/99-elasticsearch-output.conf` routes SAN01 syslog to its own Elastic Cloud data stream:
+
+```ruby
+elasticsearch {
+  hosts => ["https://gateway.es.us-central1.gcp.cloud.es.io:443"]
+  api_key => "<api_key>"
+  ssl_enabled => true
+  data_stream => true
+  data_stream_type => "logs"
+  data_stream_dataset => "syslog.synology"
+  data_stream_namespace => "default"
+}
+```
+
+Verified working 2026-06-29: a DSM test log landed in `logs-syslog.synology-default`, correctly tagged with `device_type: synology` and `device_name: san01`.
+
+!!! warning "Privacy — Network Device and NAS Syslog Egresses to Elastic Cloud"
+    OPNsense firewall logs, ASUS router logs, and SAN01 NAS syslog contain network flow records, DNS queries, NAT events, and device system events. This data egresses to Elastic Cloud (GCP us-central1). Phillip explicitly authorized this on 2026-06-29. See [Known Issues — System and Firewall Log Egress to Elastic Cloud](../known-issues.md#system-and-firewall-log-egress-to-elastic-cloud).
 
 ---
 
@@ -177,7 +221,8 @@ All data streams below are in Elastic Cloud 9.4.0 (GCP us-central1), using the g
 | `logs-ollama.otel-default` | Ollama journald → `logs-ollama-otel` pipeline | Filebeat | Active |
 | `filebeat-8.18.3` | System journal + sheepsoc app logs | Filebeat | Active (app log input currently idle) |
 | `logs-syslog.opnsense-default` | OPNsense firewall syslog on port 5514 | Logstash | Confirmed flowing |
-| `logs-syslog.asus-default` | ASUS RT-AX5400 syslog on port 5514 | Logstash | Not yet arriving — watch item |
+| `logs-syslog.asus-default` | ASUS RT-AX5400 syslog on port 5514 | Logstash | Confirmed flowing (~180+ docs as of 2026-06-29) |
+| `logs-syslog.synology-default` | SAN01 Synology NAS syslog on port 5514 | Logstash | Confirmed flowing (2026-06-29) |
 | `logs-syslog.other-default` | Any other syslog on port 5514 | Logstash | Active |
 
 ## Health Checks
@@ -205,7 +250,6 @@ pmabry@sheepsoc:~$ ss -tlnp | grep 5514
 
 ## Known Issues / Gotchas
 
-- **ASUS syslog not arriving** — `logs-syslog.asus-default` receives no documents as of 2026-06-29. The Logstash pipeline and cloud output are correctly configured; the issue is on the ASUS router side (syslog target IP or port). See [Known Issues — ASUS Syslog Not Arriving](../known-issues.md#asus-syslog-not-arriving-after-logstash-migration-to-cloud).
 - **Shared API key** — Filebeat, Logstash, and the [OpenTelemetry Collector](otelcol-contrib.md) all authenticate to Elastic Cloud with the same API key. Revoking or rotating the key affects all three simultaneously. See [Known Issues — Shared Cloud API Key](../known-issues.md#shared-elastic-cloud-api-key-couples-filebeat-logstash-and-otelcol-contrib).
 - **`reroute` processor drops docs — use `set _index`** — documented in detail in the [Ingest Pipeline gotcha above](#ingest-pipeline----logs-ollama-otel). This applies to any future pipeline where the source data stream name is not a valid `type-dataset-namespace` triple.
 - **Data egress** — system journal (auth, sudo, SSH), Ollama logs, and firewall syslog all leave sheepsoc and are stored on Elastic Cloud GCP us-central1. See [Known Issues — System and Firewall Log Egress to Elastic Cloud](../known-issues.md#system-and-firewall-log-egress-to-elastic-cloud).

@@ -102,7 +102,8 @@ These are independent deployments of the same model. The cloud cluster's `.elser
 | `logs-ollama.otel-default` | Ollama journald → `logs-ollama-otel` ingest pipeline | Filebeat | Active |
 | `filebeat-8.18.3` | System journal + sheepsoc app logs | Filebeat | Active (app log input currently idle) |
 | `logs-syslog.opnsense-default` | OPNsense firewall syslog on port 5514 | Logstash | Confirmed flowing |
-| `logs-syslog.asus-default` | ASUS RT-AX5400 syslog on port 5514 | Logstash | Not yet arriving — watch item |
+| `logs-syslog.asus-default` | ASUS RT-AX5400 syslog on port 5514 | Logstash | Confirmed flowing (~180+ docs as of 2026-06-29) |
+| `logs-syslog.synology-default` | SAN01 Synology NAS syslog on port 5514 | Logstash | Confirmed flowing (2026-06-29) |
 | `logs-syslog.other-default` | Any other syslog on port 5514 | Logstash | Active |
 
 For the full configuration, ingest pipeline details, and known issues (ASUS syslog not arriving, shared API key, `reroute` vs. `set _index` gotcha), see [Log Shipping — Filebeat & Logstash](log-shipping.md).
