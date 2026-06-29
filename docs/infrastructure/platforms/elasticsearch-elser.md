@@ -103,6 +103,24 @@ These are independent deployments of the same model. The cloud cluster's `.elser
 
 For the full configuration, ingest pipeline details, and known issues (shared API key, `reroute` vs. `set _index` gotcha), see [Log Shipping — Filebeat & Logstash](log-shipping.md).
 
+## Elastic Cloud — Ollama Log Attribute Field Type Fix (2026-06-29)
+
+The `logs-ollama.otel-default` data stream had its `attributes.http`, `attributes.ollama`, `attributes.url`, and `attributes.client` sub-objects — and all their nested levels — incorrectly mapped as Elasticsearch type `flattened` by the shared `otel@mappings` component template's `complex_attributes` dynamic template. The `flattened` type stores numeric leaf values as keyword strings, blocking numeric aggregations on `attributes.ollama.duration_ns` and `attributes.http.response.status_code`.
+
+Two objects were created on the cloud cluster to correct this:
+
+| Object | Name | Notes |
+|---|---|---|
+| Component template | `logs-ollama.otel-attrs@custom` | 8 dynamic templates mapping `attributes.{http,ollama,url,client}` and their `.*` sub-objects as `type: object` (dynamic) instead of `flattened` |
+| Index template | `logs-ollama.otel@template` (priority 200) | Pattern `logs-ollama.otel-*`; overrides `logs-otel@template` (priority 120); places `logs-ollama.otel-attrs@custom` **before** `otel@mappings` in `composed_of` so custom templates fire first (first-match-wins) |
+
+The data stream was rolled over to new write index `.ds-logs-ollama.otel-default-2026.06.29-000003`. All 1,203 historical documents were reindexed into it. `attributes.ollama.duration_ns` and `attributes.http.response.status_code` are now type `long` and fully aggregatable.
+
+For the technical explanation of the `complex_attributes` root cause, the `logs-otel@custom` gotcha, and the complete field-type table, see [Log Shipping — Attribute Field Type Fix](log-shipping.md#ollama-otel-mapping-fix).
+
+!!! warning "Open Item — Duplicate Results Until Old Backing Indices Are Deleted"
+    Backing indices `.ds-logs-ollama.otel-default-2026.06.29-000001` and `-000002` remain attached to the data stream. Historical documents now exist in both those indices and the new 000003, so searches return duplicates until Phillip manually deletes the old backing indices. See [Known Issues](../known-issues.md#ollama-otel-old-backing-indices-cause-duplicate-search-results).
+
 ## Background: Dense vs. Sparse Embeddings
 
 Sheepsoc's RAG system originally used only dense embeddings to find relevant document chunks. Understanding the difference between dense and sparse is the key to understanding why ELSER was added.

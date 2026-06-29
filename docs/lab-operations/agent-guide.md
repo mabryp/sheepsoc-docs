@@ -140,7 +140,6 @@ The homepage at `docs/index.md` contains a service quick reference table. To add
 | No placeholder text | Do not leave `TODO`, `TBD`, or `Lorem ipsum` in any file. |
 | Code blocks require language tags | Every fenced code block must have a language identifier. |
 | Admonitions not callouts | Use `!!! note/warning/danger` — not HTML `.callout` divs. |
-| MicroK8s is STOPPED | Document it as stopped. Do not describe any k8s service as running. |
 | LAN only | This site contains internal IPs and service details. Do not expose it to the public internet. |
 
 ## Quick Task Reference

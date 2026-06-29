@@ -140,14 +140,14 @@ After booting, confirm all services are up and healthy before relying on the sys
     pmabry@sheepsoc:~$ df -h | grep -E 'mnt|/dev'
     ```
 
-    All four secondary volumes should be mounted:
+    All secondary volumes should be mounted:
 
     | Mount point | Expected size |
     |---|---|
-    | `/mnt/ssd_working` | ~1.8 TB |
-    | `/mnt/nvme_working` | ~1.8 TB |
-    | `/mnt/k8s_ssd_1` | ~1.8 TB |
-    | `/mnt/k8s_nvme_1` (and `_2`, `_3`) | ~900 GB each |
+    | `/mnt/nvme_working` | ~938 GiB |
+    | `/mnt/elastic_data` | ~3.6 TiB (LVM, `vg_elastic`) |
+    | `/mnt/ssd_working` | ~3.6 TiB |
+    | `/mnt/data_extra` | ~938 GiB |
 
     !!! note "NFS automount — /mnt/nfs (restored 2026-06-28)"
         The `san01.mabry.lan` NFS share mounts at `/mnt/nfs` via systemd automount and **will not appear in `df -h` until first accessed**. This is expected and normal. To verify the mount is reachable: `ls /mnt/nfs` (this triggers the automount). The fstab entry was previously commented out because the NAS was offline — an uncommented NFS mount without `nofail` hangs boot. As of 2026-06-28, SAN01 is restored and the entry uses `nofail,x-systemd.automount,x-systemd.mount-timeout=30`, so a missing NAS does not block boot or startup. See [Known Issues — history](../known-issues.md#2026-06-28-san01-nfs-server-restored-boot-safe-fstab-entry).

@@ -125,6 +125,40 @@ Lines matching llama.cpp runner noise patterns are dropped by the pipeline befor
 
     `reroute` was attempted first and silently dropped every document. It fails because it validates the *source* data stream name (`filebeat-8.18.3`) as a `type-dataset-namespace` triple before routing — `filebeat-8.18.3` does not match that format, so `reroute` throws `invalid data stream name` and drops the doc. The `set _index` approach bypasses this validation entirely and is the correct method whenever the source data stream has a non-standard name.
 
+<a id="ollama-otel-mapping-fix"></a>
+### Attribute Field Type Fix — `logs-ollama.otel-*` (2026-06-29)
+
+After the `logs-ollama-otel` pipeline was in production, the attribute sub-objects in `logs-ollama.otel-default` were found to be incorrectly typed as Elasticsearch `flattened`. The `flattened` type stores numeric leaf values as keyword strings, which made numeric aggregations (avg, percentiles, range queries) on `attributes.ollama.duration_ns` and `attributes.http.response.status_code` impossible — avg aggregations failed with "type [flattened] is not supported".
+
+**Root cause:** The managed `otel@mappings` component template includes a dynamic template named `complex_attributes` with `path_match: "attributes.*"`. Because `*` in an Elasticsearch path match is greedy and matches dots, `attributes.*` captures not only `attributes.ollama` and `attributes.http` but also `attributes.ollama.duration_ns`, `attributes.http.response.status_code`, and every other nested level — mapping all of them as `type: flattened`.
+
+**Fix — two objects created on the cloud cluster:**
+
+| Object | Name | Notes |
+|---|---|---|
+| Component template | `logs-ollama.otel-attrs@custom` | 8 dynamic templates mapping `attributes.{http,ollama,url,client}` and their `.*` sub-objects as `type: object` (dynamic), exempting those subtrees from the `flattened` catch-all |
+| Index template | `logs-ollama.otel@template` (priority 200) | Pattern `logs-ollama.otel-*`; overrides the generic `logs-otel@template` (priority 120) for this stream only; `logs-ollama.otel-attrs@custom` is placed **before** `otel@mappings` in `composed_of` |
+
+The ordering in `composed_of` is the critical mechanism. Elasticsearch applies dynamic templates in first-match-wins order across component templates in sequence. Placing `logs-ollama.otel-attrs@custom` before `otel@mappings` ensures the custom `object` mappings for the attribute subtrees fire before `complex_attributes` can apply `flattened`.
+
+!!! warning "Do not edit `logs-otel@custom` for this fix"
+    The shared `logs-otel@custom` component template — the conventional hook for OTel-stream customizations — cannot be used here. Editing its `attributes.properties` block breaks an alias (`error.exception.message → attributes.exception.message`) that is validated across multiple OTel index templates. The stream-specific index template (`logs-ollama.otel@template`) is the only safe path.
+
+**Data stream rollover and reindex:** The data stream was rolled over to new write index `.ds-logs-ollama.otel-default-2026.06.29-000003`, which adopts the correct mapping. All 1,203 historical documents were reindexed into the new write index.
+
+**Resulting field types (verified after rollover):**
+
+| Field | Type | Aggregatable |
+|---|---|---|
+| `attributes.ollama.duration_ns` | `long` | Yes — avg, percentiles, range |
+| `attributes.http.response.status_code` | `long` | Yes |
+| `attributes.http.request.method` | `keyword` | Yes |
+| `attributes.url.path` | `wildcard` | Yes |
+| `attributes.client.address` | `keyword` | Yes |
+
+!!! warning "Open Item — Old Backing Indices Cause Duplicate Results"
+    Backing indices `.ds-logs-ollama.otel-default-2026.06.29-000001` and `.ds-logs-ollama.otel-default-2026.06.29-000002` remain attached to the data stream. The 1,203 historical documents were reindexed into 000003, but the originals in 000001 and 000002 were not deleted. Any search against `logs-ollama.otel-default` returns duplicate results until Phillip removes those indices. See [Known Issues — Ollama OTel Old Backing Indices](../known-issues.md#ollama-otel-old-backing-indices-cause-duplicate-search-results).
+
 ---
 
 ### Logstash
@@ -214,7 +248,7 @@ Verified working 2026-06-29: a DSM test log landed in `logs-syslog.synology-defa
 
 ## Cloud Data Streams (Added 2026-06-29)
 
-All data streams below are in Elastic Cloud 9.4.0 (GCP us-central1), using the generic `logs-*-*` index template.
+All data streams below are in Elastic Cloud 9.4.0 (GCP us-central1). Most use the generic `logs-*-*` index template; `logs-ollama.otel-default` uses the dedicated `logs-ollama.otel@template` (priority 200) — see [Attribute Field Type Fix](#ollama-otel-mapping-fix) above.
 
 | Data Stream | Source | Shipper | Status |
 |---|---|---|---|
@@ -253,6 +287,7 @@ pmabry@sheepsoc:~$ ss -tlnp | grep 5514
 - **Shared API key** — Filebeat, Logstash, and the [OpenTelemetry Collector](otelcol-contrib.md) all authenticate to Elastic Cloud with the same API key. Revoking or rotating the key affects all three simultaneously. See [Known Issues — Shared Cloud API Key](../known-issues.md#shared-elastic-cloud-api-key-couples-filebeat-logstash-and-otelcol-contrib).
 - **`reroute` processor drops docs — use `set _index`** — documented in detail in the [Ingest Pipeline gotcha above](#ingest-pipeline-logs-ollama-otel). This applies to any future pipeline where the source data stream name is not a valid `type-dataset-namespace` triple.
 - **Data egress** — system journal (auth, sudo, SSH), Ollama logs, and firewall syslog all leave sheepsoc and are stored on Elastic Cloud GCP us-central1. See [Known Issues — System and Firewall Log Egress to Elastic Cloud](../known-issues.md#system-and-firewall-log-egress-to-elastic-cloud).
+- **Old backing indices on `logs-ollama.otel-default` — duplicate search results (pending cleanup)** — after the 2026-06-29 field type fix, historical documents were reindexed into write index 000003 but the originals in 000001 and 000002 were not deleted. Searches against this data stream return duplicates until Phillip removes the old indices. See [Known Issues — Ollama OTel Old Backing Indices](../known-issues.md#ollama-otel-old-backing-indices-cause-duplicate-search-results) and the [mapping fix above](#ollama-otel-mapping-fix).
 
 ## See Also
 

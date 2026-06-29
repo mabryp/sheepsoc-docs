@@ -5,18 +5,9 @@
 | Key | Value |
 |---|---|
 | Rule | Read this before making infrastructure changes |
-| Last reviewed | 2026-06-29 (Claude Code full-text + semantic search; Filebeat/Logstash migrated to cloud) |
+| Last reviewed | 2026-06-29 (Claude Code full-text + semantic search; Filebeat/Logstash migrated to cloud; Ollama OTel field type fix) |
 
 ## Active Landmines — Do Not Touch
-
-!!! danger "Do Not"
-    **MicroK8s: do not start.** The previous install's OpenEBS Node Disk Manager leaked to **247 GB of RAM**, starved the machine, and drove load average above 100. Persistent volumes were misconfigured and the cluster was unusable. The snap is installed but the services are stopped. See the [Services catalog](services.md) — MicroK8s is marked **hold**.
-
-    Before restart, a proper rebuild plan is required. Key requirements:
-
-    - Disable or memory-limit NDM before deploying any workload.
-    - Decide a PV strategy up front — the `k8s_*` mounts are reserved for this.
-    - Re-plan previous workloads (Elasticsearch in-cluster, pfSense, etc.) — some may stay on the host instead.
 
 !!! danger "Do Not"
     **NVIDIA driver: do not update without checking.** Current combination is driver **570.169** / CUDA **12.8** on the RTX 5060 Ti, and [Ollama](services.md) is stable on it. The 5060 Ti needs a modern driver — rolling forward incautiously can leave the GPU in a broken state and take Ollama inference offline. Plan the upgrade, have a rollback, and announce before running `apt upgrade` on the NVIDIA packages.
@@ -64,7 +55,33 @@
 
 - <a id="shared-elastic-cloud-api-key-couples-filebeat-logstash-and-otelcol-contrib"></a>**Shared Elastic Cloud API key couples Filebeat, Logstash, and otelcol-contrib (2026-06-29):** All three services — [Filebeat](platforms/log-shipping.md), [Logstash](platforms/log-shipping.md), and the [OpenTelemetry Collector](platforms/otelcol-contrib.md) — authenticate to Elastic Cloud 9.4.0 using the same API key. The key is stored inline in `filebeat.yml` (root:root 600) and `99-elasticsearch-output.conf` (root:logstash 640), and as `ELASTICSEARCH_API_KEY` in `/etc/otelcol-contrib/otelcol-contrib.conf` (root-only 600). A scoped/derived key could not be minted — the parent key forbids creating derived keys with elevated privileges. **Impact:** revoking or rotating the key requires updating all three config files simultaneously and restarting all three services. Plan any key rotation as a coordinated operation.
 
+- <a id="ollama-otel-old-backing-indices-cause-duplicate-search-results"></a>**Old backing indices on `logs-ollama.otel-default` cause duplicate search results (2026-06-29, pending cleanup):** After the 2026-06-29 attribute field type mapping fix, the data stream was rolled over to write index `.ds-logs-ollama.otel-default-2026.06.29-000003` and all 1,203 historical documents were reindexed into it. However, the original backing indices `.ds-logs-ollama.otel-default-2026.06.29-000001` and `.ds-logs-ollama.otel-default-2026.06.29-000002` remain attached to the data stream. Because both the old indices and the reindexed copies in 000003 are visible to queries, any search against `logs-ollama.otel-default` returns approximately doubled results. **Action required:** Phillip to delete 000001 and 000002 via Kibana (Stack Management → Index Management → Indices) or the ES API. Until deleted, treat result counts from this data stream as unreliable. See [Log Shipping — Attribute Field Type Fix](platforms/log-shipping.md#ollama-otel-mapping-fix) for full context.
+
 ## History Log
+
+### 2026-06-29 — Ollama OTel Log Attribute Field Type Fix
+
+The `logs-ollama.otel-default` data stream had its `attributes.http`, `attributes.ollama`, `attributes.url`, and `attributes.client` sub-objects — and all their nested levels — incorrectly mapped as Elasticsearch type `flattened`. Root cause: the managed `otel@mappings` component template's `complex_attributes` dynamic template uses `path_match: "attributes.*"`, where `*` is greedy and matches dots, capturing every nesting level of the attribute tree and mapping all matches as `flattened`. The `flattened` type stores numeric leaf values as keyword strings — avg aggregations on `attributes.ollama.duration_ns` and `attributes.http.response.status_code` failed with "type [flattened] is not supported".
+
+**Fix applied:**
+
+- Created component template **`logs-ollama.otel-attrs@custom`**: 8 dynamic templates mapping `attributes.{http,ollama,url,client}` and their `.*` sub-objects as `type: object` (dynamic), exempting those subtrees from the `flattened` catch-all.
+- Created index template **`logs-ollama.otel@template`** (priority 200): matches `logs-ollama.otel-*`, overrides the generic `logs-otel@template` (priority 120). `logs-ollama.otel-attrs@custom` is placed **before** `otel@mappings` in `composed_of` — first-match-wins means the custom `object` mappings fire before `complex_attributes` can apply `flattened`.
+- The shared `logs-otel@custom` hook was not usable: editing `attributes.properties` there breaks an alias (`error.exception.message → attributes.exception.message`) validated across multiple OTel index templates. The stream-specific index template is the only safe path.
+- Data stream rolled over to new write index `.ds-logs-ollama.otel-default-2026.06.29-000003`.
+- All 1,203 historical documents reindexed into the new write index with correct mappings. Numeric aggregations on duration and HTTP status verified working after rollover.
+
+**Result:** `attributes.ollama.duration_ns` → `long`, `attributes.http.response.status_code` → `long` (both aggregatable). `attributes.http.request.method` → `keyword`, `attributes.url.path` → `wildcard`, `attributes.client.address` → `keyword`.
+
+**Open item:** Old backing indices 000001 and 000002 remain attached to the data stream, causing duplicate search results until Phillip deletes them. See [Watchlist — Ollama OTel Old Backing Indices](#ollama-otel-old-backing-indices-cause-duplicate-search-results).
+
+Pages updated: [platforms/log-shipping.md](platforms/log-shipping.md) (new attribute field type fix subsection, updated cloud data streams note, known-issues gotcha added), [platforms/elasticsearch-elser.md](platforms/elasticsearch-elser.md) (new mapping fix section), this page (watchlist, history).
+
+### 2026-06-29 — MicroK8s Retired
+
+MicroK8s is no longer installed on sheepsoc. Phillip decided not to run Kubernetes on this host. Verified absent: no `microk8s` snap package, no `snap.microk8s.*` systemd units, no `/var/snap/microk8s` data directory. The "hold / needs rebuild" Active Landmine has been removed from this page. The [Service Catalog](services.md) row has been removed. The original NDM memory-leak incident that caused the stop is documented under [Pre-2026-04-18 — MicroK8s Incident](#pre-2026-04-18-microk8s-incident) for historical context.
+
+Pages updated: [services.md](services.md) (row removed), [topology.md](topology.md) (tree and prose updated), [runbooks/shutdown-startup.md](runbooks/shutdown-startup.md) (stale k8s mount entries removed), [lab-operations/agent-guide.md](../lab-operations/agent-guide.md) (stale convention removed), [lab-operations/sops.md](../lab-operations/sops.md) (danger admonition removed), this page (landmine removed, history entry added).
 
 ### 2026-06-29 — Sheepsoc Lab Hub Deployed
 

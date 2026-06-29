@@ -84,7 +84,7 @@ To reach any sheepsoc service remotely, substitute `100.117.117.43` for `192.168
 
 **LAN Devices (updated 2026-06-28):** In addition to sheepsoc, the flat 192.168.50.0/24 includes OPNsense (.253), Printer (.213), **Samsung TV** (.175 DHCP, MAC 54:3A:D6:5D:B0:EC, WoL + full websocket control capable via tv_control.py including --youtube-search; see [Samsung TV Network Control runbook](runbooks/wol-samsung-tv.md)), and **SAN01** (.165 static DHCP, Synology NAS, NFS share `/volume1/NFS_Share` mounted at `/mnt/nfs` on sheepsoc via NFSv3 systemd automount). See the network diagram and key table above for IP and MAC details. SAN01 was offline from ~April 2026; restored 2026-06-28.
 
-Everything on sheepsoc itself runs as systemd units — no containers for the primary stack. MicroK8s is installed but stopped pending a rebuild (see [Known Issues](known-issues.md)).
+Everything on sheepsoc itself runs as systemd units — no containers for the primary stack.
 
 ```
 sheepsoc  (192.168.50.100 · tailscale 100.117.117.43)
@@ -115,13 +115,11 @@ sheepsoc  (192.168.50.100 · tailscale 100.117.117.43)
 │  └─ /mnt/ssd_working/emulatorjs/      # RomM + MariaDB (romm :3080, db internal)
 ├─ network mounts (NFS)
 │  └─ /mnt/nfs → san01.mabry.lan:/volume1/NFS_Share  (NFSv3, systemd automount, nofail; restored 2026-06-28)
-├─ applications
-│  ├─ ~/repositories/sheepsoc/          # legacy CLI RAG prototype + bulk-ingest script
-│  ├─ ~/repositories/sheepsoc_refactor/ # refactor in progress
-│  ├─ ~/repositories/embedding_testing/ # embedding experiments
-│  └─ ~/repositories/pytorch/           # PyTorch experiments
-└─ stopped / dormant
-   └─ snap.microk8s.*  [stopped, do not start — see Known Issues]
+└─ applications
+   ├─ ~/repositories/sheepsoc/          # legacy CLI RAG prototype + bulk-ingest script
+   ├─ ~/repositories/sheepsoc_refactor/ # refactor in progress
+   ├─ ~/repositories/embedding_testing/ # embedding experiments
+   └─ ~/repositories/pytorch/           # PyTorch experiments
 ```
 
 ## Hardware
