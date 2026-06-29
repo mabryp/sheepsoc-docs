@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Rule | Read this before making infrastructure changes |
-| Last reviewed | 2026-06-29 (Filebeat/Logstash migrated to cloud) |
+| Last reviewed | 2026-06-29 (Claude Code full-text + semantic search; Filebeat/Logstash migrated to cloud) |
 
 ## Active Landmines — Do Not Touch
 
@@ -39,7 +39,7 @@
 
 - **OpenWebUI crash-loops if `ENABLE_OTEL=true` without required packages (2026-06-27):** If the OTEL drop-in (`/etc/systemd/system/open-webui.service.d/otel.conf`) is present and `ENABLE_OTEL=true` is set, but the 9 required OpenTelemetry Python packages are not installed in the `openwebui` conda env, `open-webui.service` will crash-loop immediately with `ModuleNotFoundError: No module named 'opentelemetry.exporter.otlp.proto.http'`. This will happen if the env is rebuilt or the packages are accidentally uninstalled. **Recovery:** activate the `openwebui` conda env and reinstall the 9 packages listed in [OpenWebUI — OpenTelemetry Configuration](platforms/openwebui-rag.md#opentelemetry-configuration). A pip freeze snapshot taken before install lives at `/home/pmabry/infrastructure/open-webui/pip-freeze-before-otel-20260627.txt`. {: #openwebui-crash-loop-with-enable_otel-true-without-packages }
 
-- **Claude Code prompt and tool content egresses to Elastic Cloud GCP (2026-06-27):** Claude Code telemetry is configured with `OTEL_LOG_USER_PROMPTS=1` and `OTEL_LOG_TOOL_DETAILS=1` in `~/.claude/settings.json`. **Full prompt text and tool-argument content is logged and exported by the [OpenTelemetry Collector](platforms/otelcol-contrib.md) to Elastic Cloud 9.4.0 (GCP us-central1, cluster UUID `dab081df574b45cf894e33645053dfb3`).** This data leaves sheepsoc and is stored on a third-party cloud. To disable content logging while keeping metrics: set `OTEL_LOG_USER_PROMPTS=0` and `OTEL_LOG_TOOL_DETAILS=0` in the `env` block of `~/.claude/settings.json`. To disable telemetry entirely: set `CLAUDE_CODE_ENABLE_TELEMETRY=0`. {: #claude-code-prompts-egress-to-elastic-cloud }
+- **Claude Code prompt and response content egresses to, and is fully indexed in, Elastic Cloud GCP (updated 2026-06-29):** Claude Code telemetry is configured with `OTEL_LOG_USER_PROMPTS=1` and `OTEL_LOG_TOOL_DETAILS=1` in `~/.claude/settings.json`. **Full prompt text (event `user_prompt`, field `attributes.prompt`) and assistant response text (event `assistant_response`, field `attributes.response`) is logged and exported by the [OpenTelemetry Collector](platforms/otelcol-contrib.md) to Elastic Cloud 9.4.0 (GCP us-central1, cluster UUID `dab081df574b45cf894e33645053dfb3`).** As of 2026-06-29, this content is not merely stored — it is **fully text-indexed** (`prompt_text`, `response_text`) and **semantically embedded** using ELSER v2 (`prompt_semantic`, `response_semantic`) in the `logs-claude_code.otel-*` data stream. Prompts and responses are keyword-searchable and natural-language-queryable from the cloud cluster. **Forward-only caveat:** only events in the new write index (rolled over 2026-06-29) carry the full-text and semantic mappings; events before that rollover are keyword-only (values over 1,024 characters were truncated and unindexed). To disable content logging while keeping metrics: set `OTEL_LOG_USER_PROMPTS=0` and `OTEL_LOG_TOOL_DETAILS=0` in the `env` block of `~/.claude/settings.json`. To disable telemetry entirely: set `CLAUDE_CODE_ENABLE_TELEMETRY=0`. {: #claude-code-prompts-egress-to-elastic-cloud }
 
 - **OTEL metrics volume is high — watch Elastic Cloud storage (2026-06-28):** OpenWebUI system-metrics instrumentation generates approximately 100,000 metric documents per 30 minutes of light use (driven by `opentelemetry-instrumentation-system-metrics` at a 10-second export interval). OTEL data lands in Elastic Cloud — no local disk impact, but cloud storage consumption may be significant at scale. If this becomes a concern, consider raising `OTEL_METRICS_EXPORT_INTERVAL_MILLIS` in the OpenWebUI OTEL drop-in or removing the `opentelemetry-instrumentation-system-metrics` package from the `openwebui` conda env. See [OpenTelemetry Collector](platforms/otelcol-contrib.md). {: #otel-metrics-volume-high-watch-item }
 
@@ -62,6 +62,23 @@
 - **Shared Elastic Cloud API key couples Filebeat, Logstash, and otelcol-contrib (2026-06-29):** All three services — [Filebeat](platforms/log-shipping.md), [Logstash](platforms/log-shipping.md), and the [OpenTelemetry Collector](platforms/otelcol-contrib.md) — authenticate to Elastic Cloud 9.4.0 using the same API key. The key is stored inline in `filebeat.yml` (root:root 600) and `99-elasticsearch-output.conf` (root:logstash 640), and as `ELASTICSEARCH_API_KEY` in `/etc/otelcol-contrib/otelcol-contrib.conf` (root-only 600). A scoped/derived key could not be minted — the parent key forbids creating derived keys with elevated privileges. **Impact:** revoking or rotating the key requires updating all three config files simultaneously and restarting all three services. Plan any key rotation as a coordinated operation. {: #shared-elastic-cloud-api-key-couples-filebeat-logstash-and-otelcol-contrib }
 
 ## History Log
+
+### 2026-06-29 — Claude Code Prompt & Response Full-Text and Semantic Search Added
+
+Full-text and ELSER v2 semantic search was enabled over Claude Code prompt and response content in the `logs-claude_code.otel-*` data stream on **Elastic Cloud 9.4.0** (GCP us-central1). This is a forward-only change — only events in the new write index (rolled over 2026-06-29) carry the new mapping and pipeline. Events in the prior backing index retain the original `keyword, ignore_above:1024` mapping (values over 1,024 characters were unindexed and no embeddings were generated there).
+
+**Objects created on the cloud cluster:**
+
+- **Ingest pipeline `claude-code-prompt-enrich`** — extracts `attributes.prompt` (on `user_prompt` events) and `attributes.response` (on `assistant_response` events) into new `prompt_text` / `response_text` (text) and `prompt_semantic` / `response_semantic` (semantic_text, ELSER v2) fields. Other events pass through untouched.
+- **Component template `logs-claude_code.otel@custom`** — defines the new field mappings and sets `index.default_pipeline: claude-code-prompt-enrich`.
+- **Dedicated index template `logs-claude_code.otel@template`** (priority 200) — pattern `logs-claude_code.otel-*`; overrides the shared `logs-otel@template` (priority 120) for this stream only; `composed_of` mirrors the OTel template and appends the custom component. No shared templates were modified.
+- **Data stream rolled over** — new write index `.ds-logs-claude_code.otel-default-2026.06.29-000002` adopts the template and default pipeline.
+
+ELSER inference uses `.elser-2-elasticsearch`, which was already deployed on the cloud cluster for OpenWebUI RAG. This is its second use case on the cluster. Semantic search was verified working with live queries after rollover.
+
+**Privacy note:** Prompts and responses are now not just stored but fully keyword- and semantically-indexed in Elastic Cloud. See updated [Watchlist — Claude Code prompt/response egress](#claude-code-prompts-egress-to-elastic-cloud).
+
+Pages updated: [platforms/otelcol-contrib.md](platforms/otelcol-contrib.md) (data stream table, new log stream section, known-issues gotcha), [platforms/elasticsearch-elser.md](platforms/elasticsearch-elser.md) (OTEL table, new Claude Code section), this page (watchlist entry, history).
 
 ### 2026-06-29 — Filebeat and Logstash Repointed from Local ES to Elastic Cloud
 

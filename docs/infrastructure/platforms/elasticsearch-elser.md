@@ -6,10 +6,10 @@
 |---|---|
 | Elastic Cloud cluster | Elastic Cloud 9.4.0 (GCP us-central1, 3 nodes/2 data, UUID `DaBtVAvNQNmqT0thJwt-7Q`) |
 | Elastic Cloud auth | API key (`ELASTICSEARCH_API_KEY` in `~/.env`) |
-| Cloud indexes | `sheepsoc_rag001_v2` / `v3` (~48k docs) — research; OTEL data streams (added 2026-06-27); Beats/Logstash data streams (added 2026-06-29) |
+| Cloud indexes | `sheepsoc_rag001_v2` / `v3` (~48k docs) — research; OTEL data streams (added 2026-06-27); Beats/Logstash data streams (added 2026-06-29); `logs-claude_code.otel-*` full-text + ELSER semantic search (2026-06-29) |
 | Local ES | Elasticsearch 8.19.14 (`elasticsearch.service`, `/mnt/elastic_data`, `127.0.0.1:9200`) |
 | Local indexes | `open_webui_collections_d768` (dual dense kNN + ELSER sparse, ~1.9 GB) — **current OpenWebUI RAG backend** |
-| Updated | 2026-06-28 |
+| Updated | 2026-06-29 |
 
 !!! note "Current State (as of 2026-06-28)"
     **Two active ES deployments.** Local ES 8.19.14 (`127.0.0.1:9200`) serves [OpenWebUI](openwebui-rag.md) RAG vectors — `open_webui_collections_d768` (~1.9 GB, HNSW/cosine + ELSER) is still on local storage. **Elastic Cloud 9.4.0** serves research indexes (RAG-001 v2/v3) and [OTEL data streams](otelcol-contrib.md) (confirmed flowing 2026-06-27). Migration of OpenWebUI RAG to Elastic Cloud is planned but has **not** been done yet. The 2026-05-10 history entry "local ES decommissioned — all traffic on cloud" referred to research/ingest workloads; the OpenWebUI RAG index was never moved. Local ES is targeted for an ES 9 rebuild once the RAG migration completes.
@@ -48,16 +48,50 @@ The [OpenTelemetry Collector](otelcol-contrib.md) exports OTEL data directly to 
 
 | Data Stream Pattern | Source | Status |
 |---|---|---|
-| `logs-open_webui.otel-*` | OpenWebUI | Confirmed flowing |
-| `metrics-open_webui.otel-*` | OpenWebUI | Confirmed flowing |
-| `traces-open_webui.otel-*` | OpenWebUI | Confirmed flowing |
-| `logs-claude_code.otel-*` | Claude Code | Appears on next new Claude Code session |
-| `metrics-claude_code.otel-*` | Claude Code | Appears on next new Claude Code session |
+| `logs-open_webui.otel-*` | OpenWebUI | Confirmed flowing (2026-06-27) |
+| `metrics-open_webui.otel-*` | OpenWebUI | Confirmed flowing (2026-06-27) |
+| `traces-open_webui.otel-*` | OpenWebUI | Confirmed flowing (2026-06-27) |
+| `logs-claude_code.otel-*` | Claude Code | Active — full-text + ELSER semantic search enabled (2026-06-29) |
+| `metrics-claude_code.otel-*` | Claude Code | Active (confirmed flowing 2026-06-28) |
 
 Verify via Kibana (Stack Management → Index Management → Data Streams, filter "otel") or via the Elastic Cloud REST API using the `ELASTICSEARCH_API_KEY`.
 
 !!! note "Local ES Not Involved in OTEL"
     OTEL data does **not** pass through local ES 8.19.14. The collector exports directly to the cloud endpoint. Local ES 8.19.14 only serves [OpenWebUI](openwebui-rag.md) RAG vectors (`open_webui_collections_d768`).
+
+## Elastic Cloud — Claude Code Full-Text & Semantic Search (2026-06-29)
+
+On 2026-06-29, the `logs-claude_code.otel-*` data stream was reconfigured on the cloud cluster to support full-text and ELSER v2 semantic search over Claude Code prompt and response content. The `.elser-2-elasticsearch` inference endpoint — already deployed for [OpenWebUI RAG](#what-was-configured-2026-04-23) — is its second use case on this cluster.
+
+This is a **forward-only** change. Only events in the new write index (rolled over 2026-06-29) carry the new field mappings and pipeline. Events in the prior backing index retain the original `keyword, ignore_above:1024` mapping.
+
+### Objects Created on the Cloud Cluster
+
+| Object | Name | Notes |
+|---|---|---|
+| Ingest pipeline | `claude-code-prompt-enrich` | Extracts `attributes.prompt` / `attributes.response` into new fields; guarded by `event_name` so other events pass through untouched |
+| Component template | `logs-claude_code.otel@custom` | Maps new fields; sets `index.default_pipeline: claude-code-prompt-enrich` |
+| Index template | `logs-claude_code.otel@template` (priority 200) | Pattern `logs-claude_code.otel-*`; overrides shared `logs-otel@template` (priority 120) for this stream only; no shared templates were modified |
+
+### New Fields on `logs-claude_code.otel-*`
+
+| Field | Type | Inference endpoint | Populated for event |
+|---|---|---|---|
+| `prompt_text` | `text` | — | `user_prompt` |
+| `response_text` | `text` | — | `assistant_response` |
+| `prompt_semantic` | `semantic_text` | `.elser-2-elasticsearch` | `user_prompt` |
+| `response_semantic` | `semantic_text` | `.elser-2-elasticsearch` | `assistant_response` |
+
+`semantic_text` is compatible with this logsdb stream because `source_mode` is set to `STORED`. The `_source` field shows the original string for `semantic_text` fields — ELSER sparse embeddings are stored in internal Lucene structures, not in `_source`. This is expected behavior and does not indicate a missing embedding.
+
+### How ELSER Is Used in Two Distinct Contexts
+
+| Context | Index | Field | Inference endpoint | Cluster |
+|---|---|---|---|---|
+| OpenWebUI RAG sparse embeddings | `open_webui_collections_d768` | `text_elser` (sparse_vector) | `.elser-2-elasticsearch` | **Local** ES 8.19.14 |
+| Claude Code prompt/response semantic search | `logs-claude_code.otel-*` | `prompt_semantic`, `response_semantic` (semantic_text) | `.elser-2-elasticsearch` | **Elastic Cloud** 9.4.0 |
+
+These are independent deployments of the same model. The cloud cluster's `.elser-2-elasticsearch` was already allocated before this change. For the [OpenTelemetry Collector](otelcol-contrib.md) configuration that produces the `logs-claude_code.otel-*` stream, see [OpenTelemetry Collector — Claude Code Log Stream](otelcol-contrib.md#claude-code-log-stream--full-text--semantic-search-2026-06-29).
 
 ## Elastic Cloud — Beats & Logstash Data Streams (Added 2026-06-29)
 

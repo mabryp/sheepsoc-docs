@@ -15,7 +15,7 @@ receivers [otlp] → processors [cumulativetodelta (metrics only), batch] → ex
 Data lands in [Elastic Cloud 9.4.0](elasticsearch-elser.md) (GCP us-central1) as OTel-format data streams. As of 2026-06-27, traces, metrics, and logs from [OpenWebUI](openwebui-rag.md) are confirmed flowing. Claude Code telemetry will appear in new data streams once a new Claude Code session starts.
 
 !!! warning "Privacy — Claude Code Content Egresses to Elastic Cloud"
-    Claude Code telemetry is configured with `OTEL_LOG_USER_PROMPTS=1` and `OTEL_LOG_TOOL_DETAILS=1`. **Full prompt text and tool-argument content is logged and exported to Elastic Cloud (GCP us-central1, cluster UUID `dab081df574b45cf894e33645053dfb3`).** This data leaves sheepsoc and is stored in a third-party cloud. See [Known Issues](../known-issues.md#claude-code-prompts-egress-to-elastic-cloud).
+    Claude Code telemetry is configured with `OTEL_LOG_USER_PROMPTS=1` and `OTEL_LOG_TOOL_DETAILS=1`. **Full prompt text and tool-argument content is logged and exported to Elastic Cloud (GCP us-central1, cluster UUID `dab081df574b45cf894e33645053dfb3`).** This data leaves sheepsoc, is stored in a third-party cloud, and as of 2026-06-29 is **fully text-indexed and semantically embedded** (ELSER v2) in the `logs-claude_code.otel-*` data stream — prompts and responses are searchable by keyword and natural-language query. See [Known Issues](../known-issues.md#claude-code-prompts-egress-to-elastic-cloud).
 
 This implementation follows the approach from the Elastic Security Labs article "Claude Code/Cowork monitoring at scale with Otel & Elastic". Grok Code was investigated but has no user-configurable OTLP-to-self-hosted path and was not pursued.
 
@@ -121,19 +121,75 @@ pmabry@sheepsoc:~$ journalctl -u otelcol-contrib.service -n 50 --no-pager
 
 OTEL data lands in Elastic Cloud 9.4.0 (GCP us-central1) using the OTel mapping mode. Index patterns follow Elastic's data stream naming convention, using the `data_stream.dataset` resource attribute set on each source.
 
-| Data Stream Pattern | Source | `data_stream.dataset` | Status as of 2026-06-27 |
+| Data Stream Pattern | Source | `data_stream.dataset` | Status |
 |---|---|---|---|
-| `logs-open_webui.otel-*` | OpenWebUI | `open_webui` | Confirmed flowing |
-| `metrics-open_webui.otel-*` | OpenWebUI | `open_webui` | Confirmed flowing |
-| `traces-open_webui.otel-*` | OpenWebUI | `open_webui` | Confirmed flowing |
-| `logs-claude_code.otel-*` | Claude Code | `claude_code` | Appears on next new Claude Code session |
-| `metrics-claude_code.otel-*` | Claude Code | `claude_code` | Appears on next new Claude Code session |
+| `logs-open_webui.otel-*` | OpenWebUI | `open_webui` | Confirmed flowing (2026-06-27) |
+| `metrics-open_webui.otel-*` | OpenWebUI | `open_webui` | Confirmed flowing (2026-06-27) |
+| `traces-open_webui.otel-*` | OpenWebUI | `open_webui` | Confirmed flowing (2026-06-27) |
+| `logs-claude_code.otel-*` | Claude Code | `claude_code` | Active — full-text + ELSER semantic search enabled (2026-06-29) |
+| `metrics-claude_code.otel-*` | Claude Code | `claude_code` | Active (confirmed flowing 2026-06-28) |
 
 !!! note "Ollama Logs Use a Different Path — Not This Collector"
     Ollama service logs do **not** travel through this collector. They are shipped by [Filebeat](log-shipping.md) to the `logs-ollama-otel` ingest pipeline on Elastic Cloud, which reshapes them into the OTel log schema and stores them in `logs-ollama.otel-default`. The result is schema-compatible with the data streams in the table above, but the ingestion path is Filebeat → cloud ingest pipeline, not OTLP → this collector. See [Log Shipping — Filebeat & Logstash](log-shipping.md) for full details.
 
 !!! warning "Metrics Volume"
     OpenWebUI system-metrics instrumentation generates approximately 100,000 metric documents per 30 minutes of light use, driven by the `opentelemetry-instrumentation-system-metrics` package at a 10-second export interval. This data lands in Elastic Cloud — while there is no local disk pressure, high ingestion volume may affect cloud storage consumption. If the rate becomes a concern, consider raising `OTEL_METRICS_EXPORT_INTERVAL_MILLIS` in the OpenWebUI drop-in or removing the `opentelemetry-instrumentation-system-metrics` package from the `openwebui` conda env. See [Known Issues — OTEL Metrics Volume](../known-issues.md#otel-metrics-volume-high-watch-item).
+
+### Claude Code Log Stream — Full-Text & Semantic Search (2026-06-29)
+
+On 2026-06-29, the `logs-claude_code.otel-*` data stream was reconfigured to support full-text and ELSER v2 semantic search over prompt and response content. This is a **forward-only** change — only events in the new write index (`.ds-logs-claude_code.otel-default-2026.06.29-000002`, rolled over 2026-06-29) carry the new field mappings and pipeline. The prior backing index retains the original `keyword, ignore_above:1024` mapping — values over 1,024 characters were unindexed there, and no semantic embeddings were generated.
+
+#### What Was Built
+
+| Object | Name | Purpose |
+|---|---|---|
+| Ingest pipeline | `claude-code-prompt-enrich` | Extracts `attributes.prompt` (on `user_prompt` events) and `attributes.response` (on `assistant_response` events) into new text and semantic fields; all other events pass through untouched |
+| Component template | `logs-claude_code.otel@custom` | Defines the new field mappings and sets `index.default_pipeline: claude-code-prompt-enrich` |
+| Index template | `logs-claude_code.otel@template` (priority 200) | Pattern `logs-claude_code.otel-*`; overrides the shared `logs-otel@template` (priority 120) for this stream only; `composed_of` matches the OTel template exactly and appends `logs-claude_code.otel@custom`; no shared templates were modified |
+
+#### New Fields (Forward-Only)
+
+| Field | Type | Source attribute | Populated for event |
+|---|---|---|---|
+| `prompt_text` | `text` | `attributes.prompt` | `user_prompt` |
+| `response_text` | `text` | `attributes.response` | `assistant_response` |
+| `prompt_semantic` | `semantic_text` (ELSER v2) | `attributes.prompt` | `user_prompt` |
+| `response_semantic` | `semantic_text` (ELSER v2) | `attributes.response` | `assistant_response` |
+
+ELSER inference uses `.elser-2-elasticsearch`, which was already deployed in the cloud cluster for OpenWebUI RAG. This is its second use case on the cluster. See [Elasticsearch & ELSER — Claude Code Full-Text & Semantic Search](elasticsearch-elser.md#elastic-cloud--claude-code-full-text--semantic-search-2026-06-29).
+
+#### Query Patterns
+
+Use a `semantic` query for natural-language retrieval; use standard full-text queries against `prompt_text` or `response_text` for keyword matching.
+
+```json
+// Semantic search — find sessions where you asked about ELSER configuration
+{
+  "query": {
+    "semantic": {
+      "field": "prompt_semantic",
+      "query": "how to configure ELSER in Elasticsearch"
+    }
+  }
+}
+```
+
+```json
+// Full-text search over response content
+{
+  "query": {
+    "match": {
+      "response_text": "cumulativetodelta processor"
+    }
+  }
+}
+```
+
+!!! note "Restrict to New Index for Guaranteed Full Coverage"
+    To restrict searches to documents that are guaranteed to be fully indexed and semantically embedded, add a `range` filter on `@timestamp` with a lower bound of `2026-06-29T00:00:00Z`. Events before the rollover are keyword-only and values over 1,024 characters were truncated by the original `ignore_above` limit.
+
+!!! note "`_source` Shows the Original String for `semantic_text` Fields"
+    For `semantic_text` fields, `_source` shows the original prompt or response text — not the ELSER sparse embeddings. The embeddings live in internal Lucene structures and are intentionally excluded from `_source`. This is normal and does not indicate a failed or missing embedding. `source_mode: STORED` on this logsdb stream is compatible with `semantic_text`.
 
 ## Claude Code Token & Cost Dashboard
 
@@ -212,7 +268,7 @@ A `cacheRead` share of ~93% (as observed) represents the cost-efficient operatin
 
 ## Known Issues / Gotchas
 
-- **Claude Code prompt content egresses to Elastic Cloud:** With `OTEL_LOG_USER_PROMPTS=1` and `OTEL_LOG_TOOL_DETAILS=1` set, full prompt and tool-argument text is logged and sent to Elastic Cloud GCP us-central1. This data leaves sheepsoc. See [Known Issues](../known-issues.md#claude-code-prompts-egress-to-elastic-cloud).
+- **Claude Code prompt and response content egresses to Elastic Cloud:** With `OTEL_LOG_USER_PROMPTS=1` and `OTEL_LOG_TOOL_DETAILS=1` set, full prompt and tool-argument text is logged and sent to Elastic Cloud GCP us-central1. As of 2026-06-29, this content is **fully text-indexed and semantically embedded** (ELSER v2) in `logs-claude_code.otel-*` — not merely stored. This data leaves sheepsoc. See [Known Issues](../known-issues.md#claude-code-prompts-egress-to-elastic-cloud).
 - **OpenWebUI crash-loop if packages are missing:** Enabling `ENABLE_OTEL=true` in the OpenWebUI drop-in without the 9 required OpenTelemetry Python packages installed in the `openwebui` conda env causes an immediate crash-loop. See [Known Issues](../known-issues.md#openwebui-crash-loop-with-enable_otel-true-without-packages) and [OpenWebUI — OpenTelemetry Configuration](openwebui-rag.md#opentelemetry-configuration) for the package list.
 - **Port 8889, not 8888:** The collector self-metrics port was moved from the default `8888` to `8889` because Jupyter already uses `8888`. Any tooling expecting Prometheus metrics at `:8888` must target `:8889` instead.
 - **`attributes.type` field-type conflict across metrics data streams (2026-06-28):** `metrics-claude_code.otel-default` maps `attributes.type` as `keyword`; `metrics-open_webui.otel-default` maps it as `long`. A Kibana data view spanning both streams (`metrics-*.otel-*`) sees the field as conflicted and hides it from Lens aggregations and breakdowns, blocking unified cross-source dashboards that break down by token or event type. **Workaround:** use per-source data views. **Possible fix:** add an `attributes` or `transform` processor to the collector pipeline to normalize the field before export, or remap the field type in one data stream's index template. See [Known Issues — OTEL `attributes.type` field conflict](../known-issues.md#otel-attributes-type-field-conflict).
