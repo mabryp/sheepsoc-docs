@@ -90,18 +90,53 @@ pmabry@sheepsoc:~$ sudo /home/pmabry/infrastructure/filebeat/filebeat-8.18.3-lin
 
 ### Ingest Pipeline — `logs-ollama-otel`
 
-This pipeline was created on Elastic Cloud 9.4.0 on 2026-06-29. It reshapes raw Ollama journald events (shipped by Filebeat input 1) into the **OTel log document schema**, placing them in the same schema family as Claude Code and OpenWebUI OTEL logs.
+This pipeline was created on Elastic Cloud 9.4.0 on 2026-06-29 and extended on 2026-06-30 from 27 to 62 processors. It reshapes raw Ollama journald events (shipped by Filebeat input 1) into the **OTel log document schema**, placing them in the same schema family as Claude Code and OpenWebUI OTEL logs.
+
+**Pipeline source:** `/home/pmabry/infrastructure/elasticsearch/logs-ollama-otel.pipeline.json`
+**Pre-extension backup:** `/home/pmabry/infrastructure/elasticsearch/backups/logs-ollama-otel.pipeline.bak.20260630.json`
+**Restore command:** `curl -X PUT .../logs-ollama-otel -H 'Content-Type: application/json' -d @logs-ollama-otel.pipeline.bak.20260630.json`
 
 **Why this pipeline exists:** The [OpenTelemetry Collector](otelcol-contrib.md) receives native OTLP telemetry from OpenWebUI and Claude Code. Ollama does not emit OTLP natively — it emits log lines to journald. This pipeline bridges that gap by reshaping the journald events into the OTel schema, making Ollama logs queryable alongside OTEL data in Kibana without format divergence.
 
-**What it parses:** Two Ollama log formats:
+**What it parses:** Three Ollama log formats:
 
 1. **Structured key=value lines** — `time=… level=… source=… msg="…"`
 2. **GIN HTTP access logs** — `[GIN] … | <status> | <latency> | <ip> | <METHOD> "<path>"`
+3. **llama.cpp runner metric events** — six named event types produced by the llama.cpp inference engine (added 2026-06-30); previously dropped with a blanket `drop` processor; now parsed and indexed with typed numeric fields
 
-Lines matching llama.cpp runner noise patterns are dropped by the pipeline before storage.
+The prior blanket `drop` for all llama.cpp runner lines has been narrowed to a targeted set of noise patterns. Six named runner event types now survive and are indexed.
 
-**Fields set by the pipeline:**
+#### Runner Metric Event Types (Added 2026-06-30)
+
+Each runner metric document carries `attributes.ollama.event` as a keyword discriminator. The six indexed event types and their key fields:
+
+| Event type | Key fields | Description |
+|---|---|---|
+| `new_prompt` | `prompt_tokens`, `n_ctx_slot`, `n_keep` | Recorded when a new prompt is loaded into a slot |
+| `prompt_eval` | `prompt_eval_ms`, `prompt_eval_tokens`, `prompt_tokens_per_sec` | Prompt prefill (time-to-first-token phase) |
+| `generation` | `eval_ms`, `eval_tokens`, `eval_tokens_per_sec`, `ms_per_token` | Token generation — `eval_tokens_per_sec` is the primary throughput metric |
+| `total` | `total_ms`, `total_tokens` | End-to-end summary for a completed request |
+| `release` | `final_tokens`, `truncated` | Recorded when a slot is released; `truncated` is `boolean` |
+| `slot_load` | `n_ctx` | Context window size logged when a model slot is initialized |
+
+All runner metric fields are under the `attributes.ollama.*` namespace. `slot_id` and `task_id` are present on most event types and can be used to correlate the full set of documents for a single inference request.
+
+#### Lines Still Dropped (Noise)
+
+The following llama.cpp runner patterns continue to be dropped before storage — they carry no per-request telemetry value:
+
+- Streaming decode progress ticks (`n_decoded` / `tg t/s` pattern)
+- Sampler chain dumps
+- `llama_model_loader` kv array dumps
+- Cache and prompt-cache bookkeeping lines
+- Idle slot notices
+- `init_sampler` and `graphs reused` lines
+
+GIN and structured log parsing are unchanged by the 2026-06-30 extension (regression confirmed via live test).
+
+#### Fields Set by the Pipeline
+
+**Shared / structured log and GIN fields:**
 
 | Field | Value / Source |
 |---|---|
@@ -119,6 +154,47 @@ Lines matching llama.cpp runner noise patterns are dropped by the pipeline befor
 | `attributes.http.response.status_code` | From GIN access lines |
 | `attributes.client.address` | Client IP from GIN access lines |
 | `attributes.ollama.duration_ns` | Latency in nanoseconds from GIN access lines |
+
+**Runner metric fields (added 2026-06-30 — all under `attributes.ollama.*`):**
+
+| Field | ES type | Present on event types | Description |
+|---|---|---|---|
+| `attributes.ollama.event` | `keyword` | all runner events | Discriminator: `new_prompt` / `prompt_eval` / `generation` / `total` / `release` / `slot_load` |
+| `attributes.ollama.slot_id` | `long` | most | Slot identifier for correlating multi-doc request records |
+| `attributes.ollama.task_id` | `long` | most | Task ID (may be −1 for model-init tasks) |
+| `attributes.ollama.prompt_tokens` | `long` | `new_prompt` | Input token count |
+| `attributes.ollama.n_ctx_slot` | `long` | `new_prompt` | Context window tokens allocated for this slot |
+| `attributes.ollama.n_keep` | `long` | `new_prompt` | KV-cache tokens retained on context shift |
+| `attributes.ollama.prompt_eval_ms` | `float` | `prompt_eval` | Prompt prefill time in ms |
+| `attributes.ollama.prompt_eval_tokens` | `long` | `prompt_eval` | Tokens evaluated during prefill |
+| `attributes.ollama.prompt_tokens_per_sec` | `float` | `prompt_eval` | Prefill throughput |
+| `attributes.ollama.eval_ms` | `float` | `generation` | Generation time in ms |
+| `attributes.ollama.eval_tokens` | `long` | `generation` | Generated (output) token count |
+| `attributes.ollama.eval_tokens_per_sec` | `float` | `generation` | **Primary throughput metric** — generation tokens/sec |
+| `attributes.ollama.ms_per_token` | `float` | `generation` | Inverse throughput — ms per generated token |
+| `attributes.ollama.total_ms` | `float` | `total` | End-to-end request latency in ms |
+| `attributes.ollama.total_tokens` | `long` | `total` | Total tokens (prompt + generated) |
+| `attributes.ollama.final_tokens` | `long` | `release` | Final token count at slot release |
+| `attributes.ollama.truncated` | `boolean` | `release` | Whether context was truncated |
+| `attributes.ollama.n_ctx` | `long` | `slot_load` | Context window size at model load |
+
+All 18 runner metric fields are correctly typed and fully aggregatable. They are dynamically mapped by the existing `logs-ollama.otel-attrs@custom` component template — no index template changes were required. Verified via `field_caps` API on 2026-06-30 using mistral:7b (11 docs indexed); `avg(eval_tokens_per_sec)` confirmed aggregatable, returning 84.57 t/s.
+
+#### Example Query — Generation Throughput Over Time
+
+```json
+GET logs-ollama.otel-default/_search
+{
+  "size": 0,
+  "query": {"term": {"attributes.ollama.event": "generation"}},
+  "aggs": {
+    "throughput_over_time": {
+      "date_histogram": {"field": "@timestamp", "calendar_interval": "1h"},
+      "aggs": {"avg_tps": {"avg": {"field": "attributes.ollama.eval_tokens_per_sec"}}}
+    }
+  }
+}
+```
 
 !!! danger "Gotcha — Use `set _index`, Not `reroute`"
     The pipeline routes docs to `logs-ollama.otel-default` using a **`set` processor** that assigns `_index = logs-ollama.otel-default`. Do **not** use the `reroute` processor here.
@@ -252,7 +328,7 @@ All data streams below are in Elastic Cloud 9.4.0 (GCP us-central1). Most use th
 
 | Data Stream | Source | Shipper | Status |
 |---|---|---|---|
-| `logs-ollama.otel-default` | Ollama journald → `logs-ollama-otel` pipeline | Filebeat | Active |
+| `logs-ollama.otel-default` | Ollama journald + llama.cpp runner metrics → `logs-ollama-otel` pipeline (62 processors, extended 2026-06-30) | Filebeat | Active |
 | `filebeat-8.18.3` | System journal + sheepsoc app logs | Filebeat | Active (app log input currently idle) |
 | `logs-syslog.opnsense-default` | OPNsense firewall syslog on port 5514 | Logstash | Confirmed flowing |
 | `logs-syslog.asus-default` | ASUS RT-AX5400 syslog on port 5514 | Logstash | Confirmed flowing (~180+ docs as of 2026-06-29) |
@@ -292,6 +368,6 @@ pmabry@sheepsoc:~$ ss -tlnp | grep 5514
 
 - [Elasticsearch & ELSER](elasticsearch-elser.md) — **stores data in** Elastic Cloud 9.4.0 — destination for all log-shipping data streams
 - [OpenTelemetry Collector](otelcol-contrib.md) — **see also** — ships OpenWebUI and Claude Code OTLP telemetry to cloud via a separate OTLP path; shares the cloud API key with Filebeat and Logstash
-- [Ollama](ollama.md) — **monitored by** Filebeat; `ollama.service` journald output is shipped via the `logs-ollama-otel` pipeline to `logs-ollama.otel-default`
+- [Ollama](ollama.md) — **monitored by** Filebeat; `ollama.service` journald output and llama.cpp runner metrics are shipped via the `logs-ollama-otel` pipeline to `logs-ollama.otel-default`
 - [Services](../services.md) — service catalog entries for Filebeat and Logstash
 - [Known Issues](../known-issues.md) — active watchlist items for this pipeline

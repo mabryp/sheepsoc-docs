@@ -13,7 +13,7 @@ The service runs as `pmabry` (not the Ollama default `ollama` user) and binds to
 - **NVIDIA GPU** — RTX 5060 Ti, 16 GB VRAM. The service will start without a GPU but inference falls back to CPU. See [Known Issues — NVIDIA driver landmine](../known-issues.md#active-landmines-do-not-touch) before touching driver packages.
 - **[OpenWebUI & RAG](openwebui-rag.md)** — **depends on** Ollama for LLM chat inference and RAG embeddings (`nomic-embed-text`). If Ollama goes down or is misconfigured, OpenWebUI chat and all RAG document uploads fail.
 - **[Matrix Bot](matrix-bot.md)** — **depends on** Ollama for inference via the OpenWebUI HTTP API path.
-- **[Log Shipping — Filebeat & Logstash](log-shipping.md)** — **monitored by** Filebeat; `ollama.service` journald output is shipped to Elastic Cloud 9.4.0 via the `logs-ollama-otel` ingest pipeline and stored in the `logs-ollama.otel-default` data stream.
+- **[Log Shipping — Filebeat & Logstash](log-shipping.md)** — **monitored by** Filebeat; `ollama.service` journald output is shipped to Elastic Cloud 9.4.0 via the `logs-ollama-otel` ingest pipeline and stored in the `logs-ollama.otel-default` data stream. As of 2026-06-30, the pipeline also indexes llama.cpp runner performance metrics — six event types including `generation` (which captures `eval_tokens_per_sec`, the primary throughput metric). See [Log Shipping — Runner Metric Event Types](log-shipping.md#runner-metric-event-types-added-2026-06-30) for the full field catalog.
 
 ## Configuration
 
@@ -189,6 +189,6 @@ pmabry@sheepsoc:~$ sudo systemctl restart ollama
 
 - [OpenWebUI & RAG](openwebui-rag.md) — **depends on** Ollama for LLM inference and RAG embeddings
 - [Matrix Bot](matrix-bot.md) — **depends on** Ollama for inference
-- [Log Shipping — Filebeat & Logstash](log-shipping.md) — Filebeat collects `ollama.service` journald logs and ships them to Elastic Cloud via the `logs-ollama-otel` ingest pipeline
+- [Log Shipping — Filebeat & Logstash](log-shipping.md) — Filebeat collects `ollama.service` journald logs and llama.cpp runner metrics and ships them to Elastic Cloud via the `logs-ollama-otel` ingest pipeline; see the pipeline section for the full field catalog including throughput metrics
 - [Services](../services.md) — full service catalog with port and status
 - [Known Issues](../known-issues.md) — NVIDIA driver landmine and upgrade history

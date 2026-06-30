@@ -94,7 +94,7 @@ These are independent deployments of the same model. The cloud cluster's `.elser
 
 | Data Stream | Source | Shipper | Status |
 |---|---|---|---|
-| `logs-ollama.otel-default` | Ollama journald → `logs-ollama-otel` ingest pipeline | Filebeat | Active |
+| `logs-ollama.otel-default` | Ollama journald + llama.cpp runner metrics → `logs-ollama-otel` pipeline (62 processors, extended 2026-06-30) | Filebeat | Active |
 | `filebeat-8.18.3` | System journal + sheepsoc app logs | Filebeat | Active (app log input currently idle) |
 | `logs-syslog.opnsense-default` | OPNsense firewall syslog on port 5514 | Logstash | Confirmed flowing |
 | `logs-syslog.asus-default` | ASUS RT-AX5400 syslog on port 5514 | Logstash | Confirmed flowing (~180+ docs as of 2026-06-29) |
