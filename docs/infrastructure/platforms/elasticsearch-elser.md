@@ -118,8 +118,8 @@ The data stream was rolled over to new write index `.ds-logs-ollama.otel-default
 
 For the technical explanation of the `complex_attributes` root cause, the `logs-otel@custom` gotcha, and the complete field-type table, see [Log Shipping — Attribute Field Type Fix](log-shipping.md#ollama-otel-mapping-fix).
 
-!!! warning "Open Item — Duplicate Results Until Old Backing Indices Are Deleted"
-    Backing indices `.ds-logs-ollama.otel-default-2026.06.29-000001` and `-000002` remain attached to the data stream. Historical documents now exist in both those indices and the new 000003, so searches return duplicates until Phillip manually deletes the old backing indices. See [Known Issues](../known-issues.md#ollama-otel-old-backing-indices-cause-duplicate-search-results).
+!!! note "Resolved 2026-06-30 — Old Backing Indices Deleted"
+    Backing indices 000001 and 000002 were deleted by Phillip on 2026-06-30. Duplicate results eliminated — document count reduced from ~3,822 to 2,743. Aggregations on `attributes.ollama.duration_ns` and `attributes.http.response.status_code` verified working. See [Known Issues — 2026-06-30 history](../known-issues.md#2026-06-30-ollama-otel-old-backing-indices-deleted).
 
 ## Background: Dense vs. Sparse Embeddings
 

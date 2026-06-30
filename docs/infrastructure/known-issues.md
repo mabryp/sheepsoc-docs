@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Rule | Read this before making infrastructure changes |
-| Last reviewed | 2026-06-29 (Claude Code full-text + semantic search; Filebeat/Logstash migrated to cloud; Ollama OTel field type fix) |
+| Last reviewed | 2026-06-30 (Ollama OTel old backing indices resolved) |
 
 ## Active Landmines — Do Not Touch
 
@@ -55,9 +55,20 @@
 
 - <a id="shared-elastic-cloud-api-key-couples-filebeat-logstash-and-otelcol-contrib"></a>**Shared Elastic Cloud API key couples Filebeat, Logstash, and otelcol-contrib (2026-06-29):** All three services — [Filebeat](platforms/log-shipping.md), [Logstash](platforms/log-shipping.md), and the [OpenTelemetry Collector](platforms/otelcol-contrib.md) — authenticate to Elastic Cloud 9.4.0 using the same API key. The key is stored inline in `filebeat.yml` (root:root 600) and `99-elasticsearch-output.conf` (root:logstash 640), and as `ELASTICSEARCH_API_KEY` in `/etc/otelcol-contrib/otelcol-contrib.conf` (root-only 600). A scoped/derived key could not be minted — the parent key forbids creating derived keys with elevated privileges. **Impact:** revoking or rotating the key requires updating all three config files simultaneously and restarting all three services. Plan any key rotation as a coordinated operation.
 
-- <a id="ollama-otel-old-backing-indices-cause-duplicate-search-results"></a>**Old backing indices on `logs-ollama.otel-default` cause duplicate search results (2026-06-29, pending cleanup):** After the 2026-06-29 attribute field type mapping fix, the data stream was rolled over to write index `.ds-logs-ollama.otel-default-2026.06.29-000003` and all 1,203 historical documents were reindexed into it. However, the original backing indices `.ds-logs-ollama.otel-default-2026.06.29-000001` and `.ds-logs-ollama.otel-default-2026.06.29-000002` remain attached to the data stream. Because both the old indices and the reindexed copies in 000003 are visible to queries, any search against `logs-ollama.otel-default` returns approximately doubled results. **Action required:** Phillip to delete 000001 and 000002 via Kibana (Stack Management → Index Management → Indices) or the ES API. Until deleted, treat result counts from this data stream as unreliable. See [Log Shipping — Attribute Field Type Fix](platforms/log-shipping.md#ollama-otel-mapping-fix) for full context.
-
 ## History Log
+
+### 2026-06-30 — Ollama OTel Old Backing Indices Deleted
+
+Following the 2026-06-29 attribute field type mapping fix on `logs-ollama.otel-default`, Phillip deleted the two old backing indices that had remained attached to the data stream:
+
+- `.ds-logs-ollama.otel-default-2026.06.29-000001`
+- `.ds-logs-ollama.otel-default-2026.06.29-000002`
+
+**Verification (read-only key):** Data-stream-level aggregations on `attributes.ollama.duration_ns` and `attributes.http.response.status_code` succeed. Duplicate results eliminated — document count reduced from ~3,822 to 2,743. p50 latency 62 µs, p99 62 ms. `attributes.http.response.status_code` aggregates correctly as integer 200.
+
+The watchlist entry has been removed. See [2026-06-29 — Ollama OTel Log Attribute Field Type Fix](#2026-06-29-ollama-otel-log-attribute-field-type-fix) for the full fix context.
+
+Pages updated: this page (watchlist entry removed, 2026-06-29 history open-item closed, 2026-06-30 history entry added), [platforms/log-shipping.md](platforms/log-shipping.md) (Known Issues gotcha removed, open-item admonition updated to resolved), [platforms/elasticsearch-elser.md](platforms/elasticsearch-elser.md) (open-item admonition updated to resolved).
 
 ### 2026-06-29 — Ollama OTel Log Attribute Field Type Fix
 
@@ -73,7 +84,7 @@ The `logs-ollama.otel-default` data stream had its `attributes.http`, `attribute
 
 **Result:** `attributes.ollama.duration_ns` → `long`, `attributes.http.response.status_code` → `long` (both aggregatable). `attributes.http.request.method` → `keyword`, `attributes.url.path` → `wildcard`, `attributes.client.address` → `keyword`.
 
-**Open item:** Old backing indices 000001 and 000002 remain attached to the data stream, causing duplicate search results until Phillip deletes them. See [Watchlist — Ollama OTel Old Backing Indices](#ollama-otel-old-backing-indices-cause-duplicate-search-results).
+**Resolved 2026-06-30:** Old backing indices 000001 and 000002 were deleted by Phillip on 2026-06-30. See [2026-06-30 — Ollama OTel Old Backing Indices Deleted](#2026-06-30-ollama-otel-old-backing-indices-deleted).
 
 Pages updated: [platforms/log-shipping.md](platforms/log-shipping.md) (new attribute field type fix subsection, updated cloud data streams note, known-issues gotcha added), [platforms/elasticsearch-elser.md](platforms/elasticsearch-elser.md) (new mapping fix section), this page (watchlist, history).
 

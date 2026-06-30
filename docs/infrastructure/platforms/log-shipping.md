@@ -156,8 +156,8 @@ The ordering in `composed_of` is the critical mechanism. Elasticsearch applies d
 | `attributes.url.path` | `wildcard` | Yes |
 | `attributes.client.address` | `keyword` | Yes |
 
-!!! warning "Open Item — Old Backing Indices Cause Duplicate Results"
-    Backing indices `.ds-logs-ollama.otel-default-2026.06.29-000001` and `.ds-logs-ollama.otel-default-2026.06.29-000002` remain attached to the data stream. The 1,203 historical documents were reindexed into 000003, but the originals in 000001 and 000002 were not deleted. Any search against `logs-ollama.otel-default` returns duplicate results until Phillip removes those indices. See [Known Issues — Ollama OTel Old Backing Indices](../known-issues.md#ollama-otel-old-backing-indices-cause-duplicate-search-results).
+!!! note "Resolved 2026-06-30 — Old Backing Indices Deleted"
+    Backing indices `.ds-logs-ollama.otel-default-2026.06.29-000001` and `.ds-logs-ollama.otel-default-2026.06.29-000002` were deleted by Phillip on 2026-06-30. Duplicate results eliminated — document count reduced from ~3,822 to 2,743. Aggregations on `attributes.ollama.duration_ns` and `attributes.http.response.status_code` verified working. See [Known Issues — 2026-06-30 history](../known-issues.md#2026-06-30-ollama-otel-old-backing-indices-deleted).
 
 ---
 
@@ -287,7 +287,6 @@ pmabry@sheepsoc:~$ ss -tlnp | grep 5514
 - **Shared API key** — Filebeat, Logstash, and the [OpenTelemetry Collector](otelcol-contrib.md) all authenticate to Elastic Cloud with the same API key. Revoking or rotating the key affects all three simultaneously. See [Known Issues — Shared Cloud API Key](../known-issues.md#shared-elastic-cloud-api-key-couples-filebeat-logstash-and-otelcol-contrib).
 - **`reroute` processor drops docs — use `set _index`** — documented in detail in the [Ingest Pipeline gotcha above](#ingest-pipeline-logs-ollama-otel). This applies to any future pipeline where the source data stream name is not a valid `type-dataset-namespace` triple.
 - **Data egress** — system journal (auth, sudo, SSH), Ollama logs, and firewall syslog all leave sheepsoc and are stored on Elastic Cloud GCP us-central1. See [Known Issues — System and Firewall Log Egress to Elastic Cloud](../known-issues.md#system-and-firewall-log-egress-to-elastic-cloud).
-- **Old backing indices on `logs-ollama.otel-default` — duplicate search results (pending cleanup)** — after the 2026-06-29 field type fix, historical documents were reindexed into write index 000003 but the originals in 000001 and 000002 were not deleted. Searches against this data stream return duplicates until Phillip removes the old indices. See [Known Issues — Ollama OTel Old Backing Indices](../known-issues.md#ollama-otel-old-backing-indices-cause-duplicate-search-results) and the [mapping fix above](#ollama-otel-mapping-fix).
 
 ## See Also
 
