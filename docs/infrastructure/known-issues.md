@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Rule | Read this before making infrastructure changes |
-| Last reviewed | 2026-06-30 (Ollama OTel old backing indices resolved) |
+| Last reviewed | 2026-07-01 (Logstash filterlog ECS fix; Lab Hub Phase 2+3) |
 
 ## Active Landmines — Do Not Touch
 
@@ -34,6 +34,10 @@
 
 - <a id="otel-metrics-volume-high-watch-item"></a>**OTEL metrics volume is high — watch Elastic Cloud storage (2026-06-28):** OpenWebUI system-metrics instrumentation generates approximately 100,000 metric documents per 30 minutes of light use (driven by `opentelemetry-instrumentation-system-metrics` at a 10-second export interval). OTEL data lands in Elastic Cloud — no local disk impact, but cloud storage consumption may be significant at scale. If this becomes a concern, consider raising `OTEL_METRICS_EXPORT_INTERVAL_MILLIS` in the OpenWebUI OTEL drop-in or removing the `opentelemetry-instrumentation-system-metrics` package from the `openwebui` conda env. See [OpenTelemetry Collector](platforms/otelcol-contrib.md).
 
+- <a id="logstash-filterlog-dissect-ipv4-only"></a>**Logstash filterlog dissect is IPv4-only by design (2026-07-01):** The `dissect` filter for OPNsense `filterlog` events in `/etc/logstash/conf.d/50-syslog-filter.conf` was written to cover IPv4 traffic only — this covers approximately 99% of observed firewall events. IPv6 filterlog lines have a different field layout; they pass through the dissect step without being parsed, and their fields do not index in `logs-syslog.opnsense-default`. **Impact:** IPv6 block counts and source IPs are absent from Kibana firewall maps and from the [Lab Hub](platforms/lab-hub.md) security strip's OPNsense data. **Workaround:** filter on `firewall` tag (which is applied by the ECS-corrected branch and is set on IPv4 events); IPv4 coverage is complete. **Future enhancement:** extend the dissect to support IPv6 filterlog format. No ETA. See [Log Shipping — Filterlog ECS Field Fix](platforms/log-shipping.md#logstash-filterlog-ecs-field-fix-2026-07-01).
+
+- <a id="logstash-timestopsec-infinity-restart-hang"></a>**`logstash.service` has `TimeoutStopSec=infinity` — restart can hang indefinitely (2026-07-01):** Logstash's upstream packaging sets `TimeoutStopSec=infinity` in the systemd unit. If any pipeline's input or output is stalled against an unresponsive backend during shutdown, Logstash's drain step will wait forever. On 2026-07-01 a `sudo systemctl restart logstash` hung approximately 40 minutes because the `openwebui-rag` pipeline was stalled against flaky local Elasticsearch (`localhost:9200`, intermittent 503s). Resolved by SIGKILL of the old process (`sudo kill -9 <pid>`). **Recommended safeguard:** add a systemd drop-in at `/etc/systemd/system/logstash.service.d/timeout.conf` containing `[Service]\nTimeoutStopSec=120` to cap the hang at two minutes. This has not yet been done. **Context:** the `openwebui-rag` pipeline's flapping against local ES is expected noise — local ES is unstable and targeted for decommission after Elastic Cloud migration. See [Log Shipping — Logstash](platforms/log-shipping.md#logstash).
+
 - <a id="vg_elastic-linear-lv-is-exposed-to-a-mechanically-unreliable-nvme-carrier-strategic-decision-pending"></a>**`vg_elastic` linear LV is exposed to a mechanically unreliable NVMe carrier (strategic decision pending):** `nvme3n1` (Samsung 990 PRO 2TB, S/N S7KHNU0Y529975Z) sits on a mini-PCIe carrier card that does not stay mechanically seated. The drive was reseated 2026-05-14 and held — see [history entry below](#2026-05-14-nvme-reseat-and-new-sata-ssd-added) — but the failure mode will recur. The failure mode is **intermittent disappearance from the bus** (not data corruption): the drive vanishes and reappears after reseating. The structural risk is that `vg_elastic` is a **linear** LV spanning `nvme1n1` + `nvme3n1`. A linear LV cannot tolerate a missing PV — if the loose drive drops, the entire 3.6 TiB `/mnt/elastic_data` goes offline. Three strategic options have been identified; none has been executed yet:
 
     | Option | Summary | Usable capacity | Right when… |
@@ -56,6 +60,36 @@
 - <a id="shared-elastic-cloud-api-key-couples-filebeat-logstash-and-otelcol-contrib"></a>**Shared Elastic Cloud API key couples Filebeat, Logstash, and otelcol-contrib (2026-06-29):** All three services — [Filebeat](platforms/log-shipping.md), [Logstash](platforms/log-shipping.md), and the [OpenTelemetry Collector](platforms/otelcol-contrib.md) — authenticate to Elastic Cloud 9.4.0 using the same API key. The key is stored inline in `filebeat.yml` (root:root 600) and `99-elasticsearch-output.conf` (root:logstash 640), and as `ELASTICSEARCH_API_KEY` in `/etc/otelcol-contrib/otelcol-contrib.conf` (root-only 600). A scoped/derived key could not be minted — the parent key forbids creating derived keys with elevated privileges. **Impact:** revoking or rotating the key requires updating all three config files simultaneously and restarting all three services. Plan any key rotation as a coordinated operation.
 
 ## History Log
+
+### 2026-07-01 — Lab Hub Phase 2 and Phase 3 Deployed
+
+Phases 2, 3a, and 3b of the [Sheepsoc Lab Hub](platforms/lab-hub.md) were deployed, expanding the dashboard from service health tiles to a full local-inference and security-monitoring platform.
+
+**Phase 2 — Local Ollama summary:** The `summarize.py` module was added. Each 3-minute collector cycle, [Ollama](platforms/ollama.md) model **`qwen3`** generates a short plain-English "State of the Lab" blurb stored with the snapshot and rendered at the top of the web page. All inference is local.
+
+**Phase 3a — Daily brief (`labhub synthesize`):** The `synth.py` module and `labhub synthesize` CLI subcommand were added. The command uses local Ollama reasoning model **`deepseek-r1:14b`** to write a fuller health, drift, and security brief; stores it in the SQLite `digest` table; renders it as a "Daily brief" box on the web page; and delivers it to Element by dropping a `.txt` file in the [Matrix Bot](platforms/matrix-bot.md) outbox (`~/repositories/matrix-bot/outbox/`). Two systemd units — `labhub-synth.service` and `labhub-synth.timer` — are **staged in `~/repositories/labhub/deploy/` but not yet installed or enabled**. Daily automation is not yet active; the command runs successfully when invoked manually.
+
+**Phase 3b — Security strip:** The `es.py` module queries [Elastic Cloud](platforms/otelcol-contrib.md) 9.4.0 (read-only, `ELASTICSEARCH_API_KEY` from environment) for host authentication telemetry (`logs-system.auth-default`) and OPNsense firewall block counts (`logs-syslog.opnsense-default`, IPv4 only — see [Watchlist — filterlog dissect IPv4-only](#logstash-filterlog-dissect-ipv4-only)). Auth and firewall counts appear on the web page as a "Security (last 24h)" line and are included in the daily brief. When the daily timer is enabled, the Elastic Cloud read key must be provided via a root-owned `EnvironmentFile` — not yet wired.
+
+**Conda environment:** The existing `labhub` (Python 3.12) env was updated with the `elasticsearch` pip package for Elastic Cloud read access.
+
+**Ollama models used:** `qwen3` (Phase 2 summaries) and `deepseek-r1:14b` (Phase 3a daily brief) — both were already present in Ollama prior to this deployment.
+
+Pages updated: [platforms/lab-hub.md](platforms/lab-hub.md) (comprehensive Phase 2+3 documentation, all phases), [platforms/ollama.md](platforms/ollama.md) (Lab Hub added as consumer), [platforms/matrix-bot.md](platforms/matrix-bot.md) (Lab Hub outbox backlink), [platforms/conda.md](platforms/conda.md) (labhub env packages updated), [services.md](services.md) (Lab Hub row updated), this page (two new watchlist items, history entry).
+
+### 2026-07-01 — Logstash Filterlog ECS Field Fix
+
+OPNsense `filterlog` firewall log events in `logs-syslog.opnsense-default` were flowing into Elastic Cloud but were not being parsed into structured fields. Root cause: the `dissect` filter and DHCP/DNS/ASUS-kernel tag branches in `/etc/logstash/conf.d/50-syslog-filter.conf` keyed on `if [program] == "filterlog"`, but the Logstash `syslog` input runs in **ECS-compatibility mode** and maps the program field to `[process][name]`, not `[program]`. The `[program]` field is never populated in ECS mode, so the entire parse block was dead code. The `device_type` tagging branch — which keys on `[host][ip]` — was unaffected and continued to work. Approximately 97,000 filterlog docs per 24h had been indexed without any `src_ip` field or `firewall` tag.
+
+**Fix applied:** All four `[program]` references changed to `[process][name]` in `50-syslog-filter.conf` (filterlog dissect, dnsmasq/dhcpd, unbound, ASUS kernel branches). Backup at `/etc/logstash/conf.d/50-syslog-filter.conf.bak-20260630`. `logstash.service` restarted.
+
+**Result:** OPNsense `filterlog` events now parse to `src_ip`, `dst_ip` (`ip`), `src_port`, `dst_port` (`long`), `action`, `direction`, `proto_name` (`keyword`), and `firewall` tag — usable for Kibana maps, SIEM dashboards, and the Lab Hub security strip.
+
+**Known limitation:** the filterlog dissect is IPv4-only by design. See [Watchlist — Logstash filterlog dissect IPv4-only](#logstash-filterlog-dissect-ipv4-only).
+
+**Operational note — restart hung ~40 minutes:** `logstash.service` has `TimeoutStopSec=infinity`; the `openwebui-rag` pipeline stalled against flaky local ES during shutdown drain. Resolved by SIGKILL. See [Watchlist — Logstash TimeoutStopSec=infinity restart hang](#logstash-timestopsec-infinity-restart-hang).
+
+Pages updated: [platforms/log-shipping.md](platforms/log-shipping.md) (filterlog fix subsection, updated cloud data streams table, updated known-issues/gotchas), this page (two new watchlist items, history entries).
 
 ### 2026-06-30 — Ollama OTel Old Backing Indices Deleted
 

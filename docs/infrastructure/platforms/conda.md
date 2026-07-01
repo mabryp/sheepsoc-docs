@@ -36,7 +36,7 @@ Think of it like this:
 |---|---|---|---|
 | `openwebui` | 3.11 | **Primary production env.** Runs the `open-webui.service` systemd unit — the main AI interface on sheepsoc. | `elasticsearch==8.19.3` pip-installed manually — not bundled; must reinstall if env is rebuilt. |
 | `sheepsoc` | 3.12 | **Legacy / prototype.** Was used for the CLI RAG prototype; now used only as the Jupyter kernel and for ad-hoc embedding experiments. | The CLI RAG app (`~/repositories/sheepsoc`) in this env is no longer maintained. Do not use it for production RAG queries. |
-| `labhub` | 3.12 | **Lab Hub.** Runs the `labhub-web.service` systemd unit — the State of the Lab dashboard. The collector (`labhub-collect.service`) is stdlib-only but shares this env. | Runtime deps pip-installed: `fastapi`, `uvicorn`, `jinja2`, `httpx`. See [Lab Hub](lab-hub.md). |
+| `labhub` | 3.12 | **Lab Hub.** Runs `labhub-web.service`, `labhub-collect.service`, and the `labhub synthesize` CLI (Phase 3a/3b daily brief). | Runtime deps pip-installed: `fastapi`, `uvicorn`, `jinja2`, `httpx` (Phase 1–2); `elasticsearch` (Phase 3b — Elastic Cloud read client). See [Lab Hub](lab-hub.md). |
 | `datawrangler` | — | Separate environment for data wrangling. | — |
 | `base` | — | Miniconda's own base — *don't* install project stuff here. | — |
 

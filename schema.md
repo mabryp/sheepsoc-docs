@@ -47,8 +47,8 @@ Every page in `docs/`, with its path relative to `docs/` and its one-line purpos
 | OpenTelemetry Collector | `infrastructure/platforms/otelcol-contrib.md` | otelcol-contrib v0.155.0 — OTLP telemetry hub; receives from OpenWebUI and Claude Code; exports to Elastic Cloud 9.4.0 data streams |
 | Knowledge Bases | `infrastructure/platforms/knowledge-bases.md` | Catalog of all OpenWebUI RAG Knowledge Base collections |
 | Matrix Bot | `infrastructure/platforms/matrix-bot.md` | Matrix bot setup, room config, E2EE, OpenWebUI integration |
-| Log Shipping — Filebeat & Logstash | `infrastructure/platforms/log-shipping.md` | Filebeat 8.18.3 and Logstash shipping to Elastic Cloud 9.4.0 · `logs-ollama-otel` ingest pipeline · syslog data streams · shared API key gotcha · reroute vs. set_index gotcha |
-| Lab Hub | `infrastructure/platforms/lab-hub.md` | Sheepsoc Lab Hub — Phase 1: service health tiles and documentation-drift detection · reads Service Catalog as expected-state source of truth · FastAPI web UI on :8800 · 3-min collector timer |
+| Log Shipping — Filebeat & Logstash | `infrastructure/platforms/log-shipping.md` | Filebeat 8.18.3 and Logstash shipping to Elastic Cloud 9.4.0 · `logs-ollama-otel` ingest pipeline · syslog data streams · filterlog ECS field fix (2026-07-01: `[program]` → `[process][name]`; IPv4 only) · shared API key gotcha · reroute vs. set_index gotcha |
+| Lab Hub | `infrastructure/platforms/lab-hub.md` | Sheepsoc Lab Hub — Phases 1–3: service health tiles · documentation-drift detection · Ollama summaries (qwen3) · daily brief synthesis (deepseek-r1:14b) · Elastic Cloud security strip · Matrix outbox delivery · FastAPI web UI on :8800 |
 | Conda | `infrastructure/platforms/conda.md` | Conda environments, key packages, known gotchas |
 
 ### Infrastructure — Runbooks

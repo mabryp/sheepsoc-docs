@@ -1,6 +1,6 @@
 # Ollama
 
-**Purpose:** Local LLM inference server on sheepsoc — serves all on-device model requests from [OpenWebUI & RAG](openwebui-rag.md), the [Matrix Bot](matrix-bot.md), RAG embeddings, and Claude Code.
+**Purpose:** Local LLM inference server on sheepsoc — serves all on-device model requests from [OpenWebUI & RAG](openwebui-rag.md), the [Matrix Bot](matrix-bot.md), RAG embeddings, Claude Code, and the [Lab Hub](lab-hub.md) (plain-English summaries and daily brief synthesis).
 
 ## Overview
 
@@ -14,6 +14,7 @@ The service runs as `pmabry` (not the Ollama default `ollama` user) and binds to
 - **[OpenWebUI & RAG](openwebui-rag.md)** — **depends on** Ollama for LLM chat inference and RAG embeddings (`nomic-embed-text`). If Ollama goes down or is misconfigured, OpenWebUI chat and all RAG document uploads fail.
 - **[Matrix Bot](matrix-bot.md)** — **depends on** Ollama for inference via the OpenWebUI HTTP API path.
 - **[Log Shipping — Filebeat & Logstash](log-shipping.md)** — **monitored by** Filebeat; `ollama.service` journald output is shipped to Elastic Cloud 9.4.0 via the `logs-ollama-otel` ingest pipeline and stored in the `logs-ollama.otel-default` data stream. As of 2026-06-30, the pipeline also indexes llama.cpp runner performance metrics — six event types including `generation` (which captures `eval_tokens_per_sec`, the primary throughput metric). See [Log Shipping — Runner Metric Event Types](log-shipping.md#runner-metric-event-types-added-2026-06-30) for the full field catalog.
+- **[Lab Hub](lab-hub.md)** — **depends on** Ollama for local inference; Phase 2 uses `qwen3` for per-cycle plain-English summaries; Phase 3a uses `deepseek-r1:14b` for daily brief synthesis. Both models must be present and the service must be running for Lab Hub summaries to succeed.
 
 ## Configuration
 
@@ -189,6 +190,7 @@ pmabry@sheepsoc:~$ sudo systemctl restart ollama
 
 - [OpenWebUI & RAG](openwebui-rag.md) — **depends on** Ollama for LLM inference and RAG embeddings
 - [Matrix Bot](matrix-bot.md) — **depends on** Ollama for inference
+- [Lab Hub](lab-hub.md) — **depends on** Ollama for local inference; `qwen3` (Phase 2 summaries) and `deepseek-r1:14b` (Phase 3a daily brief) must be present
 - [Log Shipping — Filebeat & Logstash](log-shipping.md) — Filebeat collects `ollama.service` journald logs and llama.cpp runner metrics and ships them to Elastic Cloud via the `logs-ollama-otel` ingest pipeline; see the pipeline section for the full field catalog including throughput metrics
 - [Services](../services.md) — full service catalog with port and status
 - [Known Issues](../known-issues.md) — NVIDIA driver landmine and upgrade history

@@ -35,6 +35,10 @@ Config backups taken 2026-06-29:
 - `/etc/logstash/conf.d/50-syslog-filter.conf.bak-20260629`
 - `/etc/logstash/conf.d/99-elasticsearch-output.conf.bak-20260629`
 
+Additional backup taken 2026-06-30 (prior to filterlog ECS fix):
+
+- `/etc/logstash/conf.d/50-syslog-filter.conf.bak-20260630`
+
 ---
 
 ### Filebeat
@@ -322,6 +326,45 @@ Verified working 2026-06-29: a DSM test log landed in `logs-syslog.synology-defa
 
 ---
 
+<a id="logstash-filterlog-ecs-field-fix-2026-07-01"></a>
+### Filterlog ECS Field Fix (2026-07-01)
+
+OPNsense `filterlog` firewall log events were flowing into `logs-syslog.opnsense-default` but were **not being parsed into structured fields**. Approximately 97,000 filterlog documents per 24h were indexed, but none had `src_ip` populated or the `firewall` tag set.
+
+**Root cause:** The `dissect` filter for `filterlog` — and the DHCP/DNS/ASUS-kernel tag branches — in `/etc/logstash/conf.d/50-syslog-filter.conf` keyed on `if [program] == "filterlog"`. The Logstash `syslog` input runs in **ECS-compatibility mode**, which maps the program field to `[process][name]`, not `[program]`. The `[program]` field is never populated in ECS mode, so the entire conditional block was dead code. The `device_type` tagging branch — which keys on `[host][ip]` — was unaffected and continued to work correctly.
+
+**Fix applied (2026-07-01):** All four `[program]` references changed to `[process][name]` in `50-syslog-filter.conf`:
+
+- `filterlog` dissect branch
+- `dnsmasq` / `dhcpd` tag branch
+- `unbound` tag branch
+- ASUS kernel tag branch
+
+Backup at `/etc/logstash/conf.d/50-syslog-filter.conf.bak-20260630`. `logstash.service` restarted.
+
+**Result:** OPNsense `filterlog` events now parse into structured fields:
+
+| Field | ES type | Description |
+|---|---|---|
+| `src_ip` | `ip` | Source IP address |
+| `dst_ip` | `ip` | Destination IP address |
+| `src_port` | `long` | Source port |
+| `dst_port` | `long` | Destination port |
+| `action` | `keyword` | Firewall action (`block` / `pass`) |
+| `direction` | `keyword` | Traffic direction (`in` / `out`) |
+| `proto_name` | `keyword` | Protocol name (e.g., `tcp`, `udp`, `icmp`) |
+| `firewall` (tag) | — | Applied to all filterlog events; enables tag-based filtering in Kibana |
+
+These fields are now usable for Kibana maps, SIEM dashboards, and the [Lab Hub](lab-hub.md) security strip.
+
+!!! warning "IPv4 Only — Known Limitation"
+    The filterlog dissect pattern is **IPv4-only by design**. This covers approximately 99% of observed firewall traffic. IPv6 filterlog lines have a different field layout; they pass through without being parsed, so their fields do not index. IPv6 filterlog parsing is a planned future enhancement. See [Known Issues — Logstash filterlog dissect IPv4-only](../known-issues.md#logstash-filterlog-dissect-ipv4-only).
+
+!!! note "Operational Gotcha — Logstash Restart Hung ~40 Minutes"
+    The `logstash restart` on 2026-07-01 hung for approximately 40 minutes. Cause: `logstash.service` has `TimeoutStopSec=infinity` (Logstash's upstream default). A separate `openwebui-rag` pipeline was stalled against flaky local Elasticsearch (`localhost:9200`, intermittent 503s), which blocked Logstash's shutdown drain indefinitely. Resolved by SIGKILL of the old process. Local ES is unstable and is on track for decommission after Elastic Cloud migration completes — the `openwebui-rag` pipeline flapping against local ES is expected noise until then. See [Known Issues — Logstash TimeoutStopSec=infinity restart hang](../known-issues.md#logstash-timestopsec-infinity-restart-hang).
+
+---
+
 ## Cloud Data Streams (Added 2026-06-29)
 
 All data streams below are in Elastic Cloud 9.4.0 (GCP us-central1). Most use the generic `logs-*-*` index template; `logs-ollama.otel-default` uses the dedicated `logs-ollama.otel@template` (priority 200) — see [Attribute Field Type Fix](#ollama-otel-mapping-fix) above.
@@ -330,7 +373,7 @@ All data streams below are in Elastic Cloud 9.4.0 (GCP us-central1). Most use th
 |---|---|---|---|
 | `logs-ollama.otel-default` | Ollama journald + llama.cpp runner metrics → `logs-ollama-otel` pipeline (62 processors, extended 2026-06-30) | Filebeat | Active |
 | `filebeat-8.18.3` | System journal + sheepsoc app logs | Filebeat | Active (app log input currently idle) |
-| `logs-syslog.opnsense-default` | OPNsense firewall syslog on port 5514 | Logstash | Confirmed flowing |
+| `logs-syslog.opnsense-default` | OPNsense firewall syslog on port 5514 · `filterlog` events parsed to structured fields (`src_ip`, `dst_ip`, `src_port`, `dst_port`, `action`, `direction`, `proto_name`, `firewall` tag) since [2026-07-01 ECS fix](#logstash-filterlog-ecs-field-fix-2026-07-01) · IPv4 only | Logstash | Confirmed flowing |
 | `logs-syslog.asus-default` | ASUS RT-AX5400 syslog on port 5514 | Logstash | Confirmed flowing (~180+ docs as of 2026-06-29) |
 | `logs-syslog.synology-default` | SAN01 Synology NAS syslog on port 5514 | Logstash | Confirmed flowing (2026-06-29) |
 | `logs-syslog.other-default` | Any other syslog on port 5514 | Logstash | Active |
@@ -363,6 +406,8 @@ pmabry@sheepsoc:~$ ss -tlnp | grep 5514
 - **Shared API key** — Filebeat, Logstash, and the [OpenTelemetry Collector](otelcol-contrib.md) all authenticate to Elastic Cloud with the same API key. Revoking or rotating the key affects all three simultaneously. See [Known Issues — Shared Cloud API Key](../known-issues.md#shared-elastic-cloud-api-key-couples-filebeat-logstash-and-otelcol-contrib).
 - **`reroute` processor drops docs — use `set _index`** — documented in detail in the [Ingest Pipeline gotcha above](#ingest-pipeline-logs-ollama-otel). This applies to any future pipeline where the source data stream name is not a valid `type-dataset-namespace` triple.
 - **Data egress** — system journal (auth, sudo, SSH), Ollama logs, and firewall syslog all leave sheepsoc and are stored on Elastic Cloud GCP us-central1. See [Known Issues — System and Firewall Log Egress to Elastic Cloud](../known-issues.md#system-and-firewall-log-egress-to-elastic-cloud).
+- **filterlog dissect is IPv4-only** — the OPNsense filterlog dissect pattern in `50-syslog-filter.conf` does not handle IPv6 filterlog lines. IPv6 events pass through unparsed and their fields do not index. See [Filterlog ECS Field Fix (2026-07-01)](#logstash-filterlog-ecs-field-fix-2026-07-01) and [Known Issues — Logstash filterlog dissect IPv4-only](../known-issues.md#logstash-filterlog-dissect-ipv4-only).
+- **`logstash.service` has `TimeoutStopSec=infinity`** — if a pipeline is stalled against an unresponsive backend (e.g., `openwebui-rag` against flaky local ES), a Logstash restart can hang indefinitely. A `TimeoutStopSec=120` systemd drop-in is recommended as a safeguard but has not yet been added. See [Known Issues — Logstash TimeoutStopSec=infinity restart hang](../known-issues.md#logstash-timestopsec-infinity-restart-hang).
 
 ## See Also
 

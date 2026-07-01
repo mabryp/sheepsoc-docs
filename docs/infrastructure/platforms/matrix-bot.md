@@ -118,6 +118,7 @@ Follow these steps to connect a new Matrix room to a specific Knowledge Base col
 | `~/repositories/matrix-bot/config.yaml` | Homeserver credentials, bot account details, room → collection mappings |
 | `~/repositories/matrix-bot/session.json` | Matrix access token — **do not delete** (forces re-registration, breaks E2EE for past messages) |
 | `~/repositories/matrix-bot/crypto_store/` | E2EE device keys — **do not delete** (same consequence as session.json deletion) |
+| `~/repositories/matrix-bot/outbox/` | Drop zone for outbound messages — any `.txt` file placed here is posted to Element and then deleted. Used by the [Lab Hub](lab-hub.md) Phase 3a synthesizer for daily brief delivery. |
 | `~/infrastructure/miniconda3/envs/matrixbot/` | Conda environment with `matrix-nio[e2e]` and its dependencies |
 
 !!! danger "Do Not Delete"
@@ -296,5 +297,6 @@ The `[e2e]` extras selector on `matrix-nio` is mandatory — it installs the Pyt
 ## See Also
 
 - [Knowledge Bases](knowledge-bases.md) — catalog of all OpenWebUI Knowledge Base UUIDs; use these to configure room → collection mappings in `config.yaml`
+- [Lab Hub](lab-hub.md) — **see also** — the Lab Hub Phase 3a daily brief is delivered to Element by dropping `.txt` files in `~/repositories/matrix-bot/outbox/`; the Matrix bot must be running for delivery to succeed
 - [Services](../services.md) — service catalog entry for `matrix-bot.service`
 - [Shutdown & Startup](../runbooks/shutdown-startup.md) — includes the Matrix bot in the planned shutdown and post-boot verification sequences
