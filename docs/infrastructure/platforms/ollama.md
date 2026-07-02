@@ -6,6 +6,8 @@
 
 Ollama 0.30.10 runs on sheepsoc as a systemd service, using the RTX 5060 Ti (16 GB VRAM) for GPU-accelerated inference. It stores 14 models at `/home/pmabry/.ollama` and exposes five verified API endpoints including a native Anthropic Messages API (available since 0.14.0). Upgraded from 0.9.4 on 2026-06-26.
 
+Two systemd drop-ins tune GPU memory usage for the 16 GB VRAM ceiling — concurrency and default context length. Both were reconfigured on 2026-07-02; see [Configuration](#configuration) below.
+
 The service runs as `pmabry` (not the Ollama default `ollama` user) and binds to all interfaces on port 11434 so that LAN clients and the OpenWebUI / Matrix bot services can reach it.
 
 ## Dependencies
@@ -35,16 +37,39 @@ Environment="OLLAMA_MODELS=/home/pmabry/.ollama"
 Environment="OLLAMA_MAX_PROMPT_TOKENS=131072"
 ```
 
-### systemd Drop-in
+### systemd Drop-ins
+
+Two drop-in files under `/etc/systemd/system/ollama.service.d/` tune GPU memory usage for the RTX 5060 Ti's 16 GB VRAM ceiling.
+
+#### Concurrency Limit
 
 `/etc/systemd/system/ollama.service.d/parallel.conf`:
 
 ```ini
 [Service]
-Environment="OLLAMA_NUM_PARALLEL=5"
+Environment="OLLAMA_NUM_PARALLEL=1"
 ```
 
-Allows up to 5 concurrent inference requests so that OpenWebUI, the Matrix bot, and CLI sessions can overlap without queuing.
+!!! note "Changed 2026-07-02: 5 → 1"
+    `OLLAMA_NUM_PARALLEL` sets how many concurrent request slots Ollama reserves KV cache for. At `5`, every context request's KV cache was multiplied roughly 5x — a 14B model at 40K context ballooned to 44 GB and spilled 67% onto the CPU, which is very slow. At `1`, that same load fits in 16 GB at 95% GPU utilization.
+
+    **Tradeoff:** Ollama now processes only one inference request at a time. This suits Phillip's normal single-user, long-context usage. If multiple users or automations — [OpenWebUI](openwebui-rag.md), the [Matrix Bot](matrix-bot.md), the [Lab Hub](lab-hub.md), or `claude-ollama` — call Ollama concurrently, requests now **queue** instead of overlapping. This is an expected behavioral change, not a bug. See [Known Issues — Watchlist](../known-issues.md#ollama-single-request-concurrency-since-2026-07-02).
+
+The prior value is backed up at `/etc/systemd/system/ollama.service.d/parallel.conf.bak`.
+
+#### Context Length
+
+`/etc/systemd/system/ollama.service.d/context.conf` — **new drop-in, added 2026-07-02**:
+
+```ini
+[Service]
+Environment="OLLAMA_CONTEXT_LENGTH=16384"
+```
+
+!!! note "Why this was added"
+    Previously no default context length was set, so Ollama silently fell back to its built-in default of **4096 tokens** (roughly 3,000 words) for every client — including [OpenWebUI](openwebui-rag.md) — even for models capable of far more (up to 128K). This capped every conversation and all RAG retrieval at 4K with no indication in the UI. The new global default of 16384 tokens is sized to keep a 14B model fully on the GPU (~11 GB, 100% GPU). Individual clients can still override this per-request by sending their own `num_ctx` value.
+
+**OpenWebUI impact:** OpenWebUI has no per-model `num_ctx` override configured — its one custom model, `network-troubleshooting` (based on `qwen3:14b`), has empty params — so it inherited the old 4096 default and now inherits 16384 automatically. No OpenWebUI database change was made. See [OpenWebUI & RAG](openwebui-rag.md).
 
 ### Config Backups
 
@@ -54,8 +79,11 @@ Backups of the binary and custom service config are stored at `/home/pmabry/olla
 |---|---|
 | `ollama-0.9.4` | Rollback binary (prior version before 2026-06-26 upgrade) |
 | `ollama.service.bak` | Custom systemd unit file snapshot |
-| `ollama.service.d/parallel.conf` | Drop-in snapshot |
+| `ollama.service.d/parallel.conf` | Drop-in snapshot — **stale as of 2026-07-02**, still reflects `OLLAMA_NUM_PARALLEL=5`; see note below |
 | `VERSION-before.txt` | Pre-upgrade version string |
+
+!!! note "2026-07-02 drop-in changes not yet in the upgrade backup set"
+    `parallel.conf`'s prior value is backed up in place as `parallel.conf.bak` (see [Concurrency Limit](#concurrency-limit) above), and `context.conf` is a new file. Neither has been copied into `/home/pmabry/ollama-backups/` yet — refresh that directory on the next upgrade pass so the two drop-ins stay in sync with the rest of the backup set.
 
 ## API Endpoints
 
@@ -160,6 +188,8 @@ pmabry@sheepsoc:~$ sudo cp /etc/systemd/system/ollama.service \
     ~/ollama-backups/ollama.service.bak
 pmabry@sheepsoc:~$ sudo cp /etc/systemd/system/ollama.service.d/parallel.conf \
     ~/ollama-backups/ollama.service.d/parallel.conf
+pmabry@sheepsoc:~$ sudo cp /etc/systemd/system/ollama.service.d/context.conf \
+    ~/ollama-backups/ollama.service.d/context.conf
 pmabry@sheepsoc:~$ ollama --version > ~/ollama-backups/VERSION-before.txt
 ```
 
@@ -185,6 +215,8 @@ pmabry@sheepsoc:~$ sudo systemctl restart ollama
 - **Upgrade clobbers custom unit file** — described in [Upgrade Procedure](#upgrade-procedure) above. This is an active Watchlist entry; see [Known Issues — Watchlist](../known-issues.md#watchlist).
 - **NVIDIA driver** — do not update the NVIDIA driver without a plan and rollback. The RTX 5060 Ti requires a modern driver; an incompatible update can take Ollama offline. See [Known Issues — Do Not Touch](../known-issues.md#active-landmines-do-not-touch).
 - **VRAM ceiling** — the RTX 5060 Ti has 16 GB VRAM. Models larger than approximately 13–14B parameters (unquantized) will not fit. Check available VRAM before pulling new models.
+- **Single-request concurrency (changed 2026-07-02)** — `OLLAMA_NUM_PARALLEL=1` means Ollama now serves one inference request at a time; concurrent callers queue rather than overlap. See [Configuration — Concurrency Limit](#concurrency-limit) and [Known Issues — Watchlist](../known-issues.md#ollama-single-request-concurrency-since-2026-07-02).
+- **Default context length resolved (2026-07-02)** — conversations and RAG retrieval are no longer silently capped at 4096 tokens. See [Configuration — Context Length](#context-length).
 
 ## See Also
 

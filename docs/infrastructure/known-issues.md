@@ -5,7 +5,7 @@
 | Key | Value |
 |---|---|
 | Rule | Read this before making infrastructure changes |
-| Last reviewed | 2026-07-01 (Logstash filterlog ECS fix; Lab Hub Phase 2+3) |
+| Last reviewed | 2026-07-02 (Ollama VRAM tuning — concurrency and default context length) |
 
 ## Active Landmines — Do Not Touch
 
@@ -59,7 +59,25 @@
 
 - <a id="shared-elastic-cloud-api-key-couples-filebeat-logstash-and-otelcol-contrib"></a>**Shared Elastic Cloud API key couples Filebeat, Logstash, and otelcol-contrib (2026-06-29):** All three services — [Filebeat](platforms/log-shipping.md), [Logstash](platforms/log-shipping.md), and the [OpenTelemetry Collector](platforms/otelcol-contrib.md) — authenticate to Elastic Cloud 9.4.0 using the same API key. The key is stored inline in `filebeat.yml` (root:root 600) and `99-elasticsearch-output.conf` (root:logstash 640), and as `ELASTICSEARCH_API_KEY` in `/etc/otelcol-contrib/otelcol-contrib.conf` (root-only 600). A scoped/derived key could not be minted — the parent key forbids creating derived keys with elevated privileges. **Impact:** revoking or rotating the key requires updating all three config files simultaneously and restarting all three services. Plan any key rotation as a coordinated operation.
 
+- <a id="ollama-single-request-concurrency-since-2026-07-02"></a>**Ollama processes only one request at a time (`OLLAMA_NUM_PARALLEL=1`, since 2026-07-02):** [Ollama](platforms/ollama.md) was retuned to reserve KV cache for a single concurrent request slot instead of five, to keep VRAM usage bounded on the RTX 5060 Ti's 16 GB ceiling at long context lengths. **Impact:** concurrent callers — [OpenWebUI](platforms/openwebui-rag.md), the [Matrix Bot](platforms/matrix-bot.md), the [Lab Hub](platforms/lab-hub.md), and `claude-ollama` — now **queue** behind each other instead of running in parallel. This is correct and expected for Phillip's normal single-user usage; it becomes a real latency concern only if multiple users or automations hit Ollama at the same time. **If concurrent load becomes routine,** raise `OLLAMA_NUM_PARALLEL` back up and expect proportionally higher VRAM/context tradeoffs — see [Ollama — Concurrency Limit](platforms/ollama.md#concurrency-limit) for the underlying math.
+
 ## History Log
+
+### 2026-07-02 — Ollama VRAM Tuning: Concurrency Reduced, Explicit Context Length Set
+
+Two systemd drop-ins under `/etc/systemd/system/ollama.service.d/` were changed to fix VRAM overcommit on the RTX 5060 Ti (16 GB) discovered during long-context usage.
+
+**1. `OLLAMA_NUM_PARALLEL` reduced from 5 to 1 (`parallel.conf`, prior value backed up as `parallel.conf.bak`):**
+`OLLAMA_NUM_PARALLEL` sets how many concurrent request slots Ollama reserves KV cache for — each slot multiplies the KV cache footprint. At `5`, a 14B model at 40K context ballooned to 44 GB and spilled 67% onto the CPU, which is very slow. At `1`, the same load fits in 16 GB at 95% GPU utilization. **Tradeoff:** Ollama now serves exactly one inference request at a time; concurrent callers queue instead of overlapping. See the new watchlist entry above.
+
+**2. `OLLAMA_CONTEXT_LENGTH` set to 16384 (`context.conf`, new drop-in):**
+No default context length had ever been set, so Ollama silently used its built-in default of 4096 tokens for every client — including [OpenWebUI](platforms/openwebui-rag.md) — regardless of the model's real context window. This capped every chat and all RAG retrieval at 4K with no indication in the UI. The new global default of 16384 tokens keeps a 14B model fully on the GPU (~11 GB, 100% GPU) and can still be overridden per-request by any client that sends its own `num_ctx`.
+
+**OpenWebUI is affected but unchanged in config:** OpenWebUI sets no per-model `num_ctx` override (its only custom model, `network-troubleshooting`, based on `qwen3:14b`, has empty params), so it inherited the old 4096 default and now inherits 16384 automatically. No OpenWebUI database or config change was made — this is a pass-through effect of the Ollama-side change.
+
+**Backup gap:** the 2026-07-02 drop-in changes have not yet been copied into the `~/ollama-backups/` set used by the [Ollama upgrade procedure](platforms/ollama.md#upgrade-procedure); that procedure's Step 1 was updated to include `context.conf`, but the backup directory itself should be refreshed on the next upgrade pass.
+
+Pages updated: [platforms/ollama.md](platforms/ollama.md) (Configuration — both drop-ins rewritten with the new values and tradeoffs, Config Backups note, Upgrade Procedure Step 1, Known Issues/Gotchas), [platforms/openwebui-rag.md](platforms/openwebui-rag.md) (note on inherited context-length behavior), [services.md](services.md) (Ollama catalog row), this page (watchlist entry, history entry).
 
 ### 2026-07-01 — Lab Hub Phase 2 and Phase 3 Deployed
 

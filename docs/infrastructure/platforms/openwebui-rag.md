@@ -60,6 +60,9 @@ OpenWebUI supports two document upload modes: inline (per-conversation) and pers
 
 Type your question in any OpenWebUI chat. If you have uploaded a document or selected a Knowledge collection, OpenWebUI automatically retrieves relevant chunks and injects them into the prompt as context. The model then answers from that context.
 
+!!! note "Context length now defaults to 16384 tokens (2026-07-02)"
+    OpenWebUI does not set a per-model `num_ctx` override — its one custom model, `network-troubleshooting` (based on `qwen3:14b`), has empty params — so it inherits whatever default [Ollama](ollama.md#context-length) is configured with. Previously Ollama had no explicit default, so it silently fell back to 4096 tokens, capping every chat and all RAG retrieval regardless of the model's real context window. As of 2026-07-02, Ollama sets a global default of 16384 tokens via `OLLAMA_CONTEXT_LENGTH`, so OpenWebUI conversations and RAG context now get much more room automatically. No OpenWebUI database or config change was made — this is a pass-through effect of the Ollama-side reconfiguration.
+
 ### Using a Knowledge Base in Chat
 
 1. Start or open a chat.
