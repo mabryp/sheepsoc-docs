@@ -79,11 +79,12 @@ Backups of the binary and custom service config are stored at `/home/pmabry/olla
 |---|---|
 | `ollama-0.9.4` | Rollback binary (prior version before 2026-06-26 upgrade) |
 | `ollama.service.bak` | Custom systemd unit file snapshot |
-| `ollama.service.d/parallel.conf` | Drop-in snapshot — **stale as of 2026-07-02**, still reflects `OLLAMA_NUM_PARALLEL=5`; see note below |
+| `ollama.service.d/parallel.conf` | Drop-in snapshot — synced 2026-07-02, reflects current `OLLAMA_NUM_PARALLEL=1` |
+| `ollama.service.d/context.conf` | Drop-in snapshot — added 2026-07-02, reflects current `OLLAMA_CONTEXT_LENGTH=16384` |
 | `VERSION-before.txt` | Pre-upgrade version string |
 
-!!! note "2026-07-02 drop-in changes not yet in the upgrade backup set"
-    `parallel.conf`'s prior value is backed up in place as `parallel.conf.bak` (see [Concurrency Limit](#concurrency-limit) above), and `context.conf` is a new file. Neither has been copied into `/home/pmabry/ollama-backups/` yet — refresh that directory on the next upgrade pass so the two drop-ins stay in sync with the rest of the backup set.
+!!! note "Backup set current as of 2026-07-02"
+    Both drop-ins in `/home/pmabry/ollama-backups/ollama.service.d/` are byte-for-byte identical to the live files in `/etc/systemd/system/ollama.service.d/`. `parallel.conf` was resynced to `OLLAMA_NUM_PARALLEL=1` (previously stale at `=5`), and `context.conf` was added to the backup set for the first time. The full-directory copy (rather than the in-place `.bak` files noted in [Concurrency Limit](#concurrency-limit) above) closes the gap flagged earlier the same day.
 
 ## API Endpoints
 

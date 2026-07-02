@@ -75,9 +75,9 @@ No default context length had ever been set, so Ollama silently used its built-i
 
 **OpenWebUI is affected but unchanged in config:** OpenWebUI sets no per-model `num_ctx` override (its only custom model, `network-troubleshooting`, based on `qwen3:14b`, has empty params), so it inherited the old 4096 default and now inherits 16384 automatically. No OpenWebUI database or config change was made — this is a pass-through effect of the Ollama-side change.
 
-**Backup gap:** the 2026-07-02 drop-in changes have not yet been copied into the `~/ollama-backups/` set used by the [Ollama upgrade procedure](platforms/ollama.md#upgrade-procedure); that procedure's Step 1 was updated to include `context.conf`, but the backup directory itself should be refreshed on the next upgrade pass.
+**Backup gap closed same day:** the `~/ollama-backups/ollama.service.d/` directory was resynced to match the live config — `parallel.conf` updated from the stale `OLLAMA_NUM_PARALLEL=5` snapshot to the current `=1`, and `context.conf` copied in for the first time. Both backup files are now byte-for-byte identical to `/etc/systemd/system/ollama.service.d/`. The [Ollama upgrade procedure](platforms/ollama.md#upgrade-procedure)'s Step 1 already included `context.conf`, so both drop-ins are now covered end-to-end — see [Ollama — Config Backups](platforms/ollama.md#config-backups).
 
-Pages updated: [platforms/ollama.md](platforms/ollama.md) (Configuration — both drop-ins rewritten with the new values and tradeoffs, Config Backups note, Upgrade Procedure Step 1, Known Issues/Gotchas), [platforms/openwebui-rag.md](platforms/openwebui-rag.md) (note on inherited context-length behavior), [services.md](services.md) (Ollama catalog row), this page (watchlist entry, history entry).
+Pages updated: [platforms/ollama.md](platforms/ollama.md) (Configuration — both drop-ins rewritten with the new values and tradeoffs, Config Backups table and note, Upgrade Procedure Step 1, Known Issues/Gotchas), [platforms/openwebui-rag.md](platforms/openwebui-rag.md) (note on inherited context-length behavior), [services.md](services.md) (Ollama catalog row), this page (watchlist entry, history entry, backup-gap closure note).
 
 ### 2026-07-01 — Lab Hub Phase 2 and Phase 3 Deployed
 
